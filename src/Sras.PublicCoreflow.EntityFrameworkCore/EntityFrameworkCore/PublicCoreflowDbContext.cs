@@ -54,6 +54,8 @@ public class PublicCoreflowDbContext :
     public DbSet<Track> Tracks { get; set; }
     public DbSet<ConferenceRole> ConferenceRoles { get; set; }
     public DbSet<Incumbent> Incumbents { get; set; }
+    public DbSet<Participant> Participants { get; set; }
+    public DbSet<Outsider> Outsiders { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -142,6 +144,33 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Incumbents", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+        });
+
+        builder.Entity<Participant>(b =>
+        {
+            b.ToTable("Participants", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<Outsider>(b =>
+        {
+            b.ToTable("Outsiders", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Email)
+            .HasMaxLength(OutsiderConsts.MaxEmailLength);
+
+            b.Property(x => x.FirstName)
+            .HasMaxLength(OutsiderConsts.MaxFirstNameLength);
+
+            b.Property(x => x.MiddleName)
+            .HasMaxLength(OutsiderConsts.MaxMiddleNameLength);
+
+            b.Property(x => x.LastName)
+            .HasMaxLength(OutsiderConsts.MaxLastNameLength);
+
+            b.Property(x => x.Organization)
+            .HasMaxLength(OutsiderConsts.MaxOrganizationLength);
         });
     }
 }
