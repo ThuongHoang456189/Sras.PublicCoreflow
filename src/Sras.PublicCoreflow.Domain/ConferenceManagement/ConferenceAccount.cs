@@ -17,7 +17,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public bool HasDomainConflictConfirmed { get; internal set; }
 
         public ICollection<Incumbent> Incumbents { get; private set; }
-        public ICollection<ConferenceAccount> ConferenceReviewers { get; private set; }
 
         public ConferenceAccount(
             Guid id,
@@ -31,7 +30,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             HasDomainConflictConfirmed = hasDomainConflictConfirmed;
 
             Incumbents = new Collection<Incumbent>();
-            ConferenceReviewers = new Collection<ConferenceAccount>();
         }
 
         public ConferenceAccount AddIncumbent(

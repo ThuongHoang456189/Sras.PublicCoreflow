@@ -18,12 +18,6 @@ namespace Sras.PublicCoreflow.Migrations
                 nullable: false,
                 defaultValue: false);
 
-            migrationBuilder.AddColumn<Guid>(
-                name: "ConferenceAccountId",
-                table: "ConferenceAccounts",
-                type: "uniqueidentifier",
-                nullable: true);
-
             migrationBuilder.CreateTable(
                 name: "ActivityDeadlines",
                 columns: table => new
@@ -59,7 +53,6 @@ namespace Sras.PublicCoreflow.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConferenceAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quota = table.Column<int>(type: "int", nullable: true),
                     ExtraProperties = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: true),
@@ -75,8 +68,8 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     table.PrimaryKey("PK_ConferenceReviewers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ConferenceReviewers_ConferenceAccounts_ConferenceAccountId",
-                        column: x => x.ConferenceAccountId,
+                        name: "FK_ConferenceReviewers_ConferenceAccounts_Id",
+                        column: x => x.Id,
                         principalTable: "ConferenceAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -447,7 +440,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "ConferenceReviewerSubjectAreas",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConferenceReviewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubjectAreaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsPrimary = table.Column<bool>(type: "bit", nullable: false),
@@ -463,7 +455,7 @@ namespace Sras.PublicCoreflow.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ConferenceReviewerSubjectAreas", x => x.Id);
+                    table.PrimaryKey("PK_ConferenceReviewerSubjectAreas", x => new { x.ConferenceReviewerId, x.SubjectAreaId });
                     table.ForeignKey(
                         name: "FK_ConferenceReviewerSubjectAreas_ConferenceReviewers_ConferenceReviewerId",
                         column: x => x.ConferenceReviewerId,
@@ -482,7 +474,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "Authors",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ParticipantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubmissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsPrimaryContact = table.Column<bool>(type: "bit", nullable: false),
@@ -499,7 +490,7 @@ namespace Sras.PublicCoreflow.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Authors", x => x.Id);
+                    table.PrimaryKey("PK_Authors", x => new { x.ParticipantId, x.SubmissionId });
                     table.ForeignKey(
                         name: "FK_Authors_Participants_ParticipantId",
                         column: x => x.ParticipantId,
@@ -518,7 +509,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "Conflicts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubmissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IncumbentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConflictCaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -535,7 +525,7 @@ namespace Sras.PublicCoreflow.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Conflicts", x => x.Id);
+                    table.PrimaryKey("PK_Conflicts", x => new { x.SubmissionId, x.IncumbentId, x.ConflictCaseId });
                     table.ForeignKey(
                         name: "FK_Conflicts_ConflictCases_ConflictCaseId",
                         column: x => x.ConflictCaseId,
@@ -587,7 +577,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "SubmissionSubjectAreas",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubmissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SubjectAreaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsPrimary = table.Column<bool>(type: "bit", nullable: false),
@@ -603,7 +592,7 @@ namespace Sras.PublicCoreflow.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubmissionSubjectAreas", x => x.Id);
+                    table.PrimaryKey("PK_SubmissionSubjectAreas", x => new { x.SubmissionId, x.SubjectAreaId });
                     table.ForeignKey(
                         name: "FK_SubmissionSubjectAreas_SubjectAreas_SubjectAreaId",
                         column: x => x.SubjectAreaId,
@@ -623,7 +612,6 @@ namespace Sras.PublicCoreflow.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    EmailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<byte>(type: "tinyint", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     IsReviewer = table.Column<bool>(type: "bit", nullable: false),
@@ -641,8 +629,8 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     table.PrimaryKey("PK_Invitations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Invitations_Emails_EmailId",
-                        column: x => x.EmailId,
+                        name: "FK_Invitations_Emails_Id",
+                        column: x => x.Id,
                         principalTable: "Emails",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -756,34 +744,14 @@ namespace Sras.PublicCoreflow.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConferenceAccounts_ConferenceAccountId",
-                table: "ConferenceAccounts",
-                column: "ConferenceAccountId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ActivityDeadlines_TrackId",
                 table: "ActivityDeadlines",
                 column: "TrackId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Authors_ParticipantId",
-                table: "Authors",
-                column: "ParticipantId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Authors_SubmissionId",
                 table: "Authors",
                 column: "SubmissionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConferenceReviewers_ConferenceAccountId",
-                table: "ConferenceReviewers",
-                column: "ConferenceAccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConferenceReviewerSubjectAreas_ConferenceReviewerId",
-                table: "ConferenceReviewerSubjectAreas",
-                column: "ConferenceReviewerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ConferenceReviewerSubjectAreas_SubjectAreaId",
@@ -806,11 +774,6 @@ namespace Sras.PublicCoreflow.Migrations
                 column: "IncumbentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Conflicts_SubmissionId",
-                table: "Conflicts",
-                column: "SubmissionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Emails_EmailTemplateId",
                 table: "Emails",
                 column: "EmailTemplateId");
@@ -829,11 +792,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "IX_InvitationClones_InvitationId",
                 table: "InvitationClones",
                 column: "InvitationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Invitations_EmailId",
-                table: "Invitations",
-                column: "EmailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_AccountId",
@@ -916,11 +874,6 @@ namespace Sras.PublicCoreflow.Migrations
                 column: "SubjectAreaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SubmissionSubjectAreas_SubmissionId",
-                table: "SubmissionSubjectAreas",
-                column: "SubmissionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SupportedPlaceholders_EmailTemplateId",
                 table: "SupportedPlaceholders",
                 column: "EmailTemplateId");
@@ -929,22 +882,11 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "IX_SupportedPlaceholders_PlaceholderGroupId",
                 table: "SupportedPlaceholders",
                 column: "PlaceholderGroupId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ConferenceAccounts_ConferenceAccounts_ConferenceAccountId",
-                table: "ConferenceAccounts",
-                column: "ConferenceAccountId",
-                principalTable: "ConferenceAccounts",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ConferenceAccounts_ConferenceAccounts_ConferenceAccountId",
-                table: "ConferenceAccounts");
-
             migrationBuilder.DropTable(
                 name: "ActivityDeadlines");
 
@@ -1011,17 +953,9 @@ namespace Sras.PublicCoreflow.Migrations
             migrationBuilder.DropTable(
                 name: "EmailTemplates");
 
-            migrationBuilder.DropIndex(
-                name: "IX_ConferenceAccounts_ConferenceAccountId",
-                table: "ConferenceAccounts");
-
             migrationBuilder.DropColumn(
                 name: "IsDefault",
                 table: "Tracks");
-
-            migrationBuilder.DropColumn(
-                name: "ConferenceAccountId",
-                table: "ConferenceAccounts");
         }
     }
 }

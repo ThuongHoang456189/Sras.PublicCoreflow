@@ -92,7 +92,10 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Author", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ParticipantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmissionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -141,15 +144,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParticipantId");
+                    b.HasKey("ParticipantId", "SubmissionId");
 
                     b.HasIndex("SubmissionId");
 
@@ -262,9 +257,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
 
-                    b.Property<Guid?>("ConferenceAccountId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ConferenceId")
                         .HasColumnType("uniqueidentifier");
 
@@ -309,8 +301,6 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("ConferenceAccountId");
-
                     b.HasIndex("ConferenceId");
 
                     b.ToTable("ConferenceAccounts", (string)null);
@@ -326,9 +316,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<Guid>("ConferenceAccountId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
@@ -369,14 +356,15 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConferenceAccountId");
-
                     b.ToTable("ConferenceReviewers", (string)null);
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ConferenceReviewerSubjectArea", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ConferenceReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectAreaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -384,9 +372,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<Guid>("ConferenceReviewerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
@@ -425,12 +410,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("SubjectAreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConferenceReviewerId");
+                    b.HasKey("ConferenceReviewerId", "SubjectAreaId");
 
                     b.HasIndex("SubjectAreaId");
 
@@ -497,7 +477,13 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Conflict", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IncumbentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ConflictCaseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -505,9 +491,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<Guid>("ConflictCaseId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
@@ -529,9 +512,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<Guid>("IncumbentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDefinedByReviewer")
                         .HasColumnType("bit");
 
@@ -549,16 +529,11 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
+                    b.HasKey("SubmissionId", "IncumbentId", "ConflictCaseId");
 
                     b.HasIndex("ConflictCaseId");
 
                     b.HasIndex("IncumbentId");
-
-                    b.HasIndex("SubmissionId");
 
                     b.ToTable("Conflicts", (string)null);
                 });
@@ -861,9 +836,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
 
-                    b.Property<Guid>("EmailId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
@@ -889,8 +861,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("tinyint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmailId");
 
                     b.ToTable("Invitations", (string)null);
                 });
@@ -1852,7 +1822,10 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionSubjectArea", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectAreaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -1898,17 +1871,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("SubjectAreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
+                    b.HasKey("SubmissionId", "SubjectAreaId");
 
                     b.HasIndex("SubjectAreaId");
-
-                    b.HasIndex("SubmissionId");
 
                     b.ToTable("SubmissionSubjectAreas", (string)null);
                 });
@@ -3689,10 +3654,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.ConferenceAccount", null)
-                        .WithMany("ConferenceReviewers")
-                        .HasForeignKey("ConferenceAccountId");
-
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Conference", "Conference")
                         .WithMany("ConferenceAccounts")
                         .HasForeignKey("ConferenceId")
@@ -3708,7 +3669,7 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.ConferenceAccount", "ConferenceAccount")
                         .WithMany()
-                        .HasForeignKey("ConferenceAccountId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3827,8 +3788,8 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Invitation", b =>
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Email", "Email")
-                        .WithMany("Invitations")
-                        .HasForeignKey("EmailId")
+                        .WithMany()
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -4210,8 +4171,6 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ConferenceAccount", b =>
                 {
-                    b.Navigation("ConferenceReviewers");
-
                     b.Navigation("Incumbents");
                 });
 
@@ -4230,11 +4189,6 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ConflictCase", b =>
                 {
                     b.Navigation("Conflicts");
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Email", b =>
-                {
-                    b.Navigation("Invitations");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.EmailTemplate", b =>

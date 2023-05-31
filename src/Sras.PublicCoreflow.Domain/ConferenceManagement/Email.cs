@@ -16,8 +16,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Guid EmailTemplateId { get; private set; }
         public EmailTemplate EmailTemplate { get; private set; }
 
-        public ICollection<Invitation> Invitations { get; private set; }
-
         public Email(Guid id, Guid senderId, Guid recipientId, string subject, string body, Guid emailTemplateId) : base(id)
         {
             SenderId = senderId;
@@ -25,8 +23,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Subject = subject;
             Body = body;
             EmailTemplateId = emailTemplateId;
-
-            Invitations = new Collection<Invitation>();
         }
     }
 }
