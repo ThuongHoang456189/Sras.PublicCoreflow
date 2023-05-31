@@ -56,6 +56,28 @@ public class PublicCoreflowDbContext :
     public DbSet<Incumbent> Incumbents { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<Outsider> Outsiders { get; set; }
+    public DbSet<ActivityDeadline> ActivityDeadlines { get; set; }
+    public DbSet<Author> Authors { get; set; }
+    public DbSet<ConferenceReviewer> ConferenceReviewers { get; set; }
+    public DbSet<ConferenceReviewerSubjectArea> ConferenceReviewerSubjectAreas { get; set; }
+    public DbSet<Conflict> Conflicts { get; set; }
+    public DbSet<ConflictCase> ConflictCases { get; set; }
+    public DbSet<Email> Emails { get; set; }
+    public DbSet<EmailTemplate> EmailTemplates { get; set; }
+    public DbSet<Invitation> Invitations { get; set; }
+    public DbSet<InvitationClone> InvitationClones { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<PlaceholderGroup> PlaceholderGroups { get; set; }
+    public DbSet<Question> Questions { get; set; }
+    public DbSet<QuestionGroup> QuestionsGroups { get; set; }
+    public DbSet<QuestionGroupTrack> QuestionGroupTracks { get; set; }
+    public DbSet<ReviewAssignment> ReviewAssignments { get; set; }
+    public DbSet<SubjectArea> SubjectAreas { get; set; }
+    public DbSet<Submission> Submissions { get; set; }
+    public DbSet<SubmissionClone> SubmissionClones { get; set; }
+    public DbSet<SubmissionSubjectArea> SubmissionSubjectAreas { get; set; }
+    public DbSet<SupportedPlaceholder> SupportedPlaceholders { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -171,6 +193,198 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Organization)
             .HasMaxLength(OutsiderConsts.MaxOrganizationLength);
+        });
+
+        builder.Entity<ActivityDeadline>(b =>
+        {
+            b.ToTable("ActivityDeadlines", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(64);
+        });
+
+        builder.Entity<Author>(b =>
+        {
+            b.ToTable("Authors", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<ConferenceReviewer>(b =>
+        {
+            b.ToTable("ConferenceReviewers", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<ConferenceReviewerSubjectArea>(b =>
+        {
+            b.ToTable("ConferenceReviewerSubjectAreas", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<Conflict>(b =>
+        {
+            b.ToTable("Conflicts", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<ConflictCase>(b =>
+        {
+            b.ToTable("ConflictCases", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(128);
+        });
+
+        builder.Entity<Email>(b =>
+        {
+            b.ToTable("Emails", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Subject)
+            .HasMaxLength(2048);
+        });
+
+        builder.Entity<EmailTemplate>(b =>
+        {
+            b.ToTable("EmailTemplates", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Subject)
+            .HasMaxLength(2048);
+        });
+
+        builder.Entity<Invitation>(b =>
+        {
+            b.ToTable("Invitations", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Comment)
+            .HasMaxLength(2048);
+        });
+
+        builder.Entity<InvitationClone>(b =>
+        {
+            b.ToTable("InvitationClones", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.InviteeUrl)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.InviteeAcceptUrl)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.InviteeDeclineUrl)
+            .HasMaxLength(2048);
+        });
+
+        builder.Entity<Order>(b =>
+        {
+            b.ToTable("Orders", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Currency)
+            .HasMaxLength(64);
+        });
+
+        builder.Entity<Payment>(b =>
+        {
+            b.ToTable("Payments", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Status)
+            .HasMaxLength(64);
+
+            b.Property(x => x.PaymentProofRootFilePath)
+            .HasMaxLength(1024);
+        });
+
+        builder.Entity<PlaceholderGroup>(b =>
+        {
+            b.ToTable("PlaceholderGroups", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(128);
+        });
+
+        builder.Entity<Question>(b =>
+        {
+            b.ToTable("Questions", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<QuestionGroup>(b =>
+        {
+            b.ToTable("QuestionGroups", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(64);
+        });
+
+        builder.Entity<QuestionGroupTrack>(b =>
+        {
+            b.ToTable("QuestionGroupTracks", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<ReviewAssignment>(b =>
+        {
+            b.ToTable("ReviewAssignments", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<SubjectArea>(b =>
+        {
+            b.ToTable("SubjectAreas", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(512);
+        });
+
+        builder.Entity<Submission>(b =>
+        {
+            b.ToTable("Submissions", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Title)
+            .HasMaxLength(1024);
+
+            b.Property(x => x.Abstract)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.RootFilePath)
+            .HasMaxLength(1024);
+
+            b.Property(x => x.DomainConflicts)
+            .HasMaxLength(1024);
+        });
+
+        builder.Entity<SubmissionClone>(b =>
+        {
+            b.ToTable("SubmissionClones", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<SubmissionSubjectArea>(b =>
+        {
+            b.ToTable("SubmissionSubjectAreas", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<SupportedPlaceholder>(b =>
+        {
+            b.ToTable("SupportedPlaceholders", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Encode)
+            .HasMaxLength(128);
+
+            b.Property(x => x.Description)
+            .HasMaxLength(1024);
         });
     }
 }

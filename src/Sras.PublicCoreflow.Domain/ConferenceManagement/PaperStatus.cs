@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -11,6 +13,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Conference? Conference { get; private set; }
         public bool ReviewsVisibleToAuthor { get; internal set; }
         public bool IsDefault { get; private set; }
+
         public PaperStatus(
             Guid id,
             string name,

@@ -202,6 +202,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public Conference AddTrack(
             Guid trackId,
+            bool isDefault,
             string name,
             string? submissionInstruction,
             string? submissionSettings,
@@ -216,7 +217,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackAlreadyExistToConference);
             }
 
-            Tracks.Add(new Track(trackId, name, Id, submissionInstruction, submissionSettings, conflictSettings, reviewSettings, cameraReadySubmissionSettings, subjectAreaRelevanceCoefficients));
+            Tracks.Add(new Track(trackId, isDefault, name, Id, submissionInstruction, submissionSettings, conflictSettings, reviewSettings, cameraReadySubmissionSettings, subjectAreaRelevanceCoefficients));
 
             return this;
         }

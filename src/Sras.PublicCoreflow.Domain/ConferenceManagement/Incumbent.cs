@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -13,6 +15,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Track? Track { get; private set; }
         public bool IsPrimaryContact { get; set; }
 
+        public ICollection<Conflict> Conflicts { get; set; }
+
         public Incumbent(
             Guid id,
             Guid conferenceAccountId,
@@ -24,6 +28,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ConferenceRoleId = conferenceRoleId;
             TrackId = trackId;
             IsPrimaryContact = isPrimaryContact;
+
+            Conflicts = new Collection<Conflict>();
         }
     }
 }
