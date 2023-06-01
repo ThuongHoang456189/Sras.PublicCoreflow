@@ -6,21 +6,21 @@ using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class ConferenceReviewer : FullAuditedAggregateRoot<Guid>
+    public class Reviewer : FullAuditedAggregateRoot<Guid>
     {
-        [ForeignKey(nameof(ConferenceAccount))]
+        [ForeignKey(nameof(Incumbent))]
         public Guid Id { get; private set; }
-        public virtual ConferenceAccount ConferenceAccount { get; set; }
+        public virtual Incumbent Incumbent { get; set; }
         public int? Quota { get; private set; }
 
-        public ICollection<ConferenceReviewerSubjectArea> SubjectAreas { get; private set; }
+        public ICollection<ReviewerSubjectArea> SubjectAreas { get; private set; }
         public ICollection<ReviewAssignment> Reviews { get; private set; }
 
-        public ConferenceReviewer(Guid id, int? quota) :base (id)
+        public Reviewer(Guid id, int? quota) :base (id)
         {
             Quota = quota;
 
-            SubjectAreas = new Collection<ConferenceReviewerSubjectArea>();
+            SubjectAreas = new Collection<ReviewerSubjectArea>();
             Reviews = new Collection<ReviewAssignment>();
         }
     }

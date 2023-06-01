@@ -13,7 +13,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Track Track { get; private set; }
 
         public ICollection<SubmissionSubjectArea> Submissions { get; private set; }
-        public ICollection<ConferenceReviewerSubjectArea> ConferenceReviewers { get; private set; }
+        public ICollection<ReviewerSubjectArea> ConferenceReviewers { get; private set; }
 
         public SubjectArea(Guid id, string name, Guid trackId) : base(id) 
         {
@@ -21,7 +21,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             TrackId = trackId;
 
             Submissions = new Collection<SubmissionSubjectArea>();
-            ConferenceReviewers = new Collection<ConferenceReviewerSubjectArea>();
+            ConferenceReviewers = new Collection<ReviewerSubjectArea>();
         }
 
         public SubjectArea SetName(string name)

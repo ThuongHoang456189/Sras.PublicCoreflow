@@ -58,8 +58,8 @@ public class PublicCoreflowDbContext :
     public DbSet<Outsider> Outsiders { get; set; }
     public DbSet<ActivityDeadline> ActivityDeadlines { get; set; }
     public DbSet<Author> Authors { get; set; }
-    public DbSet<ConferenceReviewer> ConferenceReviewers { get; set; }
-    public DbSet<ConferenceReviewerSubjectArea> ConferenceReviewerSubjectAreas { get; set; }
+    public DbSet<Reviewer> Reviewers { get; set; }
+    public DbSet<ReviewerSubjectArea> ReviewerSubjectAreas { get; set; }
     public DbSet<Conflict> Conflicts { get; set; }
     public DbSet<ConflictCase> ConflictCases { get; set; }
     public DbSet<Email> Emails { get; set; }
@@ -212,18 +212,18 @@ public class PublicCoreflowDbContext :
             b.HasKey(x => new { x.ParticipantId, x.SubmissionId });
         });
 
-        builder.Entity<ConferenceReviewer>(b =>
+        builder.Entity<Reviewer>(b =>
         {
-            b.ToTable("ConferenceReviewers", PublicCoreflowConsts.DbSchema);
+            b.ToTable("Reviewers", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
         });
 
-        builder.Entity<ConferenceReviewerSubjectArea>(b =>
+        builder.Entity<ReviewerSubjectArea>(b =>
         {
-            b.ToTable("ConferenceReviewerSubjectAreas", PublicCoreflowConsts.DbSchema);
+            b.ToTable("ReviewerSubjectAreas", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
-            b.HasKey(x => new { x.ConferenceReviewerId, x.SubjectAreaId });
+            b.HasKey(x => new { x.ReviewerId, x.SubjectAreaId });
         });
 
         builder.Entity<Conflict>(b =>
