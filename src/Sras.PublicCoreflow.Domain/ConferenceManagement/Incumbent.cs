@@ -16,6 +16,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public bool IsPrimaryContact { get; set; }
 
         public ICollection<Conflict> Conflicts { get; set; }
+        public ICollection<Submission> CreationSubmissions { get; set; }
+        public ICollection<Submission> ModificationSubmissions { get; set; }
 
         public Incumbent(
             Guid id,
@@ -30,6 +32,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IsPrimaryContact = isPrimaryContact;
 
             Conflicts = new Collection<Conflict>();
+            CreationSubmissions = new Collection<Submission>();
+            ModificationSubmissions = new Collection<Submission>();
         }
     }
 }

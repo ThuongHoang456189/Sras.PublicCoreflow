@@ -264,31 +264,31 @@ namespace Sras.PublicCoreflow.Migrations
                         column: x => x.CreatedIncumbentId,
                         principalTable: "Incumbents",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Submissions_Incumbents_LastModifiedIncumbentId",
                         column: x => x.LastModifiedIncumbentId,
                         principalTable: "Incumbents",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Submissions_PaperStatuses_NotifiedStatusId",
                         column: x => x.NotifiedStatusId,
                         principalTable: "PaperStatuses",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Submissions_PaperStatuses_StatusId",
                         column: x => x.StatusId,
                         principalTable: "PaperStatuses",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Submissions_Tracks_TrackId",
                         column: x => x.TrackId,
                         principalTable: "Tracks",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -331,7 +331,7 @@ namespace Sras.PublicCoreflow.Migrations
                         column: x => x.RecipientId,
                         principalTable: "Participants",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -467,7 +467,7 @@ namespace Sras.PublicCoreflow.Migrations
                         column: x => x.SubjectAreaId,
                         principalTable: "SubjectAreas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -537,7 +537,7 @@ namespace Sras.PublicCoreflow.Migrations
                         column: x => x.IncumbentId,
                         principalTable: "Incumbents",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Conflicts_Submissions_SubmissionId",
                         column: x => x.SubmissionId,
@@ -847,11 +847,6 @@ namespace Sras.PublicCoreflow.Migrations
                 name: "IX_Submissions_CreatedIncumbentId",
                 table: "Submissions",
                 column: "CreatedIncumbentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Submissions_LastModifiedIncumbentId",
-                table: "Submissions",
-                column: "LastModifiedIncumbentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Submissions_NotifiedStatusId",

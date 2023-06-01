@@ -43,7 +43,7 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
              */
 
             ObjectExtensionManager.Instance
-            .MapEfCoreProperty<IdentityUser, Guid>(
+            .MapEfCoreProperty<IdentityUser, Guid?>(
                 AccountConsts.ParticipantPropertyName,
                 (_, propertyBuilder) =>
                 {

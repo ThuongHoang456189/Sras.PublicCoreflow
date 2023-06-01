@@ -367,6 +367,18 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.DomainConflicts)
             .HasMaxLength(1024);
+
+            b.HasOne<Incumbent>(i => i.CreatedIncumbent)
+            .WithMany(s => s.CreationSubmissions)
+            .HasForeignKey(i => i.Id)
+            .IsRequired(true)
+            .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne<Incumbent>(i => i.LastModifiedIncumbent)
+            .WithMany(s => s.ModificationSubmissions)
+            .HasForeignKey(i => i.Id)
+            .IsRequired(true)
+            .OnDelete(DeleteBehavior.SetNull);
         });
 
         builder.Entity<SubmissionClone>(b =>

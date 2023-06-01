@@ -13,7 +13,7 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    [Migration("20230601014129_Migration4")]
+    [Migration("20230601060710_Migration4")]
     partial class Migration4
     {
         /// <inheritdoc />
@@ -1756,8 +1756,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedIncumbentId");
-
-                    b.HasIndex("LastModifiedIncumbentId");
 
                     b.HasIndex("NotifiedStatusId");
 
@@ -3921,15 +3919,15 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Submission", b =>
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Incumbent", "CreatedIncumbent")
-                        .WithMany()
+                        .WithMany("CreationSubmissions")
                         .HasForeignKey("CreatedIncumbentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Incumbent", "LastModifiedIncumbent")
-                        .WithMany()
-                        .HasForeignKey("LastModifiedIncumbentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("ModificationSubmissions")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.PaperStatus", "NotifiedStatus")
@@ -4204,6 +4202,10 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Incumbent", b =>
                 {
                     b.Navigation("Conflicts");
+
+                    b.Navigation("CreationSubmissions");
+
+                    b.Navigation("ModificationSubmissions");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Invitation", b =>

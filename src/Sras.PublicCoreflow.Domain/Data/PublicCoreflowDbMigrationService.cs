@@ -68,6 +68,9 @@ public class PublicCoreflowDbMigrationService : ITransientDependency
         Logger.LogInformation($"Executing host database seed...");
 
         // Seed data
+        await _dataSeeder.SeedAsync(new DataSeedContext()
+            .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName, IdentityDataSeedContributor.AdminEmailDefaultValue)
+            .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName, IdentityDataSeedContributor.AdminPasswordDefaultValue));
     }
 
     private bool AddInitialMigrationIfNotExist()
