@@ -177,7 +177,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 filter.Country,
                 filter.StartDate,
                 filter.EndDate,
-                filter.IsAccepted,
                 filter.AccountId);
 
             var conferences = await _conferenceRepository.GetListAsync(
@@ -191,7 +190,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 filter.Country,
                 filter.StartDate,
                 filter.EndDate,
-                filter.IsAccepted,
                 filter.AccountId);
 
             return new PagedResultDto<ConferenceWithBriefInfo>(totalCount, conferences);
@@ -225,7 +223,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             conference.EndDate = input.EndDate;
             conference.WebsiteLink = input.WebsiteLink;
             conference.Logo = input.Logo;
-            conference.IsAccepted = _currentUser.IsInRole("admin") ? input.IsAccepted : false;
+            conference.IsSingleTrack = true;
 
             // 1. Clean Chair List Input
             //input.Chairs.ForEach(async x => await CheckValidAccountIdAsync(x.AccountId));

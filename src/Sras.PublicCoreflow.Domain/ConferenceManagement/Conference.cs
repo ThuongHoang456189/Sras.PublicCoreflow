@@ -20,7 +20,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? GeneralSettings { get; private set; }
         public string? RegistrationSettings { get; private set; }
         public string Logo { get; set; }
-        public bool IsAccepted { get; set; }
+        public bool IsSingleTrack { get; set; } = true;
 
         public ICollection<ConferenceAccount> ConferenceAccounts { get; private set; }
         public ICollection<PaperStatus> PaperStatuses { get; private set; }
@@ -37,7 +37,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? generalSettings,
             string? registrationSettings,
             string logo,
-            bool isAccepted)
+            bool isSingleTrack)
             : base(id)
         {
             SetFullName(fullName);
@@ -50,7 +50,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             GeneralSettings = generalSettings;
             RegistrationSettings = registrationSettings;
             Logo = logo;
-            IsAccepted = isAccepted;
+            IsSingleTrack = isSingleTrack;
 
             ConferenceAccounts = new Collection<ConferenceAccount>();
             PaperStatuses = new Collection<PaperStatus>();

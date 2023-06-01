@@ -16,7 +16,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? country = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
-            bool? isAccepted = null,
             Guid? accountId = null,
             CancellationToken cancellationToken = default);
 
@@ -31,7 +30,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? country = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
-            bool? isAccepted = true,
             Guid? accountId = null,
             CancellationToken cancellationToken = default);
 

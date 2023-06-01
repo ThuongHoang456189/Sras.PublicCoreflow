@@ -41,7 +41,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return date.Value.Date <= milestone.Value.Date;
         }
 
-        public async Task<int> GetCountAsync(string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, bool? isAccepted = null, Guid? accountId = null, CancellationToken cancellationToken = default)
+        public async Task<int> GetCountAsync(string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, Guid? accountId = null, CancellationToken cancellationToken = default)
         {
             var dbContext = await GetDbContextAsync();
 
@@ -57,7 +57,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                                                        EndDate = @conference.EndDate,
                                                                        WebsiteLink = @conference.WebsiteLink,
                                                                        Logo = @conference.Logo,
-                                                                       IsAccepted = @conference.IsAccepted
+                                                                       IsSingleTrack = @conference.IsSingleTrack
                                                                    })
                                                                    .WhereIf(!string.IsNullOrWhiteSpace(inclusionText), x => IsInclusivelyMatched(x, inclusionText))
                                                                    .WhereIf(!string.IsNullOrWhiteSpace(fullName), x => x.FullName.ToLower().Contains(fullName.Trim().ToLower()))
@@ -65,8 +65,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                                                    .WhereIf(!string.IsNullOrWhiteSpace(city), x => x.City.ToLower().Contains(city.Trim().ToLower()))
                                                                    .WhereIf(!string.IsNullOrWhiteSpace(country), x => x.Country.ToLower().Contains(country.Trim().ToLower()))
                                                                    .WhereIf(startDate != null, x => IsAfterDate(x.StartDate, startDate))
-                                                                   .WhereIf(endDate != null, x => IsBeforeDate(x.EndDate, endDate))
-                                                                   .WhereIf(isAccepted != null, x => x.IsAccepted == isAccepted);
+                                                                   .WhereIf(endDate != null, x => IsBeforeDate(x.EndDate, endDate));
 
             var query = accountId == null ? conferenceQuery :
                          (from ca in dbContext.Set<ConferenceAccount>()
@@ -96,7 +95,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return await query.ToListAsync();
         }
 
-        public async Task<List<ConferenceWithBriefInfo>> GetListAsync(string? sorting = null, int skipCount = 0, int maxResultCount = int.MaxValue, string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, bool? isAccepted = true, Guid? accountId = null, CancellationToken cancellationToken = default)
+        public async Task<List<ConferenceWithBriefInfo>> GetListAsync(string? sorting = null, int skipCount = 0, int maxResultCount = int.MaxValue, string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, Guid? accountId = null, CancellationToken cancellationToken = default)
         {
             var dbContext = await GetDbContextAsync();
 
@@ -113,7 +112,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                  EndDate = @conference.EndDate,
                  WebsiteLink = @conference.WebsiteLink,
                  Logo = @conference.Logo,
-                 IsAccepted = @conference.IsAccepted
+                 IsSingleTrack = @conference.IsSingleTrack
              })
              .WhereIf(!string.IsNullOrWhiteSpace(inclusionText), x => IsInclusivelyMatched(x, inclusionText))
              .WhereIf(!string.IsNullOrWhiteSpace(fullName), x => x.FullName.ToLower().Contains(fullName.Trim().ToLower()))
@@ -122,7 +121,6 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
              .WhereIf(!string.IsNullOrWhiteSpace(country), x => x.Country.ToLower().Contains(country.Trim().ToLower()))
              .WhereIf(startDate != null, x => IsAfterDate(x.StartDate, startDate))
              .WhereIf(endDate != null, x => IsBeforeDate(x.EndDate, endDate))
-             .WhereIf(isAccepted != null, x => x.IsAccepted == isAccepted)
              .OrderBy(string.IsNullOrWhiteSpace(sorting) ? ConferenceConsts.DefaultSorting : sorting)
              .PageBy(skipCount, maxResultCount);
 
