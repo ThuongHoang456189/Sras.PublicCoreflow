@@ -55,6 +55,13 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
                 {
                     propertyBuilder.HasMaxLength(AccountConsts.MaxMiddleNameLength);
                     propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.OrganizationPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxOrganizationLength);
+                    propertyBuilder.HasDefaultValue(null);
                 });
         });
     }
