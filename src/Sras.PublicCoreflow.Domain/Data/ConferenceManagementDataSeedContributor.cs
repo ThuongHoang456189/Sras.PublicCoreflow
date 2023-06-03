@@ -80,22 +80,26 @@ namespace Sras.PublicCoreflow.Data
         private async Task CreateSampleUsersAsync()
         {
             _sandra = new IdentityUser(_guidGenerator.Create(), "SandraWolf", "sandra_wolf@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantSandraId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantSandraId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Hoa Lac Campus, FPT University");
             _sandra.Name = "Sandra";
             _sandra.Surname = "Wolf";
 
             _sergey = new IdentityUser(_guidGenerator.Create(), "SergeyPolgul", "sergey_polgul@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantSergeyId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantSergeyId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
             _sergey.Name = "Sergey";
             _sergey.Surname = "Polgul";
 
             _welly = new IdentityUser(_guidGenerator.Create(), "WellyTambunan", "welly_tambunan@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantWellyId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantWellyId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Ton Duc Thang University");
             _welly.Name = "Welly";
             _welly.Surname = "Tambunan";
 
             _alessandro = new IdentityUser(_guidGenerator.Create(), "AlessandroMuci", "alessandro_muci@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantAlessandroId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantAlessandroId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Hutech University");
             _alessandro.Name = "Alessandro";
             _alessandro.Surname = "Muci";
 
@@ -105,12 +109,14 @@ namespace Sras.PublicCoreflow.Data
             _mark.Surname = "Godfrey";
 
             _tony = new IdentityUser(_guidGenerator.Create(), "TonyBurton", "tony_burton@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantTonyId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantTonyId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
             _tony.Name = "Tony";
             _tony.Surname = "Burton";
 
             _davidGraus = new IdentityUser(_guidGenerator.Create(), "DavidGraus", "david_graus@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantDavidGrausId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantDavidGrausId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
             _davidGraus.Name = "David";
             _davidGraus.Surname = "Graus";
 
@@ -125,7 +131,8 @@ namespace Sras.PublicCoreflow.Data
             _tom.Surname = "Lidy";
 
             _shree = new IdentityUser(_guidGenerator.Create(), "ShreePatel", "shree_patel@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantShreeId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantShreeId)
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
             _shree.Name = "Shree";
             _shree.Surname = "Patel";
 
