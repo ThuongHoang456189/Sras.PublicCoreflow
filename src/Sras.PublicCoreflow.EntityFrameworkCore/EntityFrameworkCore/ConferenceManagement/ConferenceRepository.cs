@@ -153,7 +153,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return (await GetQueryableAsync())
                 .Include(x => x.ConferenceAccounts)
                 .ThenInclude(x => x.Incumbents)
-                .Include(x => x.Tracks);
+                .Include(x => x.Tracks)
+                .ThenInclude(x => x.ActivityDeadlines);
         }
     }
 }

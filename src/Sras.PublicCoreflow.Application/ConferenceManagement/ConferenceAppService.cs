@@ -96,7 +96,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    null, null, null, "logotemp1", input.IsSingleTrack);
+                    input.WebsiteLink, null, null, "logotemp1", input.IsSingleTrack);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 
@@ -181,7 +181,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToDeleteConference);
             //}
 
+            foreach(var ca in conference.ConferenceAccounts)
+            {
+                ca.Incumbents.Clear();
+            }
             conference.ConferenceAccounts.Clear();
+            foreach (var t in conference.Tracks)
+            {
+                t.ActivityDeadlines.Clear();
+            }
             conference.Tracks.Clear();
             await _conferenceRepository.DeleteAsync(conference, true);
 
@@ -261,7 +269,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             conference.EndDate = input.EndDate;
             conference.WebsiteLink = input.WebsiteLink;
             conference.Logo = input.Logo;
-            conference.IsSingleTrack = true;
 
             // 1. Clean Chair List Input
             //input.Chairs.ForEach(async x => await CheckValidAccountIdAsync(x.AccountId));
@@ -370,6 +377,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 }
                 else if (x.Operation == IncumbentManipulationOperators.Del2)
                 {
+                    conference.ConferenceAccounts.Single(y => y.Id == x.ConferenceAccountId).Incumbents.Clear();
                     conference.DeleteConferenceAccount(x.ConferenceAccountId);
                 }
             });
