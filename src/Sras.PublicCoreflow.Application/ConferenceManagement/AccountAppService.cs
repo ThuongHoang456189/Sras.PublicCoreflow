@@ -4,16 +4,19 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 using Sras.PublicCoreflow.Extension;
 using Volo.Abp.Data;
+using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class AccountAppService : PublicCoreflowAppService, IAccountAppService
     {
         private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly IIncumbentRepository _incumbentRepository;
 
-        public AccountAppService(IRepository<IdentityUser, Guid> userRepository)
+        public AccountAppService(IRepository<IdentityUser, Guid> userRepository, IIncumbentRepository incumbentRepository)
         {
             _userRepository = userRepository;
+            _incumbentRepository = incumbentRepository;
         }
 
         public async Task<AccountWithBriefInfo?> FindAsync(string email)
@@ -24,10 +27,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 return null;
 
             var result = ObjectMapper.Map<IdentityUser, AccountWithBriefInfo>(user);
-            result.ParticipantId = (Guid?) user.GetProperty(nameof(result.ParticipantId));
-            result.MiddleName = (string?) user.GetProperty(nameof(result.MiddleName));
+            result.ParticipantId = user.GetProperty<Guid?>(nameof(result.ParticipantId));
+            result.MiddleName = user.GetProperty<string?>(nameof(result.MiddleName));
+            result.Organization = user.GetProperty<string?>(nameof(result.Organization));
 
             return result;
+        }
+
+        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(ConferenceParticipationFilterDto filter)
+        {
+            return await _incumbentRepository.GetConferenceUserListAsync(filter.ConferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
         }
     }
 }

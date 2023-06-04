@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -21,9 +22,15 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("by-email/{email}")]
-        public async Task<AccountWithBriefInfo> GetAsync(String email)
+        public async Task<AccountWithBriefInfo?> GetAsync(String email)
         {
             return await _accountAppService.FindAsync(email);
+        }
+
+        [HttpGet]
+        public async Task<List<ConferenceParticipationBriefInfo>> GetListAsync(ConferenceParticipationFilterDto filter)
+        {
+            return await _accountAppService.GetConferenceUserListAsync(filter);
         }
     }
 }

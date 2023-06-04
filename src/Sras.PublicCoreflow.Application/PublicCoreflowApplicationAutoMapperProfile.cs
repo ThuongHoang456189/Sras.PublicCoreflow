@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Sras.PublicCoreflow.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using Volo.Abp.Identity;
 
 namespace Sras.PublicCoreflow;
@@ -19,5 +20,7 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(i => i.Name))
             .ForMember(a => a.LastName,
             opt => opt.MapFrom(i => i.Surname));
+        CreateMap<Track, TrackBriefInfo>();
+        CreateMap<SubjectArea, SubjectAreaBriefInfo>();
     }
 }

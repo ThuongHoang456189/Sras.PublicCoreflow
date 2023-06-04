@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
+using Sras.PublicCoreflow.Extension;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -73,6 +75,35 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 SubmissionInstruction = Check.NotNullOrWhiteSpace(submissionInstruction, nameof(submissionInstruction), TrackConsts.MaxSubmissionInstructionLength);
             }
+            return this;
+        }
+
+        public Track AddSubjectArea(Guid subjectAreaId, string subjectAreaName)
+        {
+            if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim())))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToTrack);
+            }
+
+            SubjectAreas.Add(new SubjectArea(subjectAreaId, subjectAreaName, Id));
+
+            return this;
+        }
+
+        public Track UpdateSubjectArea(Guid subjectAreaId, string subjectAreaName)
+        {
+            var subjectArea = SubjectAreas.SingleOrDefault(x => x.Id == subjectAreaId);
+            if(subjectArea == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaNotFound);
+            }
+            else if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim()) && x.Id != subjectAreaId))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToTrack);
+            }
+
+            subjectArea.SetName(subjectAreaName);
+
             return this;
         }
     }
