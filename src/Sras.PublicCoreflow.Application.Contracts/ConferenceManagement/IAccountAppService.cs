@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -6,5 +7,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public interface IAccountAppService : IApplicationService
     {
         Task<AccountWithBriefInfo?> FindAsync(string email);
+
+        Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(ConferenceParticipationFilterDto filter);
     }
 }

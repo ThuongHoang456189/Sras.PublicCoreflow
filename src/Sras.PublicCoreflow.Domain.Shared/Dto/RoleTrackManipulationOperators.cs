@@ -1,6 +1,7 @@
 ﻿namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public interface ITrackService
+    public enum RoleTrackManipulationOperators
     {
+        Del, Add, None
     }
 }

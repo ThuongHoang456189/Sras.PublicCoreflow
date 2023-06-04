@@ -15,6 +15,8 @@ namespace Sras.PublicCoreflow.Data
     {
         private readonly IGuidGenerator _guidGenerator;
 
+        private readonly IRepository<PaperStatus, Guid> _paperStatusRepository;
+        private readonly IRepository<ConferenceRole, Guid> _conferenceRoleRepository;
         private readonly IRepository<Participant, Guid> _participantRepository;
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
@@ -43,11 +45,15 @@ namespace Sras.PublicCoreflow.Data
 
         public ConferenceManagementDataSeedContributor(
             IGuidGenerator guidGenerator,
+            IRepository<PaperStatus, Guid> paperStatusRepository,
+            IRepository<ConferenceRole, Guid> conferenceRoleRepository,
             IRepository<Participant, Guid> participantRepository,
             IdentityUserManager identityUserManager,
             IRepository<IdentityUser, Guid> userRepository)
         {
             _guidGenerator = guidGenerator;
+            _paperStatusRepository = paperStatusRepository;
+            _conferenceRoleRepository = conferenceRoleRepository;
             _participantRepository = participantRepository;
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
@@ -156,6 +162,44 @@ namespace Sras.PublicCoreflow.Data
             }
         }
 
+        private async Task CreatePaperStatusesAsync()
+        {
+            if (await _paperStatusRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var paperStatuses = new List<PaperStatus>
+            {
+                new PaperStatus(_guidGenerator.Create(),"Awaiting Decision", null, false, true),
+                new PaperStatus(_guidGenerator.Create(),"Withdrawn", null, false, true),
+                new PaperStatus(_guidGenerator.Create(),"Desk Reject", null, false, true),
+                new PaperStatus(_guidGenerator.Create(),"Accept", null, false, true),
+                new PaperStatus(_guidGenerator.Create(),"Revision", null, false, true),
+                new PaperStatus(_guidGenerator.Create(),"Reject", null, false, true)
+            };
+
+            await _paperStatusRepository.InsertManyAsync(paperStatuses, autoSave: true);
+        }
+
+        private async Task CreateConferenceRolesAsync()
+        {
+            if (await _conferenceRoleRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var conferenceRoles = new List<ConferenceRole>
+            {
+                new ConferenceRole(_guidGenerator.Create(), "Chair", true, 1),
+                new ConferenceRole(_guidGenerator.Create(), "Track Chair", true, 2),
+                new ConferenceRole(_guidGenerator.Create(), "Reviewer", true, 3),
+                new ConferenceRole(_guidGenerator.Create(), "Author", false, 4),
+            };
+
+            await _conferenceRoleRepository.InsertManyAsync(conferenceRoles, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -163,6 +207,9 @@ namespace Sras.PublicCoreflow.Data
                 await CreateParticipantsAsync();
                 await CreateSampleUsersAsync();
             }
+
+            await CreatePaperStatusesAsync();
+            await CreateConferenceRolesAsync();
         }
     }
 }

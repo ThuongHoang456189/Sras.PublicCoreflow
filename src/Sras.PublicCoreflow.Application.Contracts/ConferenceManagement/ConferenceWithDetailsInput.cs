@@ -13,8 +13,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public DateTime EndDate { get; set; }
         public string? WebsiteLink { get; set; }
         public string Logo { get; set; }
-        public bool IsAccepted { get; set; }
+        public bool IsSingleTrack { get; set; }
         // List of chair
         public List<ChairInput> Chairs { get; set; } = new List<ChairInput>();
+        public List<string>? Tracks { get; set; }
     }
 }
