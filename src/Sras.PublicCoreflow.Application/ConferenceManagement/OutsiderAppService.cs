@@ -30,5 +30,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _outsiderRepository.GetAllOutsiders();
         }
+
+        public async Task<object> UpdateOutsider(OutsiderUpdateRequest request)
+        {
+            return await _outsiderRepository.UpdateOutsider(request);
+        }
     }
 }

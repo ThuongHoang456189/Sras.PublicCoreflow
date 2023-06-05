@@ -26,13 +26,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ParticipantId = participantId;
         }
 
-        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization) : base(id)
+        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country) : base(id)
         {
             SetEmail(email);
             SetFirstName(firstName);
             SetMiddleName(middleName);
             SetLastName(lastName);
             SetOrganization(organization);
+            SetCountry(country);
         }
 
         public Outsider SetEmail (string email)
