@@ -11,6 +11,7 @@ using Volo.Abp.Data;
 using System.Linq.Dynamic.Core;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Sras.PublicCoreflow.Dto;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -289,6 +290,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 });
             }
 
+            return result;
+        }
+    
+        public async Task<List<ConferenceAccount>> GetAllAccountsWithProfileListAsync()
+        {
+            var dbContext = await GetDbContextAsync();
+            var result = await dbContext.ConferenceAccounts.ToListAsync();
+            
             return result;
         }
     }
