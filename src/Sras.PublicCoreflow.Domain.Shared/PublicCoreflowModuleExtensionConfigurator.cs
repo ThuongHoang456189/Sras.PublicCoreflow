@@ -87,6 +87,27 @@ public static class PublicCoreflowModuleExtensionConfigurator
                         options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxMiddleNameLength));
                     }
                 );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.OrganizationPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxOrganizationLength));
+                    }
+                );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.CountryPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxCountryLength));
+                    }
+                );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.DomainConflictsPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxDomainConflictsLength));
+                    }
+                );
             });
         });
     }
