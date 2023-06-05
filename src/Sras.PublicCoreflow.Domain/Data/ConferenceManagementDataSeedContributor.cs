@@ -87,58 +87,68 @@ namespace Sras.PublicCoreflow.Data
         {
             _sandra = new IdentityUser(_guidGenerator.Create(), "SandraWolf", "sandra_wolf@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantSandraId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "Hoa Lac Campus, FPT University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Hoa Lac Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "India");
             _sandra.Name = "Sandra";
             _sandra.Surname = "Wolf";
 
             _sergey = new IdentityUser(_guidGenerator.Create(), "SergeyPolgul", "sergey_polgul@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantSergeyId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Laos");
             _sergey.Name = "Sergey";
             _sergey.Surname = "Polgul";
 
             _welly = new IdentityUser(_guidGenerator.Create(), "WellyTambunan", "welly_tambunan@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantWellyId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "Ton Duc Thang University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Ton Duc Thang University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _welly.Name = "Welly";
             _welly.Surname = "Tambunan";
 
             _alessandro = new IdentityUser(_guidGenerator.Create(), "AlessandroMuci", "alessandro_muci@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantAlessandroId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "Hutech University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "Hutech University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _alessandro.Name = "Alessandro";
             _alessandro.Surname = "Muci";
 
             _mark = new IdentityUser(_guidGenerator.Create(), "MarkGodfrey", "mark_godfrey@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantMarkId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantMarkId)
+                .SetProperty(AccountConsts.CountryPropertyName, "India");
             _mark.Name = "Mark";
             _mark.Surname = "Godfrey";
 
             _tony = new IdentityUser(_guidGenerator.Create(), "TonyBurton", "tony_burton@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantTonyId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _tony.Name = "Tony";
             _tony.Surname = "Burton";
 
             _davidGraus = new IdentityUser(_guidGenerator.Create(), "DavidGraus", "david_graus@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantDavidGrausId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _davidGraus.Name = "David";
             _davidGraus.Surname = "Graus";
 
             _davidRoss = new IdentityUser(_guidGenerator.Create(), "DavidRoss", "david_ross@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantDavidRossId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantDavidRossId)
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _davidRoss.Name = "David";
             _davidRoss.Surname = "Ross";
 
             _tom = new IdentityUser(_guidGenerator.Create(), "TomLidy", "tom_lidy@gmail.com")
-                .SetProperty(AccountConsts.ParticipantPropertyName, _participantTomId);
+                .SetProperty(AccountConsts.ParticipantPropertyName, _participantTomId)
+                .SetProperty(AccountConsts.CountryPropertyName, "India");
             _tom.Name = "Tom";
             _tom.Surname = "Lidy";
 
             _shree = new IdentityUser(_guidGenerator.Create(), "ShreePatel", "shree_patel@gmail.com")
                 .SetProperty(AccountConsts.ParticipantPropertyName, _participantShreeId)
-                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University");
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
             _shree.Name = "Shree";
             _shree.Surname = "Patel";
 

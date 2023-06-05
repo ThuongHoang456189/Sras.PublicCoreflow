@@ -30,6 +30,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             result.ParticipantId = user.GetProperty<Guid?>(nameof(result.ParticipantId));
             result.MiddleName = user.GetProperty<string?>(nameof(result.MiddleName));
             result.Organization = user.GetProperty<string?>(nameof(result.Organization));
+            result.Country = user.GetProperty<string?>(nameof(result.Country));
 
             return result;
         }

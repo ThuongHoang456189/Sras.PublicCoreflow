@@ -62,6 +62,20 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
                 {
                     propertyBuilder.HasMaxLength(AccountConsts.MaxOrganizationLength);
                     propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.CountryPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxCountryLength);
+                    propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.DomainConflictsPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxDomainConflictsLength);
+                    propertyBuilder.HasDefaultValue(null);
                 });
         });
     }
