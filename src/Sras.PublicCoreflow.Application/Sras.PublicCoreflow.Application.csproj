@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sras.PublicCoreflow.Domain\Sras.PublicCoreflow.Domain.csproj" />
     <ProjectReference Include="..\Sras.PublicCoreflow.Application.Contracts\Sras.PublicCoreflow.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Sras.PublicCoreflow.EntityFrameworkCore\Sras.PublicCoreflow.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
