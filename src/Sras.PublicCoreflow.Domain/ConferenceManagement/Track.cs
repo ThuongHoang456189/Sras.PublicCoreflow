@@ -97,7 +97,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaNotFound);
             }
-            else if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim()) && x.Id != subjectAreaId))
+            else if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(
+                string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim()) 
+            && x.Id != subjectAreaId))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToTrack);
             }
@@ -107,6 +109,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
-        //public Track AddSubmission(Guid submissionId, string title, string @abstract, string rootFilePath, string? domainConflicts)
+        public Track AddSubmission(Guid submissionId, string title, 
+            string @abstract, string rootFilePath, 
+            string? domainConflicts, Guid? createdIncumbentId, 
+            string? answers, Guid statusId)
+        {
+            if(Submissions.Any(x => x.Title.EqualsIgnoreCase(string.IsNullOrEmpty(title) ? title : title.Trim())
+            && x.Abstract.EqualsIgnoreCase(string.IsNullOrEmpty(@abstract) ? @abstract : @abstract.Trim())))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionAlreadyExistToTrack);
+            }
+
+            Submissions.Add(new Submission(submissionId, title, @abstract, rootFilePath, Id, domainConflicts, 
+                createdIncumbentId, createdIncumbentId, answers, statusId, null, null, false));
+
+            return this;
+        }
     }
 }

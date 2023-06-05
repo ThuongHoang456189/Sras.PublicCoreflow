@@ -351,7 +351,7 @@ public class PublicCoreflowDbContext :
             b.ConfigureByConvention();
 
             b.Property(x => x.Name)
-            .HasMaxLength(512);
+            .HasMaxLength(SubjectAreaConsts.MaxNameLength);
         });
 
         builder.Entity<Submission>(b =>
@@ -360,16 +360,16 @@ public class PublicCoreflowDbContext :
             b.ConfigureByConvention();
 
             b.Property(x => x.Title)
-            .HasMaxLength(1024);
+            .HasMaxLength(SubmissionConsts.MaxTitleLength);
 
             b.Property(x => x.Abstract)
-            .HasMaxLength(2048);
+            .HasMaxLength(SubmissionConsts.MaxAbstractLength);
 
             b.Property(x => x.RootFilePath)
-            .HasMaxLength(1024);
+            .HasMaxLength(SubmissionConsts.MaxRootFilePathLength);
 
             b.Property(x => x.DomainConflicts)
-            .HasMaxLength(1024);
+            .HasMaxLength(SubmissionConsts.MaxDomainConflictsLength);
 
             b.HasOne<Incumbent>(i => i.CreatedIncumbent)
             .WithMany(s => s.CreationSubmissions)

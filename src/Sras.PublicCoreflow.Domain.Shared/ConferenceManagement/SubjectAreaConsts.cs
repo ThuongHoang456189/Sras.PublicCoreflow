@@ -2,6 +2,6 @@
 {
     public class SubjectAreaConsts
     {
-        public const int MaxNameLength = 256;
+        public const int MaxNameLength = 512;
     }
 }

@@ -27,4 +27,6 @@ public static class PublicCoreflowDomainErrorCodes
     public const string UserNotAuthorizedToUpdateConferenceTrack = ConferencePrefix + "UserNotAuthorizedToUpdateConferenceTrack";
     public const string SubjectAreaAlreadyExistToTrack = ConferencePrefix + "SubjectAreaAlreadyExistToTrack";
     public const string SubjectAreaNotFound = ConferencePrefix + "SubjectAreaNotFound";
+    public const string SubmissionAlreadyExistToTrack = ConferencePrefix + "SubmissionAlreadyExistToTrack";
+    public const string SubjectAreaAlreadyExistToSubmission = ConferencePrefix + "SubjectAreaAlreadyExistToSubmission";
 }
