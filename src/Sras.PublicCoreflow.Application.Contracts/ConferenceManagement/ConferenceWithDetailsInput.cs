@@ -15,7 +15,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Logo { get; set; }
         public bool IsSingleTrack { get; set; }
         // List of chair
-        public List<ChairInput> Chairs { get; set; } = new List<ChairInput>();
+        public List<Guid> Chairs { get; set; } = new List<Guid>();
         public List<string>? Tracks { get; set; }
     }
 }

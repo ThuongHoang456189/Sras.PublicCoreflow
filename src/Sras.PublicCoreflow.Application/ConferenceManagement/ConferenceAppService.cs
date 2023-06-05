@@ -83,7 +83,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             input.Chairs.ForEach(async x =>
             {
                 var userQueryable = await _userRepository.GetQueryableAsync();
-                var user = userQueryable.Where(u => u.Id == x.AccountId);
+                var user = userQueryable.Where(u => u.Id == x);
                 if (user == null)
                 {
                     throw new BusinessException(PublicCoreflowDomainErrorCodes.InvalidAccountOnChairList);
@@ -96,32 +96,28 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    null, null, null, "logotemp1", input.IsSingleTrack);
+                    input.WebsiteLink, null, null, "logotemp1", input.IsSingleTrack);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 
             var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.Equals(Chair));
-
-            bool isPrimaryContactSet = false;
 
             for (int i = 0; i < input.Chairs.Count; i++)
             {
 
                 for (int j = i + 1; j < input.Chairs.Count; j++)
                 {
-                    if (input.Chairs[i].AccountId == input.Chairs[j].AccountId)
+                    if (input.Chairs[i] == input.Chairs[j])
                     {
                         input.Chairs.Remove(input.Chairs[j]);
                         j--;
                     }
                 }
 
-                var conferenceAccount = new ConferenceAccount(_guidGenerator.Create(), conferenceId, input.Chairs[i].AccountId, false);
-                conferenceAccount.AddIncumbent(_guidGenerator.Create(), chairRole.Id, null, isPrimaryContactSet ? false : input.Chairs[i].IsPrimaryContact);
+                var conferenceAccount = new ConferenceAccount(_guidGenerator.Create(), conferenceId, input.Chairs[i], false);
+                conferenceAccount.AddIncumbent(_guidGenerator.Create(), chairRole.Id, null, false);
 
                 conference.AddConferenceAccount(conferenceAccount);
-
-                isPrimaryContactSet = isPrimaryContactSet || input.Chairs[i].IsPrimaryContact;
             }
 
             // Clean track input
@@ -181,7 +177,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToDeleteConference);
             //}
 
+            foreach(var ca in conference.ConferenceAccounts)
+            {
+                ca.Incumbents.Clear();
+            }
             conference.ConferenceAccounts.Clear();
+            foreach (var t in conference.Tracks)
+            {
+                t.ActivityDeadlines.Clear();
+            }
             conference.Tracks.Clear();
             await _conferenceRepository.DeleteAsync(conference, true);
 
@@ -261,34 +265,26 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             conference.EndDate = input.EndDate;
             conference.WebsiteLink = input.WebsiteLink;
             conference.Logo = input.Logo;
-            conference.IsSingleTrack = true;
 
             // 1. Clean Chair List Input
             //input.Chairs.ForEach(async x => await CheckValidAccountIdAsync(x.AccountId));
 
             var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.Equals(Chair));
 
-            bool isPrimaryContactSet = false;
-
             for (int i = 0; i < input.Chairs.Count; i++)
             {
                 for (int j = i + 1; j < input.Chairs.Count; j++)
                 {
-                    if (input.Chairs[i].AccountId == input.Chairs[j].AccountId)
+                    if (input.Chairs[i] == input.Chairs[j])
                         input.Chairs.Remove(input.Chairs[j]);
                 }
-
-                if (isPrimaryContactSet && input.Chairs[i].IsPrimaryContact)
-                    input.Chairs[i].IsPrimaryContact = false;
-
-                isPrimaryContactSet = isPrimaryContactSet || input.Chairs[i].IsPrimaryContact;
             }
 
             //Check valid account
             input.Chairs.ForEach(async x =>
             {
                 var userQueryable = await _userRepository.GetQueryableAsync();
-                var user = userQueryable.Where(u => u.Id == x.AccountId);
+                var user = userQueryable.Where(u => u.Id == x);
                 if (user == null)
                 {
                     throw new BusinessException(PublicCoreflowDomainErrorCodes.InvalidAccountOnChairList);
@@ -302,28 +298,28 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             input.Chairs.ForEach(x =>
             {
-                if (!incumbentOperationTable.Any(y => y.AccountId == x.AccountId))
+                if (!incumbentOperationTable.Any(y => y.AccountId == x))
                 {
                     // Add2
-                    chairTable.Add(new IncumbentOperation(_guidGenerator.Create(), x.AccountId, _guidGenerator.Create(), chairRole.Id, IncumbentManipulationOperators.Add2, x.IsPrimaryContact));
+                    chairTable.Add(new IncumbentOperation(_guidGenerator.Create(), x, _guidGenerator.Create(), chairRole.Id, IncumbentManipulationOperators.Add2, false));
                 }
                 else
                 {
                     // Up
-                    var chairRow = chairTable.Find(y => y.AccountId == x.AccountId);
+                    var chairRow = chairTable.Find(y => y.AccountId == x);
                     if (chairRow != null)
                     {
                         chairRow.Operation = IncumbentManipulationOperators.Up2;
-                        chairRow.IsPrimaryContact = x.IsPrimaryContact;
+                        chairRow.IsPrimaryContact = false;
                     }
                     else
-                        chairTable.Add(new IncumbentOperation(_guidGenerator.Create(), x.AccountId, _guidGenerator.Create(), chairRole.Id, IncumbentManipulationOperators.UpAdd, x.IsPrimaryContact));
+                        chairTable.Add(new IncumbentOperation(_guidGenerator.Create(), x, _guidGenerator.Create(), chairRole.Id, IncumbentManipulationOperators.UpAdd, false));
                 }
             });
 
             chairTable.ForEach(x =>
             {
-                if (!input.Chairs.Any(y => y.AccountId == x.AccountId))
+                if (!input.Chairs.Any(y => y == x.AccountId))
                 {
                     // Del
                     if (nonChairTable.Any(y => y.AccountId == x.AccountId))
@@ -370,6 +366,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 }
                 else if (x.Operation == IncumbentManipulationOperators.Del2)
                 {
+                    conference.ConferenceAccounts.Single(y => y.Id == x.ConferenceAccountId).Incumbents.Clear();
                     conference.DeleteConferenceAccount(x.ConferenceAccountId);
                 }
             });

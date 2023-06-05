@@ -193,6 +193,9 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Organization)
             .HasMaxLength(OutsiderConsts.MaxOrganizationLength);
+
+            b.Property(x => x.Country)
+            .HasMaxLength(OutsiderConsts.MaxCountryLength);
         });
 
         builder.Entity<ActivityDeadline>(b =>

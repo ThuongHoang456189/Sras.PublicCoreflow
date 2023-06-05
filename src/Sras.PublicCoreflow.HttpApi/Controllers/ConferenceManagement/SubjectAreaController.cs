@@ -12,11 +12,16 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
     [RemoteService(Name = "Sras")]
     [Area("sras")]
-    [ControllerName("Conference")]
+    [ControllerName("SubjectArea")]
     [Route("api/sras/subject-areas")]
     public class SubjectAreaController : AbpController
     {
         private readonly ISubjectAreaAppService _subjectAreaAppService;
+
+        public SubjectAreaController(ISubjectAreaAppService subjectAreaAppService)
+        {
+            _subjectAreaAppService = subjectAreaAppService;
+        }
 
         [HttpGet]
         public async Task<List<SubjectAreaBriefInfo>> GetAll(Guid trackId)
