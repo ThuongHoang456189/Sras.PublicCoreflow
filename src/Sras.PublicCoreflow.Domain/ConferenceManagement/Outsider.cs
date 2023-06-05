@@ -24,6 +24,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ParticipantId = participantId;
         }
 
+        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization) : base(id)
+        {
+            SetEmail(email);
+            SetFirstName(firstName);
+            SetMiddleName(middleName);
+            SetLastName(lastName);
+            SetOrganization(organization);
+        }
+
         public Outsider SetEmail (string email)
         {
             Email = Check.NotNullOrWhiteSpace(string.IsNullOrEmpty(email) ? email : email.Trim(), nameof(email), OutsiderConsts.MaxEmailLength);

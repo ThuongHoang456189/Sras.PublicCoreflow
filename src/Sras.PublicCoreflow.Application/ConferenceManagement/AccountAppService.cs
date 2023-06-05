@@ -48,50 +48,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _incumbentRepository.GetConferenceUserListAsync(filter.ConferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
         }
 
-        public async Task<List<AccountWithProfile>> GetAllAccountsWithProfileListAsync()
-        {
-            //var dbContext = await GetDbContextAsync();
-            var userList = await _userRepository.ToListAsync();
-            var finalResult = new List<AccountWithProfile>();
-
-            var tasks = userList.Select(async user =>
-            {
-                var conferenceAccs = (await _conferenceAccountRepository.ToListAsync())
-                    .Where(confAcc => confAcc.AccountId == user.Id)
-                    .Select(confacc => confacc.Id.ToString("D"))
-                    .ToList();
-                var conferenceRoleIds = (await _incumbentRepository.ToListAsync())
-                    .Where(incb => conferenceAccs.Contains(incb.ToString()))
-                    .GroupBy(incc => incc.ConferenceRoleId)
-                    .Select(i => i.First().ConferenceRoleId)
-                    .Select(inc => inc.ToString())
-                    .ToList();
-                var conferenceRoleNames = (await _conferenceRoleRepository.ToListAsync())
-                    .Where(confRole => conferenceRoleIds.Contains(confRole.Id.ToString()))
-                    .Select(cf => cf.Name)
-                    .ToList();
-                var accountWithProfile = new AccountWithProfile()
-                {
-                    Id = user.Id,
-                    Email = user?.Email,
-                    FirstName = user?.Name,
-                    MiddleName = user?.Name,
-                    LastName = user?.Name,
-                    Organization = user?.OrganizationUnits?.ToString(),
-                    roles = conferenceRoleNames
-                };
-                return accountWithProfile;
-            }).ToList();
-
-            finalResult = (await Task.WhenAll(tasks)).ToList();
-
-            return finalResult;
-        }
-
-        public async Task<List<ConferenceAccount>> TestGetAll()
-        {
-            return _incumbentRepository.ToListAsync();
-            //TO DO
-        }
     }
 }
