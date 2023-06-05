@@ -8,7 +8,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface ISubjectAreaAppService : IApplicationService
     {
-        Task CreateAsync(SubjectAreaInput input);
+        Task<SubjectAreaBriefInfo> CreateAsync(SubjectAreaInput input);
 
         Task UpdateAsync(Guid subjectAreaId, SubjectAreaInput input);
 

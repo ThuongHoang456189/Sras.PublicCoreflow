@@ -106,5 +106,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return this;
         }
+
+        //public Track AddSubmission(Guid submissionId, string title, string @abstract, string rootFilePath, string? domainConflicts)
     }
 }

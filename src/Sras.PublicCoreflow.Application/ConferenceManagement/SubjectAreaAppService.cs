@@ -1,10 +1,12 @@
 ﻿using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Users;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -26,7 +28,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _guidGenerator = guidGenerator;
         }
 
-        public async Task CreateAsync(SubjectAreaInput input)
+        public async Task<SubjectAreaBriefInfo> CreateAsync(SubjectAreaInput input)
         {
             // Check authority
 
@@ -36,9 +38,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
             }
 
-            track.AddSubjectArea(_guidGenerator.Create(), input.SubjectAreaName);
+            var newSubjectAreaId = _guidGenerator.Create();
+            track.AddSubjectArea(newSubjectAreaId, input.SubjectAreaName);
 
             await _trackRepository.UpdateAsync(track, true);
+
+            return ObjectMapper.Map<SubjectArea, SubjectAreaBriefInfo>(track.SubjectAreas.Single(x => x.Id == newSubjectAreaId));
         }
 
         public async Task UpdateAsync(Guid subjectAreaId, SubjectAreaInput input)

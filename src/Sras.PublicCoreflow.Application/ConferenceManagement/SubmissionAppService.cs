@@ -1,6 +1,9 @@
 ﻿using Sras.PublicCoreflow.BlobContainer;
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using Volo.Abp.BlobStoring;
+using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -13,14 +16,37 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _submissionBlobContainer = submissionBlobContainer;
         }
 
-        public async Task SaveBytesAsync(byte[] bytes)
+        //public async Task SaveBytesAsync(byte[] bytes)
+        //{
+        //    await _submissionBlobContainer.SaveAsync("my-blob-1", bytes);
+        //}
+
+        //public async Task<byte[]> GetBytesAsync()
+        //{
+        //    return await _submissionBlobContainer.GetAllBytesOrNullAsync("my-blob-1");
+        //}
+
+        private async Task CreateSubmissionFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
         {
-            await _submissionBlobContainer.SaveAsync("my-blob-1", bytes);
+            await _submissionBlobContainer.SaveAsync(blobName, streamContent.GetStream(), overrideExisting);
         }
 
-        public async Task<byte[]> GetBytesAsync()
+        private async Task DeleteSubmissionFilesAsync(string blobName)
         {
-            return await _submissionBlobContainer.GetAllBytesOrNullAsync("my-blob-1");
+            await _submissionBlobContainer.DeleteAsync(blobName);
+        }
+
+        public void Create(SubmissionInput input)
+        {
+
+
+            input.Files.ForEach(async file =>
+            {
+                if (file != null && file.ContentLength > 0)
+                {
+                    await CreateSubmissionFilesAsync("test/hello", file, true);
+                }
+            });
         }
     }
 }
