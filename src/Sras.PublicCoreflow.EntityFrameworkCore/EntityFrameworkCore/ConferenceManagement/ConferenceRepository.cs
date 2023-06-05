@@ -16,6 +16,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
     {
         public ConferenceRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
         {
+
         }
 
         private bool IsInclusivelyMatched(ConferenceWithBriefInfo conference, string inclusionText)
