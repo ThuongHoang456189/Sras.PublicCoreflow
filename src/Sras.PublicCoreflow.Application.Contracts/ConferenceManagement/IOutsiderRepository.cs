@@ -11,5 +11,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<OutsiderCreateResponse> CreateOutsider(OutsiderCreateRequest request);
         Task<IEnumerable<object>> GetAllOutsiders();
+        Task<object> UpdateOutsider(OutsiderUpdateRequest request);
     }
 }
