@@ -4,7 +4,7 @@ namespace Sras.PublicCoreflow.Dto
 {
     public class SubjectAreaBriefInfo
     {
-        public Guid SubjectAreaId { get; set; }
-        public string SubjectAreaName { get; set;}
+        public Guid Id { get; set; }
+        public string Name { get; set;}
     }
 }

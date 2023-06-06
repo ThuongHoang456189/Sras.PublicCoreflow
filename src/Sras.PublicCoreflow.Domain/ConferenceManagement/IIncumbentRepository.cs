@@ -14,5 +14,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ConferenceParticipationInfo?> GetConferenceParticipationInfoAsync(Guid accountId, Guid conferenceId, Guid? trackId);
 
         Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, Guid? trackId, int skipCount = 0, int maxResultCount = int.MaxValue);
+
+        Task<List<AuthorOperation>> GetAuthorOperationTableAsync(Guid conferenceId, Guid trackId, List<AuthorInput> authors);
     }
 }

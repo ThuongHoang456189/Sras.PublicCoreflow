@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230605094257_Migration12")]
+    partial class Migration12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -585,9 +588,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
 
-                    b.Property<Guid?>("ConferenceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("CreationTime");
@@ -627,14 +627,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
 
-                    b.Property<Guid?>("TrackId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ConferenceId");
-
-                    b.HasIndex("TrackId");
 
                     b.ToTable("EmailTemplates", (string)null);
                 });
@@ -1694,7 +1687,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
 
-                    b.Property<Guid?>("CreatedIncumbentId")
+                    b.Property<Guid>("CreatedIncumbentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationTime")
@@ -1737,7 +1730,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("LastModificationTime");
 
-                    b.Property<Guid?>("LastModifiedIncumbentId")
+                    b.Property<Guid>("LastModifiedIncumbentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("LastModifierId")
@@ -1921,6 +1914,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<Guid>("EmailTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Encode")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -1948,6 +1944,8 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmailTemplateId");
 
                     b.HasIndex("PlaceholderGroupId");
 
@@ -3748,21 +3746,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.EmailTemplate", b =>
-                {
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Conference", "Conference")
-                        .WithMany()
-                        .HasForeignKey("ConferenceId");
-
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Track", "Track")
-                        .WithMany()
-                        .HasForeignKey("TrackId");
-
-                    b.Navigation("Conference");
-
-                    b.Navigation("Track");
-                });
-
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Incumbent", b =>
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.ConferenceAccount", "ConferenceAccount")
@@ -3952,7 +3935,9 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Incumbent", "CreatedIncumbent")
                         .WithMany("CreationSubmissions")
-                        .HasForeignKey("CreatedIncumbentId");
+                        .HasForeignKey("CreatedIncumbentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Incumbent", "LastModifiedIncumbent")
                         .WithMany("ModificationSubmissions")
@@ -4019,11 +4004,19 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SupportedPlaceholder", b =>
                 {
+                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.EmailTemplate", "EmailTemplate")
+                        .WithMany("SupportedPlaceholders")
+                        .HasForeignKey("EmailTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.PlaceholderGroup", "PlaceholderGroup")
                         .WithMany("SupportedPlaceholders")
                         .HasForeignKey("PlaceholderGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("EmailTemplate");
 
                     b.Navigation("PlaceholderGroup");
                 });
@@ -4206,6 +4199,8 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.EmailTemplate", b =>
                 {
                     b.Navigation("Emails");
+
+                    b.Navigation("SupportedPlaceholders");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Incumbent", b =>

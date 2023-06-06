@@ -12,15 +12,19 @@ using System.Linq.Dynamic.Core;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Sras.PublicCoreflow.Dto;
+using Volo.Abp.Domain.Repositories;
+using Volo.Abp;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class IncumbentRepository : EfCoreRepository<PublicCoreflowDbContext, Incumbent, Guid>, IIncumbentRepository
     {
         private const string Chair = "Chair";
+        private const string Author = "Author";
 
         public IncumbentRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
         {
+
         }
 
         public async Task<bool> IsConferenceChair(Guid accountId, Guid conferenceId)
@@ -292,7 +296,87 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             return result;
         }
-    
+
+        public async Task<List<AuthorOperation>> GetAuthorOperationTableAsync(Guid conferenceId, Guid trackId, List<AuthorInput> authors)
+        {
+            var dbContext = await GetDbContextAsync();
+            
+            var authorRole = await (from r in dbContext.Set<ConferenceRole>() select r)
+                                .Where(x => x.Name.Equals(Author))
+                                .FirstOrDefaultAsync();
+            if(authorRole == null) 
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceRoleAuthorNotFound);
+            }
+
+            var result = new List<AuthorOperation>();
+
+            authors.ForEach(async auth =>
+            {
+                AuthorOperation operation = new AuthorOperation();
+                operation.ParticipantId = auth.ParticipantId;
+                
+
+                var account = await (from a in dbContext.Set<IdentityUser>() select a)
+                                            .Where(x => x.GetProperty<Guid?>(AccountConsts.ParticipantPropertyName, Guid.Empty) == auth.ParticipantId)
+                                            .FirstOrDefaultAsync();
+                operation.AccountId = account == null ? null : account.Id;
+
+                if(account != null)
+                {
+                    operation.AccountId = account.Id;
+                    operation.IsPrimaryContact = auth.IsPrimaryContact;
+
+                    var conferenceAccount = await (from ca in dbContext.Set<ConferenceAccount>() select ca)
+                                                    .Where(x => x.ConferenceId == conferenceId && x.AccountId == account.Id)
+                                                    .FirstOrDefaultAsync();
+
+                    if(conferenceAccount != null)
+                    {
+                        operation.ConferenceAccountId = conferenceAccount.Id;
+
+                        var incumbent = await (from i in dbContext.Set<Incumbent>()
+                                         select i)
+                                         .Where(x => x.ConferenceRoleId == authorRole.Id && x.TrackId == trackId && x.ConferenceAccountId == conferenceAccount.Id)
+                                         .FirstOrDefaultAsync();
+
+                        if(incumbent != null)
+                        {
+                            operation.AuthorRoleId = authorRole.Id;
+                            operation.Operation = AuthorManipulationOperators.None;
+                        }
+                        else
+                        {
+                            operation.AuthorRoleId = authorRole.Id;
+                            operation.Operation = AuthorManipulationOperators.UpAdd;
+                        }
+                    }
+                    else
+                    {
+                        operation.ConferenceAccountId = null;
+                        operation.AuthorRoleId = authorRole.Id;
+                        operation.Operation = AuthorManipulationOperators.Add2;
+                    }
+                }
+                else
+                {
+                    if (auth.IsPrimaryContact)
+                    {
+                        throw new BusinessException(PublicCoreflowDomainErrorCodes.PrimaryContactCannotSetToNonAccountParticipant);
+                    }
+                    operation.IsPrimaryContact = auth.IsPrimaryContact;
+                    operation.AccountId = null;
+                    operation.ConferenceAccountId = null;
+                    operation.AuthorRoleId = null;
+                    operation.Operation = AuthorManipulationOperators.None;
+                }
+
+                result.Add(operation);
+            });
+
+            return result;
+        }
+
         public async Task<List<ConferenceAccount>> GetAllAccountsWithProfileListAsync()
         {
             var dbContext = await GetDbContextAsync();

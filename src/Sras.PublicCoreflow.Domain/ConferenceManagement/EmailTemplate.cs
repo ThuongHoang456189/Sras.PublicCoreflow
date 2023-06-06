@@ -10,16 +10,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Subject { get; private set; }
         public string Body { get; private set; }
 
-        public ICollection<Email> Emails { get; private set; }
-        public ICollection<SupportedPlaceholder> SupportedPlaceholders { get; private set; }
+        public Guid? ConferenceId { get; private set; }
+        public Conference? Conference { get; private set; }
+        public Guid? TrackId { get; private set; }
+        public Track? Track { get; private set; }
 
-        public EmailTemplate(Guid id, string subject, string body) : base(id)
+        public ICollection<Email> Emails { get; private set; }
+
+        public EmailTemplate(Guid id, string subject, string body, Guid? conferenceId, Guid? trackId) : base(id)
         {
             Subject = subject;
             Body = body;
+            ConferenceId = conferenceId;
+            TrackId = trackId;
 
             Emails = new Collection<Email>();
-            SupportedPlaceholders = new Collection<SupportedPlaceholder>();
         }
     }
 }

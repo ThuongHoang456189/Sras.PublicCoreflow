@@ -6,6 +6,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.BlobStoring;
+using Volo.Abp.BlobStoring.FileSystem;
 
 namespace Sras.PublicCoreflow;
 
@@ -19,6 +20,7 @@ namespace Sras.PublicCoreflow;
     typeof(AbpSettingManagementApplicationModule),
     typeof(AbpBlobStoringModule)
     )]
+    [DependsOn(typeof(AbpBlobStoringFileSystemModule))]
     public class PublicCoreflowApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -27,5 +29,18 @@ namespace Sras.PublicCoreflow;
         {
             options.AddMaps<PublicCoreflowApplicationModule>();
         });
+
+        Configure<AbpBlobStoringOptions>(options =>
+        {
+            options.Containers.ConfigureDefault(container =>
+            {
+                container.UseFileSystem(fileSystem =>
+                {
+                    fileSystem.BasePath = ".";
+                    fileSystem.AppendContainerNameToBasePath = true;
+                });
+            });
+        });
+
     }
 }

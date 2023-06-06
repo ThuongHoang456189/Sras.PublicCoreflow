@@ -30,9 +30,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost]
-        public async Task Create(SubjectAreaInput input)
+        public async Task<SubjectAreaBriefInfo> Create(SubjectAreaInput input)
         {
-            await _subjectAreaAppService.CreateAsync(input);
+            return await _subjectAreaAppService.CreateAsync(input);
         }
 
         [HttpPost("{id}")]
