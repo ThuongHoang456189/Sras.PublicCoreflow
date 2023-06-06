@@ -18,6 +18,8 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<PaperStatus, Guid> _paperStatusRepository;
         private readonly IRepository<ConferenceRole, Guid> _conferenceRoleRepository;
         private readonly IRepository<Participant, Guid> _participantRepository;
+        private readonly IRepository<PlaceholderGroup, Guid> _placeholderGroupRepository;
+        private readonly IRepository<SupportedPlaceholder, Guid> _supportedPlaceholderRepository;
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
 
@@ -43,11 +45,18 @@ namespace Sras.PublicCoreflow.Data
         private IdentityUser _tom;
         private IdentityUser _shree;
 
+        private Guid _conferencePlaceholderGroup;
+        private Guid _submissionPlaceholderGroup;
+        private Guid _senderPlaceholderGroup;
+        private Guid _recipientPlaceholderGroup;
+
         public ConferenceManagementDataSeedContributor(
             IGuidGenerator guidGenerator,
             IRepository<PaperStatus, Guid> paperStatusRepository,
             IRepository<ConferenceRole, Guid> conferenceRoleRepository,
             IRepository<Participant, Guid> participantRepository,
+            IRepository<PlaceholderGroup, Guid> placeholderGroupRepository,
+            IRepository<SupportedPlaceholder, Guid> supportedPlaceholderRepository,
             IdentityUserManager identityUserManager,
             IRepository<IdentityUser, Guid> userRepository)
         {
@@ -55,6 +64,8 @@ namespace Sras.PublicCoreflow.Data
             _paperStatusRepository = paperStatusRepository;
             _conferenceRoleRepository = conferenceRoleRepository;
             _participantRepository = participantRepository;
+            _placeholderGroupRepository = placeholderGroupRepository;
+            _supportedPlaceholderRepository = supportedPlaceholderRepository;
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
         }
@@ -210,6 +221,61 @@ namespace Sras.PublicCoreflow.Data
             await _conferenceRoleRepository.InsertManyAsync(conferenceRoles, autoSave: true);
         }
 
+        private async Task CreatePlaceholderGroupAsync()
+        {
+            if (await _placeholderGroupRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var placeholderGroups = new List<PlaceholderGroup>
+            {
+                new PlaceholderGroup(_conferencePlaceholderGroup = _guidGenerator.Create(), "Conference"),
+                new PlaceholderGroup(_submissionPlaceholderGroup = _guidGenerator.Create(), "Submission"),
+                new PlaceholderGroup(_senderPlaceholderGroup = _guidGenerator.Create(), "Sender"),
+                new PlaceholderGroup(_recipientPlaceholderGroup = _guidGenerator.Create(), "Recipient"),
+            };
+
+            await _placeholderGroupRepository.InsertManyAsync(placeholderGroups, autoSave: true);
+        }
+
+        private async Task CreateSupportedPlaceholderAsync()
+        {
+            if (await _supportedPlaceholderRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var supportedPlaceholders = new List<SupportedPlaceholder>
+            {
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Conference.Name}", "Name of the conference", _conferencePlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Conference.StartDate}", "Start date of the conference", _conferencePlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Conference.EndDate}", "End date of the conference", _conferencePlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Conference.City}", "City of the conference", _conferencePlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Conference.Country}", "Country of the conference", _conferencePlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.Id}", "Id of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.Title}", "Title of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.Abstract}", "Abstract of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.StatusName}", "Status of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.TrackName}", "Track of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.CreateDate}", "Create date of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.UpdateDate}", "Last update date of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Submission.PrimarySubjectArea.Name}", "Name of primary subject area of submission", _submissionPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Sender.Name}", "Sender full name", _senderPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Sender.FirstName}", "Sender first name", _senderPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Sender.LastName}", "Sender last name", _senderPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Sender.Email}", "Sender email", _senderPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Sender.Organization}", "Sender organization", _senderPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Recipient.Name}", "Recipient full name", _recipientPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Recipient.FirstName}", "Recipient first name", _recipientPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Recipient.LastName}", "Recipient last name", _recipientPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Recipient.Email}", "Recipient email", _recipientPlaceholderGroup),
+                new SupportedPlaceholder(_guidGenerator.Create(), "{Recipient.Organization}", "Recipient organization", _recipientPlaceholderGroup)
+            };
+
+            await _supportedPlaceholderRepository.InsertManyAsync(supportedPlaceholders, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -220,6 +286,8 @@ namespace Sras.PublicCoreflow.Data
 
             await CreatePaperStatusesAsync();
             await CreateConferenceRolesAsync();
+            await CreatePlaceholderGroupAsync();
+            await CreateSupportedPlaceholderAsync();
         }
     }
 }
