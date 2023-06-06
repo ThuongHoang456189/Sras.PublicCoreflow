@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -12,10 +14,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string LastName { get; private set; }
         public string? Organization { get; private set; }
         public string Country { get; private set; }
-        public Guid ParticipantId { get; private set; }
-        public Participant Participant { get; private set; }
+        public ICollection<Participant> Participants { get; private set; }
 
-        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country, Guid participantId) : base(id) 
+        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country) : base(id) 
         {
             SetEmail(email);
             SetFirstName(firstName);
@@ -23,17 +24,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             SetLastName(lastName);
             SetOrganization(organization);
             SetCountry(country);
-            ParticipantId = participantId;
-        }
 
-        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country) : base(id)
-        {
-            SetEmail(email);
-            SetFirstName(firstName);
-            SetMiddleName(middleName);
-            SetLastName(lastName);
-            SetOrganization(organization);
-            SetCountry(country);
+            Participants = new Collection<Participant>();
         }
 
         public Outsider SetEmail (string email)

@@ -8,14 +8,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class Participant : FullAuditedAggregateRoot<Guid>
     {
-        public ICollection<IdentityUser> Accounts { get; private set; }
-        public ICollection<Outsider> Outsiders { get; private set; }
+        public Guid? AccountId { get; private set; }
+        public IdentityUser? Account { get; private set; }
+        public Guid? OutsiderId { get; private set; }
+        public Outsider? Outsider { get; private set; }
         public ICollection<Author> Authors { get; private set; }
 
-        public Participant(Guid id) : base(id)
+        public Participant(Guid id, Guid? accountId, Guid? outsiderId) : base(id)
         {
-            Accounts = new Collection<IdentityUser>();
-            Outsiders = new Collection<Outsider>();
+            AccountId = accountId;
+            OutsiderId = outsiderId;
             Authors = new Collection<Author>();
         }
     }

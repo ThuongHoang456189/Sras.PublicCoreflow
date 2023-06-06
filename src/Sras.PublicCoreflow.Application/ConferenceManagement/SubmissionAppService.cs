@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Content;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
+using Volo.Abp.Identity;
 using Volo.Abp.Users;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -21,6 +23,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IIncumbentRepository _incumbentRepository;
         private readonly IConferenceRepository _conferenceRepository;
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
+        private readonly IRepository<IdentityUser, Guid> _userRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -33,6 +36,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IIncumbentRepository incumbentRepository,
             IConferenceRepository conferenceRepository,
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
+            IRepository<IdentityUser, Guid> userRepository,
             ICurrentUser currentUser, IGuidGenerator guidGenerator, 
             IBlobContainer<SubmissionContainer> submissionBlobContainer)
         {
@@ -42,6 +46,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _incumbentRepository = incumbentRepository;
             _conferenceRepository = conferenceRepository;
             _conferenceAccountRepository = conferenceAccountRepository;
+            _userRepository = userRepository;
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _submissionBlobContainer = submissionBlobContainer;
@@ -102,7 +107,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
             }
 
-            // Bug
             var authorOperationTable = await _incumbentRepository.GetAuthorOperationTableAsync(conferenceId, track.Id, input.Authors);
 
             // Apply operation on author list

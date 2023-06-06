@@ -258,6 +258,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     var userQueryable = (from u in dbContext.Set<IdentityUser>()
                                          select u).Where(y => y.Id == x.AccountId);
                     var user = userQueryable.SingleOrDefault();
+
+                    var participantQueryable = (from p in dbContext.Set<Participant>()
+                                       select p).Where(y => y.AccountId == x.AccountId);
+
+                    var participant = participantQueryable.SingleOrDefault();
+
                     if (user != null)
                     {
                         participation.Id = user.Id;
@@ -266,7 +272,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         participation.MiddleName = user.GetProperty<string?>(nameof(participation.MiddleName));
                         participation.LastName = user.Surname;
                         participation.Organization = user.GetProperty<string?>(nameof(participation.Organization));
-                        participation.ParticipantId = user.GetProperty<Guid?>(nameof(participation.ParticipantId));
+                        participation.ParticipantId = participant == null ? null : participant.Id;
 
                         var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
                                                   select new RoleRow
@@ -301,9 +307,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             
-            var authorRole = await (from r in dbContext.Set<ConferenceRole>() select r)
+            var authorRole = (from r in dbContext.Set<ConferenceRole>() select r)
                                 .Where(x => x.Name.Equals(Author))
-                                .FirstOrDefaultAsync();
+                                .FirstOrDefault();
             if(authorRole == null) 
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceRoleAuthorNotFound);
@@ -311,34 +317,33 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             var result = new List<AuthorOperation>();
 
-            authors.ForEach(async auth =>
+            authors.ForEach(auth =>
             {
                 AuthorOperation operation = new AuthorOperation();
                 operation.ParticipantId = auth.ParticipantId;
-                
 
-                var account = await (from a in dbContext.Set<IdentityUser>() select a)
-                                            .Where(x => x.GetProperty<Guid?>(AccountConsts.ParticipantPropertyName, Guid.Empty) == auth.ParticipantId)
-                                            .FirstOrDefaultAsync();
-                operation.AccountId = account == null ? null : account.Id;
+                var participant = (from p in dbContext.Set<Participant>() select p)
+                                            .Where(x => x.Id == auth.ParticipantId && x.AccountId != null)
+                                            .FirstOrDefault();
 
-                if(account != null)
+                operation.AccountId = participant == null ? null : participant.AccountId;
+
+                if(participant != null)
                 {
-                    operation.AccountId = account.Id;
                     operation.IsPrimaryContact = auth.IsPrimaryContact;
 
-                    var conferenceAccount = await (from ca in dbContext.Set<ConferenceAccount>() select ca)
-                                                    .Where(x => x.ConferenceId == conferenceId && x.AccountId == account.Id)
-                                                    .FirstOrDefaultAsync();
+                    var conferenceAccount = (from ca in dbContext.Set<ConferenceAccount>() select ca)
+                                                    .Where(x => x.ConferenceId == conferenceId && x.AccountId == participant.AccountId)
+                                                    .FirstOrDefault();
 
                     if(conferenceAccount != null)
                     {
                         operation.ConferenceAccountId = conferenceAccount.Id;
 
-                        var incumbent = await (from i in dbContext.Set<Incumbent>()
+                        var incumbent = (from i in dbContext.Set<Incumbent>()
                                          select i)
                                          .Where(x => x.ConferenceRoleId == authorRole.Id && x.TrackId == trackId && x.ConferenceAccountId == conferenceAccount.Id)
-                                         .FirstOrDefaultAsync();
+                                         .FirstOrDefault();
 
                         if(incumbent != null)
                         {
