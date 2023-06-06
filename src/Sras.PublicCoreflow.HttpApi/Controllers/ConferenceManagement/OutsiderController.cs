@@ -39,7 +39,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost]
-        public async Task<ActionResult<OutsiderCreateResponse>> CreateAsync(OutsiderCreateRequest request)
+        public async Task<ActionResult<OutsiderCreateResponse>> CreateOutsiderAsync(OutsiderCreateRequest request)
         {
             try
             {
@@ -47,6 +47,19 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return Ok(result);
             }
             catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<object> UpdateOutsider(OutsiderUpdateRequest request)
+        {
+            try
+            {
+                var result = await _outsiderService.UpdateOutsider(request);
+                return Ok(result);
+            } catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }
