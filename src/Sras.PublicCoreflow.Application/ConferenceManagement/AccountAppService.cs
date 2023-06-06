@@ -13,16 +13,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public class AccountAppService : PublicCoreflowAppService, IAccountAppService
     {
         private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly IRepository<Participant, Guid> _participantRepository;
         private readonly IIncumbentRepository _incumbentRepository;
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
         private readonly IRepository<ConferenceRole, Guid> _conferenceRoleRepository;
 
         public AccountAppService(IRepository<IdentityUser, Guid> userRepository,
+            IRepository<Participant, Guid> participantRepository,
             IIncumbentRepository incumbentRepository,
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
             IRepository<ConferenceRole, Guid> conferenceRoleRepository)
         {
             _userRepository = userRepository;
+            _participantRepository = participantRepository;
             _incumbentRepository = incumbentRepository;
             _conferenceAccountRepository = conferenceAccountRepository;
             _conferenceRoleRepository = conferenceRoleRepository;
@@ -35,8 +38,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             if(user == null) 
                 return null;
 
+            var participant = await _participantRepository.FindAsync(x => x.AccountId == user.Id);
+
             var result = ObjectMapper.Map<IdentityUser, AccountWithBriefInfo>(user);
-            result.ParticipantId = user.GetProperty<Guid?>(nameof(result.ParticipantId));
+            result.ParticipantId = participant == null ? null : participant.Id;
             result.MiddleName = user.GetProperty<string?>(nameof(result.MiddleName));
             result.Organization = user.GetProperty<string?>(nameof(result.Organization));
             result.Country = user.GetProperty<string?>(nameof(result.Country));

@@ -41,8 +41,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     var outsiderId = _guidGenerator.Create();
                     var participantId = _guidGenerator.Create();
                     var outsider = new Outsider(outsiderId, request.Email, request.Firstname, request.Middlename, request.Lastname, request.Organization, request.Country);
-                    var participant = new Participant(participantId);
-                    participant.Outsiders.Add(outsider);
+                    var participant = new Participant(participantId, null, outsiderId);
+                    //participant.Outsiders.Add(outsider);
                     
                     await dbContext.Participants.AddAsync(participant);
                     await dbContext.SaveChangesAsync();
@@ -78,7 +78,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 Lastname = x.LastName,
                 Organization = x.Organization,
                 Country = x.Country,
-                ParticipantId = x.ParticipantId.ToString(),
+                //ParticipantId = x.ParticipantId.ToString(),
             }).ToListAsync();
 
             return result;

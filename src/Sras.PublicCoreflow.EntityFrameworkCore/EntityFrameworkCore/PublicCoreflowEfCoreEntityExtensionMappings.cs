@@ -43,12 +43,6 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
              */
 
             ObjectExtensionManager.Instance
-            .MapEfCoreProperty<IdentityUser, Guid?>(
-                AccountConsts.ParticipantPropertyName,
-                (_, propertyBuilder) =>
-                {
-                    propertyBuilder.HasDefaultValue(null);
-                })
             .MapEfCoreProperty<IdentityUser, string?>(
                 AccountConsts.MiddleNamePropertyName,
                 (_, propertyBuilder) =>

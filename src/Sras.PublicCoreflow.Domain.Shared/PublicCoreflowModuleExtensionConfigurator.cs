@@ -76,10 +76,6 @@ public static class PublicCoreflowModuleExtensionConfigurator
         {
             identity.ConfigureUser(user =>
             {
-                user.AddOrUpdateProperty<Guid?>(
-                    AccountConsts.ParticipantPropertyName
-                );
-
                 user.AddOrUpdateProperty<string?>(
                     AccountConsts.MiddleNamePropertyName,
                     options =>
