@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -12,7 +11,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public List<AuthorInput> Authors { get; set; }
         public string DomainConflicts { get; set; }
         public List<SubmissionSubjectAreaInput> SubjectAreas { get; set; }
-        public List<RemoteStreamContent> Files { get; set; }
+        //public List<RemoteStreamContent> Files { get; set; }
         public string? Answers { get; set; }
     }
 }

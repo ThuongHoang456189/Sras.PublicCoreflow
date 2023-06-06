@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -22,12 +24,16 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _submissionAppService = submissionAppService;
         }
 
-        // Need to fix response to show submission summary
         [HttpPost]
-        public async Task<IActionResult> CreateAsync ([FromForm] SubmissionInput input)
+        public async Task<Guid> CreateAsync (SubmissionInput input)
         {
-            _submissionAppService.Create(input);
-            return Ok(new { message = "Hello" });
+            return await _submissionAppService.CreateAsync(input);
+        }
+
+        [HttpPost("{id}")]
+        public void CreateSubmissionFiles (Guid submissionId, List<RemoteStreamContent> files)
+        {
+            _submissionAppService.CreateSubmissionFiles(submissionId, files);
         }
     }
 }

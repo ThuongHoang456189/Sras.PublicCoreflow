@@ -77,9 +77,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
-        //public Submission AddAuthor(Guid participantId, bool isPrimaryContact)
-        //{
+        public Submission AddAuthor(Guid participantId, bool isPrimaryContact)
+        {
+            if(Authors.Any(x => x.ParticipantId == participantId))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.AuthorAlreadyExistToSubmission);
+            }
 
-        //}
+            Authors.Add(new Author(participantId, Id, isPrimaryContact, false));
+
+            return this;
+        }
     }
 }

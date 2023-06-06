@@ -125,5 +125,18 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return this;
         }
+
+        public Track AddSubmission(Submission submission)
+        {
+            if (Submissions.Any(x => x.Title.EqualsIgnoreCase(string.IsNullOrEmpty(submission.Title) ? submission.Title : submission.Title.Trim())
+            && x.Abstract.EqualsIgnoreCase(string.IsNullOrEmpty(submission.Abstract) ? submission.Abstract : submission.Abstract.Trim())))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionAlreadyExistToTrack);
+            }
+
+            Submissions.Add(submission);
+
+            return this;
+        }
     }
 }
