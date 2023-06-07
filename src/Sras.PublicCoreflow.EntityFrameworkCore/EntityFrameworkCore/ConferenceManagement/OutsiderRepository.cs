@@ -56,7 +56,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         Lastname = request.Lastname,
                         Organization = request.Organization,
                         hasAccount = false,
-                        ParticipantIds = dbContext.Outsiders.Where(o => o.Id == outsiderId).First().Participants.Select(o => o.Id.ToString()).ToList(),
+                        ParticipantId = participantId,
                     };
                 }
                 catch (Exception ex)

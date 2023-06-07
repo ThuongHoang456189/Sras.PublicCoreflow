@@ -13,6 +13,6 @@ namespace Sras.PublicCoreflow.Dto
         public string Organization { get; set; }
         public string Email { get; set; }
         public bool hasAccount { get; set; }
-        public List<string> ParticipantIds { get; set; }
+        public Guid ParticipantId { get; set; }
     }
 }
