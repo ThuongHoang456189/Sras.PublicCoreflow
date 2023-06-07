@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
@@ -49,6 +50,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<ConferenceWithDetails> GetAsync(Guid id)
         {
             return await _conferenceService.GetAsync(id);
+        }
+
+        [HttpGet("{id}/users")]
+        public async Task<List<ConferenceParticipationBriefInfo>> GetListConferenceUsersAsync(Guid id, ConferenceParticipationFilterDto input)
+        {
+            return await _conferenceService.GetConferenceUserListAsync(id, input);
         }
     }
 }

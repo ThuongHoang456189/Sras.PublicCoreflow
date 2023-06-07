@@ -25,6 +25,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public bool? IsNotified { get; private set; }
         public Guid? NotifiedStatusId { get; private set; }
         public PaperStatus? NotifiedStatus { get; private set; }
+        public DateTime? LastNotificationTime { get; private set; }
         public bool IsRequestedForCameraReady { get; private set; }
 
         public ICollection<SubmissionSubjectArea> SubjectAreas { get; private set; }
@@ -32,7 +33,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public ICollection<Conflict> Conflicts { get; private set; }
         public ICollection<SubmissionClone> Clones { get; private set; }
 
-        public Submission(Guid id, string title, string @abstract, string rootFilePath, Guid trackId, string? domainConflicts, Guid? createdIncumbentId, Guid? lastModifiedIncumbentId, string? answers, Guid statusId, bool? isNotified, Guid? notifiedStatusId, bool isRequestedForCameraReady) : base(id)
+        public Submission(Guid id, string title, string @abstract, string rootFilePath, Guid trackId, string? domainConflicts, Guid? createdIncumbentId, Guid? lastModifiedIncumbentId, string? answers, Guid statusId, bool? isNotified, Guid? notifiedStatusId, DateTime? lastNotificationTime, bool isRequestedForCameraReady) : base(id)
         {
             SetTitle(title);
             SetAbstract(@abstract);
@@ -45,6 +46,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             StatusId = statusId;
             IsNotified = isNotified;
             NotifiedStatusId = notifiedStatusId;
+            LastNotificationTime = lastNotificationTime;
             IsRequestedForCameraReady = isRequestedForCameraReady;
 
             SubjectAreas = new Collection<SubmissionSubjectArea>();

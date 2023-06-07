@@ -7,6 +7,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class EmailTemplate : FullAuditedAggregateRoot<Guid>
     {
+        public string Name { get; private set; }
         public string Subject { get; private set; }
         public string Body { get; private set; }
 
@@ -17,8 +18,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public ICollection<Email> Emails { get; private set; }
 
-        public EmailTemplate(Guid id, string subject, string body, Guid? conferenceId, Guid? trackId) : base(id)
+        public EmailTemplate(Guid id, string name, string subject, string body, Guid? conferenceId, Guid? trackId) : base(id)
         {
+            Name = name;
             Subject = subject;
             Body = body;
             ConferenceId = conferenceId;
