@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sras.PublicCoreflow.ConferenceManagement;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Identity;
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Threading;
@@ -69,5 +71,40 @@ public static class PublicCoreflowModuleExtensionConfigurator
          * See the documentation for more:
          * https://docs.abp.io/en/abp/latest/Module-Entity-Extensions
          */
+
+        ObjectExtensionManager.Instance.Modules().ConfigureIdentity(identity =>
+        {
+            identity.ConfigureUser(user =>
+            {
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.MiddleNamePropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxMiddleNameLength));
+                    }
+                );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.OrganizationPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxOrganizationLength));
+                    }
+                );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.CountryPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxCountryLength));
+                    }
+                );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.DomainConflictsPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxDomainConflictsLength));
+                    }
+                );
+            });
+        });
     }
 }

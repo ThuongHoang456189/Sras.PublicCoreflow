@@ -10,13 +10,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public string Name { get; private set; }
         public bool IsPC { get; private set; }
+        public int Factor { get; private set; }
 
         public ICollection<Incumbent> Incumbents { get; private set; }
 
-        public ConferenceRole(Guid id, string name, bool isPC) : base(id)
+        public ConferenceRole(Guid id, string name, bool isPC, int factor) : base(id)
         {
             SetName(name);
             IsPC = isPC;
+            Factor = factor;
 
             Incumbents = new Collection<Incumbent>();
         }

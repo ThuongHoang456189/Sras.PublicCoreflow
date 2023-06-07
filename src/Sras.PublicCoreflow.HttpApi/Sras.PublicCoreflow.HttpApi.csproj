@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sras.PublicCoreflow.Application.Contracts\Sras.PublicCoreflow.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Sras.PublicCoreflow.Application\Sras.PublicCoreflow.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

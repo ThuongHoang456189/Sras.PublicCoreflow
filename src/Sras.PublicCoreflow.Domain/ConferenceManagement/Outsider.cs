@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -11,17 +13,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? MiddleName { get; private set; }
         public string LastName { get; private set; }
         public string? Organization { get; private set; }
-        public Guid ParticipantId { get; private set; }
-        public Participant Participant { get; private set; }
+        public string Country { get; private set; }
+        public ICollection<Participant> Participants { get; private set; }
 
-        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, Guid participantId) : base(id) 
+        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country) : base(id) 
         {
             SetEmail(email);
             SetFirstName(firstName);
             SetMiddleName(middleName);
             SetLastName(lastName);
             SetOrganization(organization);
-            ParticipantId = participantId;
+            SetCountry(country);
+
+            Participants = new Collection<Participant>();
         }
 
         public Outsider SetEmail (string email)
@@ -53,6 +57,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             organization = string.IsNullOrEmpty(organization) ? organization : organization.Trim();
             Organization = string.IsNullOrEmpty(organization) ? organization : Check.NotNullOrWhiteSpace(organization, nameof(organization), OutsiderConsts.MaxOrganizationLength);
+            return this;
+        }
+
+        public Outsider SetCountry(string country)
+        {
+            Country = Check.NotNullOrWhiteSpace(string.IsNullOrEmpty(country) ? country : country.Trim(), nameof(country), OutsiderConsts.MaxCountryLength);
             return this;
         }
     }

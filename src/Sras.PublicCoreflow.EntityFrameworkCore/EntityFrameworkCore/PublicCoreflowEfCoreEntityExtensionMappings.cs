@@ -43,17 +43,32 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
              */
 
             ObjectExtensionManager.Instance
-            .MapEfCoreProperty<IdentityUser, Guid>(
-                AccountConsts.ParticipantPropertyName,
-                (_, propertyBuilder) =>
-                {
-                    propertyBuilder.HasDefaultValue(null);
-                })
             .MapEfCoreProperty<IdentityUser, string?>(
                 AccountConsts.MiddleNamePropertyName,
                 (_, propertyBuilder) =>
                 {
                     propertyBuilder.HasMaxLength(AccountConsts.MaxMiddleNameLength);
+                    propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.OrganizationPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxOrganizationLength);
+                    propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.CountryPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxCountryLength);
+                    propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.DomainConflictsPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxDomainConflictsLength);
                     propertyBuilder.HasDefaultValue(null);
                 });
         });

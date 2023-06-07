@@ -20,7 +20,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? GeneralSettings { get; private set; }
         public string? RegistrationSettings { get; private set; }
         public string Logo { get; set; }
-        public bool IsAccepted { get; set; }
+        public bool IsSingleTrack { get; set; } = true;
 
         public ICollection<ConferenceAccount> ConferenceAccounts { get; private set; }
         public ICollection<PaperStatus> PaperStatuses { get; private set; }
@@ -37,7 +37,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? generalSettings,
             string? registrationSettings,
             string logo,
-            bool isAccepted)
+            bool isSingleTrack)
             : base(id)
         {
             SetFullName(fullName);
@@ -50,7 +50,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             GeneralSettings = generalSettings;
             RegistrationSettings = registrationSettings;
             Logo = logo;
-            IsAccepted = isAccepted;
+            IsSingleTrack = isSingleTrack;
 
             ConferenceAccounts = new Collection<ConferenceAccount>();
             PaperStatuses = new Collection<PaperStatus>();
@@ -200,24 +200,34 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
-        public Conference AddTrack(
-            Guid trackId,
-            bool isDefault,
-            string name,
-            string? submissionInstruction,
-            string? submissionSettings,
-            string? conflictSettings,
-            string? reviewSettings,
-            string? cameraReadySubmissionSettings,
-            string? subjectAreaRelevanceCoefficients)
+        public Conference AddTrack(Track track)
         {
 
-            if (Tracks.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(name) ? name : name.Trim())))
+            if (Tracks.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(track.Name) ? track.Name : track.Name.Trim())))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackAlreadyExistToConference);
             }
 
-            Tracks.Add(new Track(trackId, isDefault, name, Id, submissionInstruction, submissionSettings, conflictSettings, reviewSettings, cameraReadySubmissionSettings, subjectAreaRelevanceCoefficients));
+            Tracks.Add(track);
+
+            return this;
+        }
+
+        public Conference UpdateTrack(
+            Guid trackId,
+            string name)
+        {
+            var track = Tracks.SingleOrDefault(x => x.Id == trackId);
+            if (track == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
+            else if (Tracks.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(name) ? name : name.Trim()) && x.Id != trackId))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackAlreadyExistToConference);
+            }
+
+            track.SetName(name);
 
             return this;
         }

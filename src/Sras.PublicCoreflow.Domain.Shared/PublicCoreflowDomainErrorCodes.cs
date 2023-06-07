@@ -21,4 +21,16 @@ public static class PublicCoreflowDomainErrorCodes
     public const string IncumbentNotFound = ConferencePrefix + "IncumbentNotFound";
     public const string NoAssignmentOfChairsToConference = ConferencePrefix + "NoAssignmentOfChairsToConference";
     public const string InvalidAccountOnChairList = ConferencePrefix + "InvalidAccountOnChairList";
+    public const string UserNotAuthorizedToProceedToUpdateConferenceRoles = ConferencePrefix + "UserNotAuthorizedToProceedToUpdateConferenceRoles";
+    public const string AccountNotFound = ConferencePrefix + "AccountNotFound";
+    public const string UserNotAuthorizedToAddConferenceTrack = ConferencePrefix + "UserNotAuthorizedToAddConferenceTrack";
+    public const string UserNotAuthorizedToUpdateConferenceTrack = ConferencePrefix + "UserNotAuthorizedToUpdateConferenceTrack";
+    public const string SubjectAreaAlreadyExistToTrack = ConferencePrefix + "SubjectAreaAlreadyExistToTrack";
+    public const string SubjectAreaNotFound = ConferencePrefix + "SubjectAreaNotFound";
+    public const string SubmissionAlreadyExistToTrack = ConferencePrefix + "SubmissionAlreadyExistToTrack";
+    public const string SubjectAreaAlreadyExistToSubmission = ConferencePrefix + "SubjectAreaAlreadyExistToSubmission";
+    public const string AuthorAlreadyExistToSubmission = ConferencePrefix + "AuthorAlreadyExistToSubmission";
+    public const string AwaitingDecisionPaperStatusNotFound = ConferencePrefix + "AwaitingDecisionPaperStatusNotFound";
+    public const string PrimaryContactCannotSetToNonAccountParticipant = ConferencePrefix + "PrimaryContactCannotSetToNonAccountParticipant";
+    public const string ConferenceRoleAuthorNotFound = ConferencePrefix + "ConferenceRoleAuthorNotFound";
 }
