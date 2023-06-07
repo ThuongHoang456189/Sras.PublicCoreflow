@@ -260,6 +260,9 @@ public class PublicCoreflowDbContext :
             b.ToTable("EmailTemplates", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
+            b.Property(x => x.Name)
+            .HasMaxLength(EmailTemplateConsts.MaxNameLength);
+
             b.Property(x => x.Subject)
             .HasMaxLength(2048);
         });

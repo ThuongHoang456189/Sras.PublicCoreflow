@@ -20,7 +20,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IRepository<IdentityUser, Guid> _userRepository;
         private readonly IRepository<ConferenceRole, Guid> _conferenceRoleRepository;
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
-        private readonly IRepository<Incumbent, Guid> _incumbentRepository;
+        private readonly IIncumbentRepository _incumbentRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -35,7 +35,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IRepository<IdentityUser, Guid> userRepository,
             IRepository<ConferenceRole, Guid> conferenceRoleRepository,
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
-            IRepository<Incumbent, Guid> incumbentRepository,
+            IIncumbentRepository incumbentRepository,
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
             IdentityUserAppService userAppService)
@@ -372,6 +372,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
 
             return ObjectMapper.Map<Conference, ConferenceWithDetails>(await _conferenceRepository.UpdateAsync(conference, true));
+        }
+
+        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter)
+        {
+            return await _incumbentRepository.GetConferenceUserListAsync(conferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
         }
     }
 }

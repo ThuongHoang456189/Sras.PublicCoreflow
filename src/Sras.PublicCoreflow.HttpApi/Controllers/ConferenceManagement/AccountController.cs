@@ -22,15 +22,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("by-email/{email}")]
-        public async Task<AccountWithBriefInfo?> GetAsync(String email)
+        public async Task<AccountWithBriefInfo?> GetAsync(string email)
         {
             return await _accountAppService.FindAsync(email);
-        }
-
-        [HttpGet]
-        public async Task<List<ConferenceParticipationBriefInfo>> GetListAsync(ConferenceParticipationFilterDto filter)
-        {
-            return await _accountAppService.GetConferenceUserListAsync(filter);
         }
     }
 }
