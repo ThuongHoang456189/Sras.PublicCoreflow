@@ -54,19 +54,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
-        public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
-        {
-            var conference = await _conferenceRepository.FindAsync(input.ConferenceId);
-            if (conference == null)
-            {
-                Console.WriteLine("hello");
-                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
-            }
+        //public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
+        //{
+        //    var conference = await _conferenceRepository.FindAsync(input.ConferenceId);
+        //    if (conference == null)
+        //    {
+        //        Console.WriteLine("hello");
+        //        throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+        //    }
 
-            return ObjectMapper.Map<Conference, ConferenceWithDetails>(conference);
-        }
+        //    return ObjectMapper.Map<Conference, ConferenceWithDetails>(conference);
+        //}
 
-        public async Task CreateOrUpdateAsync(UserConferenceRoleInput input)
+        public async Task<ResponseDto> CreateOrUpdateAsync(UserConferenceRoleInput input)
         {
             // Check if conference exist
             var conference = await _conferenceRepository.FindAsync(input.ConferenceId);
@@ -76,6 +76,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             // Check authority
+
+
             await GetMapConferenceRoles();
 
             if(_currentUser != null && _currentUser.Id != null)
@@ -106,151 +108,167 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.AccountNotFound);
             }
 
-            // Clean the input
-            if (conference.IsSingleTrack)
+            ResponseDto response = new();
+
+            try
             {
-                input.TrackId = null;
-                var defaultTrack = conference.Tracks.SingleOrDefault(x => x.IsDefault);
-
-                for (int i = 0; i < input.Roles.Count; i++)
+                // Clean the input
+                if (conference.IsSingleTrack)
                 {
-                    // Remove Duplicate
-                    for (int j = i + 1; j < input.Roles.Count; j++)
+                    input.TrackId = null;
+                    var defaultTrack = conference.Tracks.SingleOrDefault(x => x.IsDefault);
+
+                    for (int i = 0; i < input.Roles.Count; i++)
                     {
-                        if (input.Roles[i].RoleId == input.Roles[j].RoleId)
+                        // Remove Duplicate
+                        for (int j = i + 1; j < input.Roles.Count; j++)
                         {
-                            input.Roles.Remove(input.Roles[j]);
-                            j--;
+                            if (input.Roles[i].RoleId == input.Roles[j].RoleId)
+                            {
+                                input.Roles.Remove(input.Roles[j]);
+                                j--;
+                            }
                         }
-                    }
 
-                    if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author) || input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(TrackChair))
-                    {
-                        input.Roles.Remove(input.Roles[i]);
-                        i--;
-                    }
-
-                    if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Reviewer))
-                    {
-                        input.Roles[i].TrackId = defaultTrack?.Id;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < input.Roles.Count; i++)
-                {
-                    // Remove Duplicate
-                    for (int j = i + 1; j < input.Roles.Count; j++)
-                    {
-                        if ((input.Roles[i].TrackId == null || input.Roles[i].TrackId == input.Roles[j].TrackId) && input.Roles[i].RoleId == input.Roles[j].RoleId)
-                        {
-                            input.Roles.Remove(input.Roles[j]);
-                            j--;
-                        }
-                    }
-
-                    if (input.TrackId != null)
-                    {
-                        if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author) || input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Chair) || input.Roles[i].TrackId != input.TrackId)
+                        if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author) || input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(TrackChair))
                         {
                             input.Roles.Remove(input.Roles[i]);
                             i--;
                         }
-                    }
-                    else
-                    {
-                        if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author))
+
+                        if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Reviewer))
                         {
-                            input.Roles.Remove(input.Roles[i]);
-                            i--;
+                            input.Roles[i].TrackId = defaultTrack?.Id;
                         }
                     }
-                }
-            }
-            
-            // Allocate operations
-            var roleTrackOperationTable = await _incumbentRepository.GetRoleTrackOperationTableAsync(input.AccountId, input.ConferenceId);
-
-            if(roleTrackOperationTable == null)
-            {
-                roleTrackOperationTable = new List<RoleTrackOperation>();
-            }
-
-            if (input.TrackId != null)
-            {
-                roleTrackOperationTable.ForEach(x =>
-                {
-                    if (x.TrackId == input.TrackId && x.RoleId != _conferenceRoles.GetValueOrDefault(Author))
-                    {
-                        if (!input.Roles.Any(y => y.TrackId == x.TrackId && y.RoleId == x.RoleId))
-                        {
-                            x.Operation = RoleTrackManipulationOperators.Del;
-                        }
-                    }
-
-                });
-            }
-            else
-            {
-                roleTrackOperationTable.ForEach(x =>
-                {
-                    if (x.RoleId != _conferenceRoles.GetValueOrDefault(Author))
-                    {
-                        if (!input.Roles.Any(y => ((y.TrackId == x.TrackId) || (x.TrackId == null && y.TrackId == null)) && y.RoleId == x.RoleId))
-                        {
-                            x.Operation = RoleTrackManipulationOperators.Del;
-                        }
-                    }
-                });
-            }
-
-            var conferenceAccount = conference.ConferenceAccounts.SingleOrDefault(x => x.ConferenceId == input.ConferenceId && x.AccountId == input.AccountId);
-
-            if(conferenceAccount == null)
-            {
-                conferenceAccount = new ConferenceAccount(_guidGenerator.Create(), input.ConferenceId, input.AccountId, false);
-            }
-
-            input.Roles.ForEach(x =>
-            {
-                if (!roleTrackOperationTable.Any(y => ((y.TrackId == x.TrackId) || (x.TrackId == null && y.TrackId == null)) && y.RoleId == x.RoleId))
-                {
-                    var newRow = new RoleTrackOperation(conferenceAccount.AccountId, _guidGenerator.Create(), x.RoleId, x.TrackId, RoleTrackManipulationOperators.Add);
-                    roleTrackOperationTable.Add(newRow);
-                }
-            });
-
-            // Perform Operations
-            if(roleTrackOperationTable.All(x => x.Operation == RoleTrackManipulationOperators.Del))
-            {
-                conferenceAccount.Incumbents.Clear();
-                conference.DeleteConferenceAccount(conferenceAccount.Id);
-            }
-            else
-            {
-                roleTrackOperationTable.ForEach(x =>
-                {
-                    if(x.Operation == RoleTrackManipulationOperators.Del)
-                    {
-                        conferenceAccount.DeleteIncumbent(x.IncumbentId);
-                    }else if (x.Operation == RoleTrackManipulationOperators.Add)
-                    {
-                        conferenceAccount.AddIncumbent(x.IncumbentId, x.RoleId, x.TrackId, false);
-                    }
-                });
-
-                if (roleTrackOperationTable.All(x => x.Operation == RoleTrackManipulationOperators.Add))
-                {
-                    conference.AddConferenceAccount(conferenceAccount);
                 }
                 else
                 {
-                    conference.UpdateConferenceAccount(conferenceAccount);
-                }
-            }
+                    for (int i = 0; i < input.Roles.Count; i++)
+                    {
+                        // Remove Duplicate
+                        for (int j = i + 1; j < input.Roles.Count; j++)
+                        {
+                            if ((input.Roles[i].TrackId == null || input.Roles[i].TrackId == input.Roles[j].TrackId) && input.Roles[i].RoleId == input.Roles[j].RoleId)
+                            {
+                                input.Roles.Remove(input.Roles[j]);
+                                j--;
+                            }
+                        }
 
-            await _conferenceRepository.UpdateAsync(conference);
+                        if (input.TrackId != null)
+                        {
+                            if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author) || input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Chair) || input.Roles[i].TrackId != input.TrackId)
+                            {
+                                input.Roles.Remove(input.Roles[i]);
+                                i--;
+                            }
+                        }
+                        else
+                        {
+                            if (input.Roles[i].RoleId == _conferenceRoles.GetValueOrDefault(Author))
+                            {
+                                input.Roles.Remove(input.Roles[i]);
+                                i--;
+                            }
+                        }
+                    }
+                }
+
+                // Allocate operations
+                var roleTrackOperationTable = await _incumbentRepository.GetRoleTrackOperationTableAsync(input.AccountId, input.ConferenceId);
+
+                if (roleTrackOperationTable == null)
+                {
+                    roleTrackOperationTable = new List<RoleTrackOperation>();
+                }
+
+                if (input.TrackId != null)
+                {
+                    roleTrackOperationTable.ForEach(x =>
+                    {
+                        if (x.TrackId == input.TrackId && x.RoleId != _conferenceRoles.GetValueOrDefault(Author))
+                        {
+                            if (!input.Roles.Any(y => y.TrackId == x.TrackId && y.RoleId == x.RoleId))
+                            {
+                                x.Operation = RoleTrackManipulationOperators.Del;
+                            }
+                        }
+
+                    });
+                }
+                else
+                {
+                    roleTrackOperationTable.ForEach(x =>
+                    {
+                        if (x.RoleId != _conferenceRoles.GetValueOrDefault(Author))
+                        {
+                            if (!input.Roles.Any(y => ((y.TrackId == x.TrackId) || (x.TrackId == null && y.TrackId == null)) && y.RoleId == x.RoleId))
+                            {
+                                x.Operation = RoleTrackManipulationOperators.Del;
+                            }
+                        }
+                    });
+                }
+
+                var conferenceAccount = conference.ConferenceAccounts.SingleOrDefault(x => x.ConferenceId == input.ConferenceId && x.AccountId == input.AccountId);
+
+                if (conferenceAccount == null)
+                {
+                    conferenceAccount = new ConferenceAccount(_guidGenerator.Create(), input.ConferenceId, input.AccountId, false);
+                }
+
+                input.Roles.ForEach(x =>
+                {
+                    if (!roleTrackOperationTable.Any(y => ((y.TrackId == x.TrackId) || (x.TrackId == null && y.TrackId == null)) && y.RoleId == x.RoleId))
+                    {
+                        var newRow = new RoleTrackOperation(conferenceAccount.AccountId, _guidGenerator.Create(), x.RoleId, x.TrackId, RoleTrackManipulationOperators.Add);
+                        roleTrackOperationTable.Add(newRow);
+                    }
+                });
+
+                // Perform Operations
+                if (roleTrackOperationTable.All(x => x.Operation == RoleTrackManipulationOperators.Del))
+                {
+                    conferenceAccount.Incumbents.Clear();
+                    conference.DeleteConferenceAccount(conferenceAccount.Id);
+                }
+                else
+                {
+                    roleTrackOperationTable.ForEach(x =>
+                    {
+                        if (x.Operation == RoleTrackManipulationOperators.Del)
+                        {
+                            conferenceAccount.DeleteIncumbent(x.IncumbentId);
+                        }
+                        else if (x.Operation == RoleTrackManipulationOperators.Add)
+                        {
+                            conferenceAccount.AddIncumbent(x.IncumbentId, x.RoleId, x.TrackId, false);
+                        }
+                    });
+
+                    if (roleTrackOperationTable.All(x => x.Operation == RoleTrackManipulationOperators.Add))
+                    {
+                        conference.AddConferenceAccount(conferenceAccount);
+                    }
+                    else
+                    {
+                        conference.UpdateConferenceAccount(conferenceAccount);
+                    }
+                }
+
+                await _conferenceRepository.UpdateAsync(conference);
+
+                response.IsSuccess = true;
+                response.Message = "Update user conference role(s) successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+            }
+            
+            return response;
         }
 
         public async Task<ConferenceParticipationInfo?> GetConferenceParticipationInfoAsync (ConferenceParticipationInput input)
