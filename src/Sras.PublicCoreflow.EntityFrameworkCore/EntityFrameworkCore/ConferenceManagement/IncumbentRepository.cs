@@ -228,8 +228,56 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
-        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, Guid? trackId, int skipCount = 0, int maxResultCount = int.MaxValue)
+        public async Task<int> GetConferenceUserCountAsync(Guid conferenceId, Guid? trackId)
         {
+            var dbContext = await GetDbContextAsync();
+
+            var roleQueryable = from r in dbContext.Set<ConferenceRole>() select r;
+            var roleList = await roleQueryable.ToListAsync();
+            var roleMap = new Dictionary<string, Guid>();
+            var roleNameMap = new Dictionary<Guid, string>();
+            roleList.ForEach(x =>
+            {
+                roleMap.Add(x.Name, x.Id);
+                roleNameMap.Add(x.Id, x.Name);
+            });
+
+            var conferenceAccountRowQueryable = (from ca in dbContext.Set<ConferenceAccount>()
+                                                 join u in ((from u1 in dbContext.Set<IdentityUser>() select u1)) on ca.AccountId equals u.Id
+                                                 join c in ((from c1 in dbContext.Set<Conference>() select c1).Where(x => x.Id == conferenceId)) on ca.ConferenceId equals c.Id
+                                                 join i in ((from i1 in dbContext.Set<Incumbent>() select i1).WhereIf(trackId != null, x => x.TrackId == trackId || x.ConferenceRoleId == roleMap.GetValueOrDefault(Chair))) on ca.Id equals i.ConferenceAccountId
+                                                 select new ConferenceAccountRow
+                                                 {
+                                                     ConferenceAccountId = ca.Id,
+                                                     AccountId = u.Id,
+                                                     Email = u.Email,
+                                                 })
+                                          .OrderBy(AccountConsts.DefaultSorting);
+
+            var conferenceAccountRowList = await conferenceAccountRowQueryable.ToListAsync();
+
+            for (int i = 0; i < conferenceAccountRowList.Count; i++)
+            {
+                for (int j = i + 1; j < conferenceAccountRowList.Count; j++)
+                {
+                    if (conferenceAccountRowList[i].ConferenceAccountId == conferenceAccountRowList[j].ConferenceAccountId
+                        && conferenceAccountRowList[i].AccountId == conferenceAccountRowList[j].AccountId
+                        && conferenceAccountRowList[i].Email.ToLower().Equals(conferenceAccountRowList[j].Email.ToLower()))
+                    {
+                        conferenceAccountRowList.Remove(conferenceAccountRowList[j]);
+                        j--;
+                    }
+                }
+            }
+
+            return conferenceAccountRowList.Count;
+        }
+
+        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, Guid? trackId, int skipCount = 0, int maxResultCount = ConferenceConsts.MaxConferenceUserEachPage)
+        {
+            if (maxResultCount > ConferenceConsts.MaxConferenceUserEachPage)
+                maxResultCount = ConferenceConsts.MaxConferenceUserEachPage;
+
             var dbContext = await GetDbContextAsync();
 
             var roleQueryable = from r in dbContext.Set<ConferenceRole>() select r;
@@ -246,73 +294,104 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             try
             {
-                var conferenceAccountQueryable = (from ca in dbContext.Set<ConferenceAccount>()
-                                                  join u in ((from u1 in dbContext.Set<IdentityUser>() select u1)) on ca.AccountId equals u.Id
-                                                  join c in ((from c1 in dbContext.Set<Conference>() select c1).Where(x => x.Id == conferenceId)) on ca.ConferenceId equals c.Id
-                                                  join i in ((from i1 in dbContext.Set<Incumbent>() select i1).WhereIf(trackId != null, x => x.TrackId == trackId || x.ConferenceRoleId == roleMap.GetValueOrDefault(Chair))) on ca.Id equals i.ConferenceAccountId
-                                                  select new ConferenceAccountRow
-                                                  {
-                                                      ConferenceAccountId = ca.Id,
-                                                      AccountId = u.Id,
-                                                      Email = u.Email,
-                                                  })
-                                                  .GroupBy(x => x.ConferenceAccountId)
-                                                  .Select(grp => grp.First())
-                                                  .OrderBy(AccountConsts.DefaultSorting)
-                                                  .PageBy(skipCount, maxResultCount);
+                // ConferenceAccount thoa dieu kien
+                // Neu trackId null thi lay tat ca
+                // Neu trackId co thi lay role chair neu co, va nhung role gan chat voi trackId do
 
-                var conferenceAccountList = await conferenceAccountQueryable.ToListAsync();
+                var conferenceAccountRowQueryable = (from ca in dbContext.Set<ConferenceAccount>()
+                                          join u in ((from u1 in dbContext.Set<IdentityUser>() select u1)) on ca.AccountId equals u.Id
+                                          join c in ((from c1 in dbContext.Set<Conference>() select c1).Where(x => x.Id == conferenceId)) on ca.ConferenceId equals c.Id
+                                          join i in ((from i1 in dbContext.Set<Incumbent>() select i1).WhereIf(trackId != null, x => x.TrackId == trackId || x.ConferenceRoleId == roleMap.GetValueOrDefault(Chair))) on ca.Id equals i.ConferenceAccountId
+                                          select new ConferenceAccountRow
+                                          {
+                                              ConferenceAccountId = ca.Id,
+                                              AccountId = u.Id,
+                                              Email = u.Email,
+                                          })
+                                          .OrderBy(AccountConsts.DefaultSorting);
 
-                if (conferenceAccountList != null && conferenceAccountList.Any())
+                var conferenceAccountRowList = await conferenceAccountRowQueryable.ToListAsync();
+
+                // Clean duplicate in incumbentList (not paged)
+                for(int i =0; i < conferenceAccountRowList.Count; i++)
                 {
-                    conferenceAccountList.ForEach(async x =>
+                    for(int j = i + 1; j < conferenceAccountRowList.Count; j++)
                     {
-                        ConferenceParticipationBriefInfo participation = new ConferenceParticipationBriefInfo();
-
-                        var userQueryable = (from u in dbContext.Set<IdentityUser>()
-                                             select u).Where(y => y.Id == x.AccountId);
-                        var user = userQueryable.SingleOrDefault();
-
-                        var participantQueryable = (from p in dbContext.Set<Participant>()
-                                                    select p).Where(y => y.AccountId == x.AccountId);
-
-                        var participant = participantQueryable.SingleOrDefault();
-
-                        if (user != null)
+                        if (conferenceAccountRowList[i].ConferenceAccountId == conferenceAccountRowList[j].ConferenceAccountId
+                            && conferenceAccountRowList[i].AccountId == conferenceAccountRowList[j].AccountId
+                            && conferenceAccountRowList[i].Email.ToLower().Equals(conferenceAccountRowList[j].Email.ToLower()))
                         {
-                            participation.Id = user.Id;
-                            participation.Email = user.Email;
-                            participation.FirstName = user.Name;
-                            participation.MiddleName = user.GetProperty<string?>(nameof(participation.MiddleName));
-                            participation.LastName = user.Surname;
-                            participation.Organization = user.GetProperty<string?>(nameof(participation.Organization));
-                            participation.ParticipantId = participant == null ? null : participant.Id;
+                            conferenceAccountRowList.Remove(conferenceAccountRowList[j]);
+                            j--;
+                        }
+                    }
+                }
 
-                            var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
-                                                      select new RoleRow
-                                                      {
-                                                          ConferenceAccountId = i.Id,
-                                                          RoleId = i.ConferenceRoleId,
-                                                          TrackId = i.TrackId
-                                                      })
-                                                     .GroupBy(x => x.RoleId)
-                                                     .Select(grp => grp.First())
-                                                     .Where(y => y.ConferenceAccountId == x.ConferenceAccountId)
-                                                     .WhereIf(trackId != null, y => y.TrackId == trackId || y.RoleId == roleMap.GetValueOrDefault(Chair));
+                // Aggregate role for each conference account + paged list
+                int startIndex = skipCount;
+                int added = 0;
 
-                            var incumbents = await incumbentQueryable.ToListAsync();
+                for(int i = startIndex; i < conferenceAccountRowList.Count; i++)
+                {
+                    ConferenceParticipationBriefInfo participation = new ConferenceParticipationBriefInfo();
 
-                            if (incumbents != null && incumbents.Any())
+                    var userQueryable = (from u in dbContext.Set<IdentityUser>()
+                                         select u).Where(y => y.Id == conferenceAccountRowList[i].AccountId);
+                    var user = userQueryable.SingleOrDefault();
+
+                    var participantQueryable = (from p in dbContext.Set<Participant>()
+                                                select p).Where(y => y.AccountId == conferenceAccountRowList[i].AccountId);
+
+                    var participant = participantQueryable.SingleOrDefault();
+
+                    if (user != null)
+                    {
+                        participation.Id = user.Id;
+                        participation.Email = user.Email;
+                        participation.FirstName = user.Name;
+                        participation.MiddleName = user.GetProperty<string?>(nameof(participation.MiddleName));
+                        participation.LastName = user.Surname;
+                        participation.Organization = user.GetProperty<string?>(nameof(participation.Organization));
+                        participation.ParticipantId = participant == null ? null : participant.Id;
+
+                        var incumbentQueryable = (from incumbent in dbContext.Set<Incumbent>()
+                                                  select new RoleRow
+                                                  {
+                                                      ConferenceAccountId = incumbent.ConferenceAccountId,
+                                                      RoleId = incumbent.ConferenceRoleId,
+                                                      TrackId = incumbent.TrackId
+                                                  })
+                                                  .Where(y => y.ConferenceAccountId == conferenceAccountRowList[i].ConferenceAccountId)
+                                                  .WhereIf(trackId != null, y => y.TrackId == trackId || y.RoleId == roleMap.GetValueOrDefault(Chair));
+                        var incumbentList = await incumbentQueryable.ToListAsync();
+
+                        // Clean incumbentList
+                        for(int p = 0; p < incumbentList.Count; p++)
+                        {
+                            for(int q = p + 1;  q < incumbentList.Count; q++)
                             {
-                                incumbents.ForEach(y =>
+                                if (incumbentList[p].RoleId == incumbentList[q].RoleId)
                                 {
-                                    participation.Roles.Add(roleNameMap.GetValueOrDefault(y.RoleId) ?? string.Empty);
-                                });
+                                    incumbentList.Remove(incumbentList[q]);
+                                    q--;
+                                }
                             }
                         }
 
-                        result.Add(participation);
-                    });
+                        if (incumbentList != null && incumbentList.Any())
+                        {
+                            incumbentList.ForEach(y =>
+                            {
+                                participation.Roles.Add(roleNameMap.GetValueOrDefault(y.RoleId) ?? string.Empty);
+                            });
+                        }
+                    }
+
+                    result.Add(participation);
+
+                    added++;
+                    if (added >= maxResultCount)
+                        break;
                 }
             }
             catch(Exception ex)
