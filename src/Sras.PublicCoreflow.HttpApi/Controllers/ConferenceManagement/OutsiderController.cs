@@ -65,5 +65,17 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet("searchByEmail/{email}")]
+        public async Task<ActionResult<object>> GetOutsiderByEmail(string email)
+        {
+            try
+            {
+                if (email == null) throw new Exception("Invalid Email");
+                return await _outsiderService.SearchOutsiderByEmail(email);
+            } catch(Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        } 
+
     }
 }
