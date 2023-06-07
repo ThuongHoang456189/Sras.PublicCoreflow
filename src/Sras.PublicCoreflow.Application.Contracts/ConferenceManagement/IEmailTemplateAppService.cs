@@ -7,6 +7,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IEmailTemplateAppService
     {
+        Task<IEnumerable<object>> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId);
         Task<object> GetEmailTemplateById(Guid id);
     }
 }
