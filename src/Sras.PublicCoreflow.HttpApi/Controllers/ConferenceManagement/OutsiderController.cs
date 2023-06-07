@@ -65,7 +65,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("searchByEmail/{email}")]
+        [HttpGet("searchParticipantByEmail/{email}")]
         public async Task<ActionResult<object>> GetOutsiderByEmail(string email)
         {
             try
