@@ -140,16 +140,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return submission.Id;
         }
 
-        public void CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files)
+        public ResponseDto CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files)
         {
-            // Assume that the file extension is exactly matched its file name extension
-            files.ForEach(async file =>
+            ResponseDto response = new();
+
+            try
             {
-                if (file != null && file.ContentLength > 0)
+                // Assume that the file extension is exactly matched its file name extension
+                files.ForEach(async file =>
                 {
-                    await CreateSubmissionFilesAsync(submissionId.ToString() + "/" + file.FileName, file, true);
-                }
-            });
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        await CreateSubmissionFilesAsync(submissionId.ToString() + "/" + file.FileName, file, true);
+                    }
+                });
+
+                response.IsSuccess = true;
+                response.Message = "Create submission files successfully";
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+            }
+            
+            return response;
         }
     }
 }
