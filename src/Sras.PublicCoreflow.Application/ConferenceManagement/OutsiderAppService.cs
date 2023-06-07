@@ -35,5 +35,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _outsiderRepository.UpdateOutsider(request);
         }
+
+        public async Task<object> SearchOutsiderByEmail(string email)
+        {
+            return await _outsiderRepository.SearchOutsiderByEmail(email);
+        }
     }
 }
