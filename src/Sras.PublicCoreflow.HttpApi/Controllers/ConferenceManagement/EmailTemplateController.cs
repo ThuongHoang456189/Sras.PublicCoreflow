@@ -35,5 +35,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("conference/{conferenceId}")]
+        public async Task<ActionResult<object>> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId)
+        {
+            try
+            {
+                var result = await _emailTemplateAppService.GetEmailTemplateByConferenceIdOrTrackId(conferenceId, trackId);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -22,5 +22,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _emailTemplateRespository.GetEmailTemplateById(id);
         }
 
+        public async Task<IEnumerable<object>> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId)
+        {
+            if (trackId == null)
+            {
+                return await _emailTemplateRespository.GetEmailTemplateByConferenceId(conferenceId);
+            } else
+            {
+                return await _emailTemplateRespository.GetEmailTemplateByConferenceIdAndTrackId(conferenceId, trackId);
+            }
+        }
+
     }
 }

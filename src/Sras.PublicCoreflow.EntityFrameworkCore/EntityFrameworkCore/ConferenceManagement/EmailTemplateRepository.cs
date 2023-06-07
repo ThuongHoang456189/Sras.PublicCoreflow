@@ -68,31 +68,32 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
-        public async Task<IEnumerable<object>> GetEmailTemplateByTrackId(Guid trackId)
+        public async Task<IEnumerable<object>> GetEmailTemplateByConferenceIdAndTrackId(Guid conferenceId, Guid? trackId)
         {
             try
             {
                 var dbContext = await GetDbContextAsync();
                 var finalTemplateList = new List<object>();
-                if (!dbContext.Tracks.Any(c => c.Id == trackId))
+                if (!dbContext.Tracks.Any(c => c.Id == trackId) || !dbContext.Conferences.Any(cf => cf.Id == conferenceId))
                 {
-                    throw new Exception("TrackId not exist in DB");
+                    throw new Exception("TrackId Or ConferenceId not exist in DB");
                 }
 
-                var resultOne = dbContext.EmailTemplates
+                var templateOfTrack = dbContext.EmailTemplates
                     .Where(e => e.ConferenceId != null)
                     .Where(e => e.TrackId == trackId)
                     .ToList();
-                var resultTwo = dbContext.EmailTemplates
+                var templateOfConference = dbContext.EmailTemplates
                     .Where(em => em.ConferenceId != null && em.TrackId == null)
-                    .ToList();  
-                resultOne.AddRange(resultTwo);
-                resultOne.Select(r => new
+                    .Where(et => et.ConferenceId == conferenceId)
+                    .ToList();
+                templateOfTrack.AddRange(templateOfConference);
+                var totalTemplate = templateOfTrack.Select(r => new
                 {
                     TemplateId = r.Id,
-                    TemplateName = "haha"
+                    TemplateName = r.Name
                 });
-                return resultOne;
+                return totalTemplate;
             }
             catch (Exception ex)
             {
