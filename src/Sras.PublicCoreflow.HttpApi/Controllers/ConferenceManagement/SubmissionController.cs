@@ -31,7 +31,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/submission-files")]
-        public IActionResult CreateSubmissionFiles ([FromQuery] Guid id, [FromForm] List<RemoteStreamContent> files)
+        public IActionResult CreateSubmissionFiles (Guid id, [FromForm] List<RemoteStreamContent> files)
         {
             return Ok(_submissionAppService.CreateSubmissionFiles(id, files));
         }
