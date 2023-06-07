@@ -2,6 +2,7 @@
 using System;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -17,5 +18,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ConferenceWithDetails> UpdateAsync(Guid id, ConferenceWithDetailsInput input);
 
         Task<bool> DeleteAsync(Guid id);
+
+        Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter);
     }
 }
