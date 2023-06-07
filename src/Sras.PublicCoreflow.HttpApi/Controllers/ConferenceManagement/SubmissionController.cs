@@ -35,5 +35,23 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             _submissionAppService.CreateSubmissionFiles(submissionId, files);
         }
+
+        [HttpGet("numOfSubmission/{trackId}")]
+        public async Task<ActionResult<object>> GetNumberOfSubmissionByTrackId(Guid trackId)
+        {
+            try
+            {
+                if (trackId == null)
+                {
+                    throw new Exception("Invalid TrackId");
+                } else
+                {
+                    var result = await _submissionAppService.GetNumberOfSubmission(trackId);
+                    return Ok(result);
+                }
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

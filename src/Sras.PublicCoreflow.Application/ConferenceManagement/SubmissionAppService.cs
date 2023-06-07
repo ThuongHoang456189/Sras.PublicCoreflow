@@ -24,6 +24,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IConferenceRepository _conferenceRepository;
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly ISubmissionRepository _submissionRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -38,7 +39,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
             IRepository<IdentityUser, Guid> userRepository,
             ICurrentUser currentUser, IGuidGenerator guidGenerator, 
-            IBlobContainer<SubmissionContainer> submissionBlobContainer)
+            IBlobContainer<SubmissionContainer> submissionBlobContainer,
+            ISubmissionRepository submissionRepository
+            )
         {
             _trackRepository = trackRepository;
             _paperStatusRepository = paperStatusRepository;
@@ -50,6 +53,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _submissionBlobContainer = submissionBlobContainer;
+            _submissionRepository = submissionRepository;
         }
 
         //public async Task SaveBytesAsync(byte[] bytes)
@@ -150,6 +154,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     await CreateSubmissionFilesAsync(submissionId.ToString() + "/" + file.FileName, file, true);
                 }
             });
+        }
+
+        public async Task<object> GetNumberOfSubmission(Guid trackId)
+        {
+            return await _submissionRepository.GetNumberOfSubmission(trackId);
         }
     }
 }

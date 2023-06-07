@@ -11,5 +11,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<Guid> CreateAsync(SubmissionInput input);
 
         void CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files);
+        Task<object> GetNumberOfSubmission(Guid trackId);
     }
 }
