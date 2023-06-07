@@ -69,7 +69,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             internal Guid IncumbentId { get; set; }
             internal Guid RoleId { get; set; }
             internal string RoleName { get; set; }
-            internal int RoleFactor { get; set; }
+            public int Factor { get; set; }
             internal Guid? TrackId { get; set; }
             internal string? TrackName { get; set; }
         }
@@ -83,8 +83,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var userQueryable = (from u in dbContext.Set<IdentityUser>()
                                  select u).Where(x => x.Id == accountId);
             var user = userQueryable.SingleOrDefault();
+
             if (user == null)
                 return null;
+
+            var participantQueryable = (from p in dbContext.Set<Participant>()
+                                        select p).Where(y => y.AccountId == accountId);
+
+            var participant = participantQueryable.SingleOrDefault();
 
             participation.Id = user.Id;
             participation.Email = user.Email;
@@ -92,7 +98,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             participation.MiddleName = user.GetProperty<string?>(nameof(participation.MiddleName));
             participation.LastName = user.Surname;
             participation.Organization = user.GetProperty<string?>(nameof(participation.Organization));
-            participation.ParticipantId = user.GetProperty<Guid?>(nameof(participation.ParticipantId));
+            participation.ParticipantId = participant == null ? null : participant.Id;
 
             var incumbentQueryable = from ca in dbContext.Set<ConferenceAccount>()
                                      join u in ((from u1 in dbContext.Set<IdentityUser>() select u1).Where(x => x.Id == accountId)) on ca.AccountId equals u.Id
@@ -109,7 +115,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                              IncumbentId = i.Id,
                                              RoleId = r.Id,
                                              RoleName = r.Name,
-                                             RoleFactor = r.Factor,
+                                             Factor = r.Factor,
                                              TrackId = subtrack == null ? null : subtrack.Id,
                                              TrackName = subtrack == null ? null : subtrack.Name
                                          })
@@ -125,28 +131,34 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 int currentRoleFactor = -1;
                 RoleWithEngagedTrackInfo? currentRole = null;
 
-                incumbentRowList.ForEach(x =>
+                for (int i = 0; i < incumbentRowList.Count; i++)
                 {
-                    if (currentRoleFactor != x.RoleFactor)
+                    if (currentRoleFactor != incumbentRowList[i].Factor)
                     {
                         if (currentRole != null)
                         {
                             participation.Roles.Add(currentRole);
                         }
 
-                        currentRoleFactor = x.RoleFactor;
-                        currentRole = new RoleWithEngagedTrackInfo(x.RoleId, x.RoleName, x.RoleFactor);
+                        currentRoleFactor = incumbentRowList[i].Factor;
+                        currentRole = new RoleWithEngagedTrackInfo(incumbentRowList[i].RoleId, incumbentRowList[i].RoleName, incumbentRowList[i].Factor);
                     }
 
-                    if (currentRole != null && x.TrackId != null && x.TrackName != null)
+                    if (currentRole != null && incumbentRowList[i].TrackId != null && incumbentRowList[i].TrackName != null)
                     {
                         if (currentRole.EngagedTracks == null)
                         {
                             currentRole.EngagedTracks = new List<TrackBriefInfo>();
                         }
-                        currentRole.EngagedTracks.Add(new TrackBriefInfo(x.TrackId.Value, x.TrackName));
+                        currentRole.EngagedTracks.Add(new TrackBriefInfo(incumbentRowList[i].TrackId.GetValueOrDefault(), incumbentRowList[i].TrackName ?? ""));
                     }
-                });
+
+                    // Closing
+                    if (i == incumbentRowList.Count - 1 && currentRole != null)
+                    {
+                        participation.Roles.Add(currentRole);
+                    }
+                }
             }
 
             return participation;
