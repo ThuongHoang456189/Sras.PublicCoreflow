@@ -30,10 +30,10 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _submissionAppService.CreateAsync(input);
         }
 
-        [HttpPost("{id}")]
-        public void CreateSubmissionFiles (Guid submissionId, List<RemoteStreamContent> files)
+        [HttpPost("{id}/submission-files")]
+        public IActionResult CreateSubmissionFiles (Guid id, [FromForm] List<RemoteStreamContent> files)
         {
-            _submissionAppService.CreateSubmissionFiles(submissionId, files);
+            return Ok(_submissionAppService.CreateSubmissionFiles(id, files));
         }
     }
 }

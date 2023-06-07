@@ -10,6 +10,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<Guid> CreateAsync(SubmissionInput input);
 
-        void CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files);
+        ResponseDto CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files);
     }
 }

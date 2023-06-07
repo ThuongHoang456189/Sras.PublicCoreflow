@@ -19,16 +19,16 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _conferenceRoleAppService = conferenceRoleAppService;
         }
 
-        [HttpGet("test")]
-        public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
-        {
-            return await _conferenceRoleAppService.CreateOrUpdateTestAsync(input);
-        }
+        //[HttpGet("test")]
+        //public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
+        //{
+        //    return await _conferenceRoleAppService.CreateOrUpdateTestAsync(input);
+        //}
 
         [HttpPost]
-        public async Task CreateOrUpdateAsync(UserConferenceRoleInput input)
+        public async Task<IActionResult> CreateOrUpdateAsync(UserConferenceRoleInput input)
         {
-            await _conferenceRoleAppService.CreateOrUpdateAsync(input);
+            return Ok( await _conferenceRoleAppService.CreateOrUpdateAsync(input) );
         }
 
         [HttpGet]
