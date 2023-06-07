@@ -48,11 +48,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return result;
         }
-
-        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(ConferenceParticipationFilterDto filter)
-        {
-            return await _incumbentRepository.GetConferenceUserListAsync(filter.ConferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
-        }
-
     }
 }

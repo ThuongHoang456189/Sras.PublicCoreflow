@@ -97,7 +97,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             var submissionId = _guidGenerator.Create();
             Submission submission = new Submission(submissionId, input.Title, input.Abstract, submissionId.ToString(), track.Id,
-                input.DomainConflicts, null, null, input.Answers, awaitingDecisionPaperStatus.Id, null, null, false);
+                input.DomainConflicts, null, null, input.Answers, awaitingDecisionPaperStatus.Id, null, null, null, false);
 
             // Proceed author list
             var conferenceId = track.ConferenceId;
