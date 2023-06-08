@@ -10,7 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         [ForeignKey(nameof(Incumbent))]
         public Guid Id { get; private set; }
-        public virtual Incumbent Incumbent { get; set; }
+        public Incumbent Incumbent { get; set; }
         public int? Quota { get; private set; }
 
         public ICollection<ReviewerSubjectArea> SubjectAreas { get; private set; }

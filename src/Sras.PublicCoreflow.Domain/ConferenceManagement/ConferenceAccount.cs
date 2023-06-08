@@ -57,6 +57,27 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
+        public ConferenceAccount AddIncumbent(Incumbent incumbent)
+        {
+            if (incumbent.TrackId == null)
+            {
+                if (Incumbents.Any(x => x.ConferenceAccountId == Id
+                && x.ConferenceRoleId == incumbent.ConferenceRoleId))
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.IncumbentAlreadyAssigned);
+                }
+            }
+            else if (Incumbents.Any(x => x.ConferenceAccountId == Id
+                && x.ConferenceRoleId == incumbent.ConferenceRoleId && x.TrackId == incumbent.TrackId))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.IncumbentAlreadyAssigned);
+            }
+
+            Incumbents.Add(incumbent);
+
+            return this;
+        }
+
         public ConferenceAccount UpdateIncumbent(
             Guid incumbentId,
             bool isPrimaryContact)
