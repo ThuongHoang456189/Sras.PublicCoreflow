@@ -219,6 +219,11 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Reviewers", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.HasOne<Incumbent>(i => i.Incumbent)
+            .WithMany(s => s.Reviewers)
+            .HasForeignKey(i => i.Id)
+            .IsRequired(true);
         });
 
         builder.Entity<ReviewerSubjectArea>(b =>
