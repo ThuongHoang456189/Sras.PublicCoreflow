@@ -1,6 +1,45 @@
-﻿namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
+﻿using Microsoft.AspNetCore.Mvc;
+using Sras.PublicCoreflow.ConferenceManagement;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Volo.Abp;
+using Volo.Abp.AspNetCore.Mvc;
+
+namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
-    public class TrackController
+    [RemoteService(Name = "Sras")]
+    [Area("sras")]
+    [ControllerName("Tracks")]
+    [Route("api/sras/tracks")]
+    public class TrackController : AbpController
     {
+
+        private readonly ITrackAppService _trackAppService;
+
+        public TrackController(ITrackAppService trackAppService)
+        {
+            _trackAppService = trackAppService;
+        }
+
+        [HttpGet("{conferenceId}")]
+        public async Task<object> GetAllTracks(Guid conferenceId)
+        {
+            return await _trackAppService.GetAllTrackByConferenceId(conferenceId);
+        }
+
+        [HttpPost("{conferenceId}/{trackName}")]
+        public async Task<ActionResult<object>> CreateAsync(Guid conferenceId, string trackName)
+        {
+            try
+            {
+                var result = await _trackAppService.CreateTrackAsync(conferenceId, trackName);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
