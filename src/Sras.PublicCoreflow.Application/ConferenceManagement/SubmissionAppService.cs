@@ -1,4 +1,5 @@
 ﻿using Sras.PublicCoreflow.BlobContainer;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -174,6 +175,22 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<object> GetNumberOfSubmission(Guid trackId)
         {
             return await _submissionRepository.GetNumberOfSubmission(trackId);
+        }
+
+        public async Task<object> GetNumberOfSubmissionAndEmail(SubmissionWithEmailRequest request)
+        {
+            if (request.AllAuthors)
+            {
+                return await _submissionRepository.GetNumOfSubmissionAndEmailWithAllAuthor(request);
+            } else
+            {
+                return await _submissionRepository.GetNumOfSubmissionAndEmailWithPrimaryContactAuthor(request);
+            }
+        }
+
+        public async Task<IEnumerable<object>> GetSubmissionsAsync()
+        {
+            return await _submissionRepository.GetSubmissionAsync();
         }
     }
 }
