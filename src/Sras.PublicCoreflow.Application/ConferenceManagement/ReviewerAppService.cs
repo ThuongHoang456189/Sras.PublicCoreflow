@@ -125,7 +125,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 {
                     if (x.Operation == ReviewerSubjectAreaManipulationOperators.Add)
                     {
-                        ReviewerSubjectArea newSubjectArea = new ReviewerSubjectArea(x.ReviewerId, x.SubjectAreaId, x.IsPrimary);
+                        ReviewerSubjectArea newSubjectArea = new ReviewerSubjectArea(_guidGenerator.Create(), x.ReviewerId, x.SubjectAreaId, x.IsPrimary);
                         reviewer.SubjectAreas.Add(newSubjectArea);
                     }
                     else if (x.Operation == ReviewerSubjectAreaManipulationOperators.Del)
@@ -151,8 +151,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = true;
                 response.Message = "Update successfully";
             }
-            catch(Exception)
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 response.IsSuccess = false;
                 response.Message = "Exception";
             }

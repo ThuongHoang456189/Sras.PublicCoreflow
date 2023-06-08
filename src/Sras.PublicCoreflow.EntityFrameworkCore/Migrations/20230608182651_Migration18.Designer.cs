@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230608182651_Migration18")]
+    partial class Migration18
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,7 +95,10 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Author", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ParticipantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmissionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -141,15 +147,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("ParticipantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParticipantId");
+                    b.HasKey("ParticipantId", "SubmissionId", "ConcurrencyStamp");
 
                     b.HasIndex("SubmissionId");
 
@@ -374,7 +372,13 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Conflict", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IncumbentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ConflictCaseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -382,9 +386,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)")
                         .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<Guid>("ConflictCaseId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2")
@@ -406,9 +407,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<Guid>("IncumbentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDefinedByReviewer")
                         .HasColumnType("bit");
 
@@ -426,16 +424,11 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
+                    b.HasKey("SubmissionId", "IncumbentId", "ConflictCaseId", "ConcurrencyStamp");
 
                     b.HasIndex("ConflictCaseId");
 
                     b.HasIndex("IncumbentId");
-
-                    b.HasIndex("SubmissionId");
 
                     b.ToTable("Conflicts", (string)null);
                 });
@@ -1579,7 +1572,10 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ReviewerSubjectArea", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectAreaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -1625,15 +1621,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("ReviewerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubjectAreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReviewerId");
+                    b.HasKey("ReviewerId", "SubjectAreaId", "ConcurrencyStamp");
 
                     b.HasIndex("SubjectAreaId");
 
@@ -1861,7 +1849,10 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionSubjectArea", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubjectAreaId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -1907,17 +1898,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid>("SubjectAreaId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
+                    b.HasKey("SubmissionId", "SubjectAreaId", "ConcurrencyStamp");
 
                     b.HasIndex("SubjectAreaId");
-
-                    b.HasIndex("SubmissionId");
 
                     b.ToTable("SubmissionSubjectAreas", (string)null);
                 });
