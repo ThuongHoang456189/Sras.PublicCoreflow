@@ -117,7 +117,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             // Apply operation on author list
             authorOperationTable.ForEach(x =>
             {
-                submission.AddAuthor(x.ParticipantId, x.IsPrimaryContact);
+                submission.AddAuthor(_guidGenerator.Create(), x.ParticipantId, x.IsPrimaryContact);
 
                 if (x.Operation == AuthorManipulationOperators.Add2)
                 {
@@ -135,7 +135,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             // Proceed subject area list
             input.SubjectAreas.ForEach(x =>
             {
-                submission.AddSubmissionSubjectArea(x.SubjectAreaId, x.IsPrimary);
+                submission.AddSubmissionSubjectArea(_guidGenerator.Create(), x.SubjectAreaId, x.IsPrimary);
             });
 
             await _conferenceRepository.UpdateAsync(conference);

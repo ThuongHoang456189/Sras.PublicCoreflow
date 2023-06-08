@@ -7,5 +7,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public interface IReviewerAppService : IApplicationService
     {
         Task<ResponseDto> UpdateReviewerQuota(ReviewerQuotaInput input);
+
+        Task<ResponseDto> UpdateReviewerSubjectArea(ReviewerSubjectAreaInput input);
     }
 }
