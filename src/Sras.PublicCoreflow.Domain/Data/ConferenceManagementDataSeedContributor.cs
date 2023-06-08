@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Sras.PublicCoreflow.ConferenceManagement;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,10 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<SupportedPlaceholder, Guid> _supportedPlaceholderRepository;
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly IRepository<Conference, Guid> _conferenceRepository;
+        private readonly IRepository<Track, Guid> _trackConferenceRepository;
+        private readonly IRepository<SubjectArea, Guid> _subjectAreaRepository;
+        private readonly IRepository<EmailTemplate, Guid> _emailTemplateRepository;
 
         private Guid _sandraId;
         private Guid _sergeyId;
@@ -50,6 +54,19 @@ namespace Sras.PublicCoreflow.Data
         private Guid _senderPlaceholderGroup;
         private Guid _recipientPlaceholderGroup;
 
+        private Guid _conference1stSciId;
+        private Guid _conference2ndSciId;
+        private Guid _conference3rdSciId;
+
+        private Guid _track1stSci1Id;
+        private Guid _track1stSci2Id;
+        private Guid _track2ndSci1Id;
+        private Guid _track2ndSci2Id;
+        private Guid _track2ndSci3Id;
+        private Guid _track3rdSci1Id;
+        private Guid _track3rdSci2Id;
+        private Guid _track3rdSci3Id;
+
         public ConferenceManagementDataSeedContributor(
             IGuidGenerator guidGenerator,
             IRepository<PaperStatus, Guid> paperStatusRepository,
@@ -58,7 +75,11 @@ namespace Sras.PublicCoreflow.Data
             IRepository<PlaceholderGroup, Guid> placeholderGroupRepository,
             IRepository<SupportedPlaceholder, Guid> supportedPlaceholderRepository,
             IdentityUserManager identityUserManager,
-            IRepository<IdentityUser, Guid> userRepository)
+            IRepository<IdentityUser, Guid> userRepository,
+            IRepository<Conference, Guid> conferenceRepository,
+            IRepository<Track, Guid> trackConferenceRepository,
+            IRepository<SubjectArea, Guid> subjectAreaRepository,
+            IRepository<EmailTemplate, Guid> emailTemplateRepository)
         {
             _guidGenerator = guidGenerator;
             _paperStatusRepository = paperStatusRepository;
@@ -68,6 +89,10 @@ namespace Sras.PublicCoreflow.Data
             _supportedPlaceholderRepository = supportedPlaceholderRepository;
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
+            _conferenceRepository = conferenceRepository;
+            _trackConferenceRepository = trackConferenceRepository;
+            _subjectAreaRepository = subjectAreaRepository;
+            _emailTemplateRepository = emailTemplateRepository;
         }
 
         private async Task CreateParticipantsAsync()
@@ -266,6 +291,82 @@ namespace Sras.PublicCoreflow.Data
             await _supportedPlaceholderRepository.InsertManyAsync(supportedPlaceholders, autoSave: true);
         }
 
+        private async Task CreateConferenceAsync()
+        {/* Add data for Conference table */
+            var conferences = new List<Conference>
+            {
+                new Conference(_conference1stSciId = _guidGenerator.Create(), "First Science Conference", "1stSci", "HoChiMinh", "VietNam", new DateTime(2022, 04, 23), new DateTime(2022, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
+                new Conference(_conference2ndSciId = _guidGenerator.Create(), "Second Science Conference", "2ndSci", "HoChiMinh", "VietNam", new DateTime(2023, 04, 23), new DateTime(2023, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
+                new Conference(_conference3rdSciId = _guidGenerator.Create(), "Third Science Conference", "3rdSci", "HoChiMinh", "VietNam", new DateTime(2024, 04, 23), new DateTime(2024, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
+            };
+
+            await _conferenceRepository.InsertManyAsync(conferences);
+        }
+
+        private async Task CreateTrackConferenceAsync()
+        {/* Add data for Track table */
+            if (await _trackConferenceRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var tracks = new List<Track>
+            {
+                new Track(_track1stSci1Id = _guidGenerator.Create(), true, "Artificial Intelligence", _conference1stSciId, null, null, null, null, null, null),
+                new Track(_track1stSci2Id = _guidGenerator.Create(), true, "Cloud Computing", _conference1stSciId, null, null, null, null, null, null),
+                new Track(_track2ndSci1Id = _guidGenerator.Create(), true, "Programming with Alice", _conference2ndSciId, null, null, null, null, null, null),
+                new Track(_track2ndSci2Id = _guidGenerator.Create(), true, "Artificial Intelligence", _conference2ndSciId, null, null, null, null, null, null),
+                new Track(_track2ndSci3Id = _guidGenerator.Create(), true, "Programming Fundamentals", _conference2ndSciId, null, null, null, null, null, null),
+                new Track(_track3rdSci1Id = _guidGenerator.Create(), true, "Cloud Computing", _conference3rdSciId, null, null, null, null, null, null),
+                new Track(_track3rdSci2Id = _guidGenerator.Create(), true, "Artificial Intelligence", _conference3rdSciId, null, null, null, null, null, null),
+                new Track(_track3rdSci3Id = _guidGenerator.Create(), true, "Programming with Alice", _conference3rdSciId, null, null, null, null, null, null),
+            };
+
+            await _trackConferenceRepository.InsertManyAsync(tracks, autoSave: true);
+        }
+
+        private async Task CreateSubjectAreaAsync()
+        {/* Add data for SubjectArea table */
+            if (await _subjectAreaRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var subjectAreas = new List<SubjectArea>
+            {
+                new SubjectArea(_guidGenerator.Create(), "Mobile", _track2ndSci2Id),
+                new SubjectArea(_guidGenerator.Create(), "Robot", _track2ndSci2Id),
+                new SubjectArea(_guidGenerator.Create(), "Smart Home", _track2ndSci2Id),
+                new SubjectArea(_guidGenerator.Create(), "Programming Fundamentals", _track2ndSci3Id),
+                new SubjectArea(_guidGenerator.Create(), "Programming with Alice", _track2ndSci1Id),
+                new SubjectArea(_guidGenerator.Create(), "Cloud Computing", _track3rdSci1Id),
+                new SubjectArea(_guidGenerator.Create(), "Programming with Alice", _track3rdSci3Id),
+            };
+
+            await _subjectAreaRepository.InsertManyAsync(subjectAreas, autoSave: true);
+        }
+
+        private async Task CreateEmailTemplateAsync()
+        {/* Add data for EmailTemplate table */
+            if (await _emailTemplateRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var emailTemplates = new List<EmailTemplate>
+            {
+                new EmailTemplate(_guidGenerator.Create(), "Template Revision", "Revision request notification email", "Please update your revision on time.", null, null),
+                new EmailTemplate(_guidGenerator.Create(), "Template Accepted", "Your submission has been accepted", "Please check your submission's information and send your submission's last version on time.", _conference1stSciId, null),
+                new EmailTemplate(_guidGenerator.Create(), "Template Accepted Track", "Your submission has been accepted", "Please check your submission's information and send your submission's last version on time.", _conference1stSciId, _track1stSci1Id),
+                new EmailTemplate(_guidGenerator.Create(), "Template Accepted Track 2ndSci", "Your submission has been accepted", "Please check your submission's information and send your submission's last version on time.", _conference2ndSciId, _track1stSci2Id),
+                new EmailTemplate(_guidGenerator.Create(), "Template Reject", "Your submission has been rejected" , "Thank you for your submission, but your submission does not match our requirements.", _conference1stSciId, null),
+                new EmailTemplate(_guidGenerator.Create(), "Template Reject", "Your submission has been rejected" , "Thank you for your submission, but your submission does not match our requirements.", null, _track3rdSci2Id),
+                new EmailTemplate(_guidGenerator.Create(), "Template Reject", "Your submission has been rejected" , "Thank you for your submission, but your submission does not match our requirements.", _conference3rdSciId, null),
+            };
+
+            await _emailTemplateRepository.InsertManyAsync(emailTemplates, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -278,6 +379,12 @@ namespace Sras.PublicCoreflow.Data
             await CreateConferenceRolesAsync();
             await CreatePlaceholderGroupAsync();
             await CreateSupportedPlaceholderAsync();
+
+            await CreateConferenceAsync();
+            await CreateTrackConferenceAsync();
+
+            await CreateSubjectAreaAsync();
+            await CreateEmailTemplateAsync();
         }
     }
 }
