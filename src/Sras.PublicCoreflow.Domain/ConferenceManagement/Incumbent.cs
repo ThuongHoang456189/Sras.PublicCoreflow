@@ -51,5 +51,18 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return this;
         }
+
+        public Incumbent UpdateReviewer(Guid reviewerId, int? quota)
+        {
+            var reviewer = Reviewers.FirstOrDefault(x => x.Id == reviewerId);
+            if (reviewer == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
+            }
+
+            reviewer.Quota = quota;
+
+            return this;
+        }
     }
 }
