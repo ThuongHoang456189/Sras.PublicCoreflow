@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,6 +53,30 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             } catch (Exception ex) {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("get-number-submissions-and-email-by-status")]
+        public async Task<ActionResult<object>> GetNumberOfSubmissionAndEmail([FromBody] SubmissionWithEmailRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    throw new Exception("Request is Null");
+                }
+                var result = _submissionAppService.GetNumberOfSubmissionAndEmail(request);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetSubmissionsAsync()
+        {
+            var result = await _submissionAppService.GetSubmissionsAsync();
+            return Ok(result);
         }
     }
 }
