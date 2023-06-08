@@ -59,6 +59,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ActivityDeadlines = new Collection<ActivityDeadline>();
         }
 
+        public Track(Guid id, bool isDefault, string name, Guid conferenceId) : base(id)
+        {
+            IsDefault = isDefault;
+            SetName(name);
+            ConferenceId = conferenceId;
+        }
+
         public Track SetName(string name)
         {
             Name = Check.NotNullOrWhiteSpace(string.IsNullOrEmpty(name) ? name : name.Trim(), nameof(name), TrackConsts.MaxNameLength);

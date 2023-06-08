@@ -10,5 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<TrackBriefInfo?> CreateAsync(Guid conferenceId, string trackName);
         Task<TrackBriefInfo?> UpdateAsync(Guid conferenceId, Guid trackId, string trackName);
         Task<List<TrackBriefInfo>?> GetAllAsync(Guid conferenceId);
+        Task<object> GetAllTrackByConferenceId(Guid guid);
+        Task<object> CreateTrackAsync(Guid conferenceId, string trackName);
     }
 }

@@ -18,14 +18,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
+        private readonly ITrackRepository _trackRepository2;
 
-        public TrackAppService(IConferenceRepository conferenceRepository, IIncumbentRepository incumbentRepository, IRepository<Track, Guid> trackRepository, ICurrentUser currentUser, IGuidGenerator guidGenerator)
+        public TrackAppService(IConferenceRepository conferenceRepository, IIncumbentRepository incumbentRepository, IRepository<Track, Guid> trackRepository, ICurrentUser currentUser, IGuidGenerator guidGenerator, ITrackRepository trackRepository1)
         {
             _conferenceRepository = conferenceRepository;
             _incumbentRepository = incumbentRepository;
             _trackRepository = trackRepository;
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
+            _trackRepository2 = trackRepository1;
         }
 
         public async Task<List<TrackBriefInfo>?> GetAllAsync(Guid conferenceId)
@@ -95,6 +97,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 await _conferenceRepository.UpdateAsync(conference);
                 return ObjectMapper.Map<Track, TrackBriefInfo>(await _trackRepository.FindAsync(trackId));
             }
+        }
+
+        public async Task<object> GetAllTrackByConferenceId(Guid guid)
+        {
+            return await _trackRepository2.GetAllTrackByConferenceId(guid);
+        }
+
+        public async Task<object> CreateTrackAsync(Guid conferenceId, string trackName)
+        {
+            return await _trackRepository2.CreateTrackAsync(conferenceId, trackName); 
         }
     }
 }
