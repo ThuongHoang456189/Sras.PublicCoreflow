@@ -1,4 +1,5 @@
-﻿using Sras.PublicCoreflow.ConferenceManagement;
+﻿using Microsoft.EntityFrameworkCore;
+using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Domain.ConferenceManagement;
 using System;
 using System.Collections.Generic;
@@ -41,5 +42,64 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 throw new Exception("[Repository] GetEmailTemplateById : " + ex.Message, ex);
             }
         }
+
+        public async Task<IEnumerable<object>> GetEmailTemplateByConferenceId(Guid conferenceId)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (!dbContext.Conferences.Any(c => c.Id == conferenceId))
+                {
+                    throw new Exception("ConferenceId not exist in DB");
+                } else if (!dbContext.EmailTemplates.Any(emt => emt.ConferenceId == conferenceId))
+                {
+                    return new List<string>();
+                }
+
+                var result = dbContext.EmailTemplates.Where(e => e.ConferenceId == conferenceId).Select(em => new
+                {
+                    templateId = em.Id,
+                    templateName = "haha"
+                });
+                return result;
+            } catch (Exception ex)
+            {
+                throw new Exception("[ERROR][GetEmailTemplateByConferenceId] " + ex.Message, ex);
+            }
+        }
+
+        public async Task<IEnumerable<object>> GetEmailTemplateByConferenceIdAndTrackId(Guid conferenceId, Guid? trackId)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                var finalTemplateList = new List<object>();
+                if (!dbContext.Tracks.Any(c => c.Id == trackId) || !dbContext.Conferences.Any(cf => cf.Id == conferenceId))
+                {
+                    throw new Exception("TrackId Or ConferenceId not exist in DB");
+                }
+
+                var templateOfTrack = dbContext.EmailTemplates
+                    .Where(e => e.ConferenceId != null)
+                    .Where(e => e.TrackId == trackId)
+                    .ToList();
+                var templateOfConference = dbContext.EmailTemplates
+                    .Where(em => em.ConferenceId != null && em.TrackId == null)
+                    .Where(et => et.ConferenceId == conferenceId)
+                    .ToList();
+                templateOfTrack.AddRange(templateOfConference);
+                var totalTemplate = templateOfTrack.Select(r => new
+                {
+                    TemplateId = r.Id,
+                    TemplateName = r.Name
+                });
+                return totalTemplate;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("[ERROR][GetEmailTemplateByConferenceId] " + ex.Message, ex);
+            }
+        }
+
     }
 }
