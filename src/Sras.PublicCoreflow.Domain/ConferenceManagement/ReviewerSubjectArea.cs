@@ -12,9 +12,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         [ForeignKey(nameof(SubjectArea))]
         public Guid SubjectAreaId { get; private set; }
         public virtual SubjectArea SubjectArea { get; private set; }
-        public bool IsPrimary { private set; get; }
+        public bool IsPrimary { set; get; }
 
         public ReviewerSubjectArea(Guid reviewerId, Guid subjectAreaId, bool isPrimary)
+            : base()
         {
             ReviewerId = reviewerId;
             SubjectAreaId = subjectAreaId;

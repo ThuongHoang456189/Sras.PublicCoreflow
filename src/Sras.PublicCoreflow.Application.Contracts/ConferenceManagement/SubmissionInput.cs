@@ -10,7 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Abstract { get; set; }
         public List<AuthorInput> Authors { get; set; }
         public string DomainConflicts { get; set; }
-        public List<SubmissionSubjectAreaInput> SubjectAreas { get; set; }
+        public List<SelectedSubjectAreaInput> SubjectAreas { get; set; }
         //public List<RemoteStreamContent> Files { get; set; }
         public string? Answers { get; set; }
     }
