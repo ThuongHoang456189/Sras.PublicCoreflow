@@ -9,12 +9,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public class Reviewer : FullAuditedAggregateRoot<Guid>
     {
         [ForeignKey(nameof(Incumbent))]
-        public Guid Id { get; private set; }
-        public virtual Incumbent Incumbent { get; set; }
-        public int? Quota { get; private set; }
+        public override Guid Id { get; protected set; }
+        public Incumbent Incumbent { get; set; }
+        public int? Quota { get; set; }
 
-        public ICollection<ReviewerSubjectArea> SubjectAreas { get; private set; }
-        public ICollection<ReviewAssignment> Reviews { get; private set; }
+        public ICollection<ReviewerSubjectArea> SubjectAreas { get; set; }
+        public ICollection<ReviewAssignment> Reviews { get; set; }
 
         public Reviewer(Guid id, int? quota) :base (id)
         {

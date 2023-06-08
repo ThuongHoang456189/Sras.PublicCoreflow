@@ -20,6 +20,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
     {
         private const string Chair = "Chair";
         private const string Author = "Author";
+        private const string Reviewer = "Reviewer";
 
         public IncumbentRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
         {
@@ -481,5 +482,26 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             
             return result;
         }
+
+        //public async Task<Incumbent?> FindAsync(Guid accountId, Guid conferenceId, Guid trackId)
+        //{
+        //    var dbContext = await GetDbContextAsync();
+
+        //    var reviewerQueryable = (from r in dbContext.Set<ConferenceRole>() select r)
+        //                            .Where(x => x.Name.Equals(Reviewer));
+
+        //    var conferenceAccountQueryable = (from ca in dbContext.Set<ConferenceAccount>() select ca)
+        //                                        .Where(x => x.AccountId == accountId && x.ConferenceId == conferenceId);
+
+        //    var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
+        //                              join r in reviewerQueryable on i.ConferenceRoleId equals r.Id
+        //                              join ca in conferenceAccountQueryable on i.ConferenceAccountId equals ca.Id
+        //                              select i)
+        //                              .Where(x => x.TrackId == trackId);
+
+        //    var incumbent = await incumbentQueryable.FirstOrDefaultAsync();
+
+        //    return incumbent;
+        //}
     }
 }

@@ -54,18 +54,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
-        //public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
-        //{
-        //    var conference = await _conferenceRepository.FindAsync(input.ConferenceId);
-        //    if (conference == null)
-        //    {
-        //        Console.WriteLine("hello");
-        //        throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
-        //    }
-
-        //    return ObjectMapper.Map<Conference, ConferenceWithDetails>(conference);
-        //}
-
         public async Task<ResponseDto> CreateOrUpdateAsync(UserConferenceRoleInput input)
         {
             // Check if conference exist
@@ -243,7 +231,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         }
                         else if (x.Operation == RoleTrackManipulationOperators.Add)
                         {
-                            conferenceAccount.AddIncumbent(x.IncumbentId, x.RoleId, x.TrackId, false);
+                            var incumbent = new Incumbent(x.IncumbentId, conferenceAccount.Id, x.RoleId, x.TrackId, false);
+
+                            if(x.RoleId == _conferenceRoles.GetValueOrDefault(Reviewer))
+                            {
+                                incumbent.AddReviewer(new Reviewer(incumbent.Id, null));
+                            }
+
+                            conferenceAccount.AddIncumbent(incumbent);
                         }
                     });
 
@@ -262,7 +257,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = true;
                 response.Message = "Update user conference role(s) successfully";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 response.IsSuccess = false;
                 response.Message = "Exception";
