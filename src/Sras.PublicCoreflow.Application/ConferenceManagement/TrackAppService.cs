@@ -77,7 +77,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
         }
 
-        public async Task<TrackBriefInfo?> UpdateAsync(Guid conferenceId, Guid trackId, string trackName)
+        public async Task<TrackBriefInfo?> UpdateTrackNameAsync(Guid conferenceId, Guid trackId, string trackName)
         {
             if (_currentUser != null && _currentUser.Id != null)
             {
@@ -93,7 +93,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 return null;
             else
             {
-                conference.UpdateTrack(trackId, trackName, null, null, null, null, null, null);
+                var track = conference.Tracks.FirstOrDefault(x => x.Id == trackId);
+                if (track == null)
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                track.SetName(trackName);
 
                 await _conferenceRepository.UpdateAsync(conference);
                 return ObjectMapper.Map<Track, TrackBriefInfo>(await _trackRepository.FindAsync(trackId));
@@ -108,6 +112,43 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<object> CreateTrackAsync(Guid conferenceId, string trackName)
         {
             return await _trackRepository2.CreateTrackAsync(conferenceId, trackName); 
+        }
+
+        public async Task<object?> UpdateTrackSubjectAreaRelevanceCoefficientsAsync(Guid trackId, SubjectAreaRelevanceCoefficients input)
+        {
+            try
+            {
+                var track = await _trackRepository.FindAsync(x => x.Id == trackId);
+                if (track == null)
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(input);
+
+                await _trackRepository.UpdateAsync(track);
+                return new
+                {
+                    Id = track.Id,
+                    Name = track.Name,
+                    SubjectAreaRelevanceCoefficients = JsonSerializer.Deserialize< SubjectAreaRelevanceCoefficients>(track.SubjectAreaRelevanceCoefficients)
+                };
+            }catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<object?> GetTrackSubjectAreaRelevanceCoefficientsAsync(Guid trackId)
+        {
+            var track = await _trackRepository.FindAsync(x => x.Id == trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            return new
+            {
+                Id = track.Id,
+                Name = track.Name,
+                SubjectAreaRelevanceCoefficients = track.SubjectAreaRelevanceCoefficients == null ? null : JsonSerializer.Deserialize<SubjectAreaRelevanceCoefficients>(track.SubjectAreaRelevanceCoefficients)
+            };
         }
     }
 }
