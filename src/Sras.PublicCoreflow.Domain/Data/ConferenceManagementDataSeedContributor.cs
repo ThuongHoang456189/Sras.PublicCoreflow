@@ -26,6 +26,7 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<Track, Guid> _trackConferenceRepository;
         private readonly IRepository<SubjectArea, Guid> _subjectAreaRepository;
         private readonly IRepository<EmailTemplate, Guid> _emailTemplateRepository;
+        private readonly IRepository<Submission, Guid> _submissionRepository;
 
         private Guid _sandraId;
         private Guid _sergeyId;
@@ -67,6 +68,13 @@ namespace Sras.PublicCoreflow.Data
         private Guid _track3rdSci2Id;
         private Guid _track3rdSci3Id;
 
+        private Guid _paperStatusAwaitingDecision;
+        private Guid _paperStatusWithdrawn;
+        private Guid _paperStatusDeskReject;
+        private Guid _paperStatusAccept;
+        private Guid _paperStatusRevision;
+        private Guid _paperStatusReject;
+
         public ConferenceManagementDataSeedContributor(
             IGuidGenerator guidGenerator,
             IRepository<PaperStatus, Guid> paperStatusRepository,
@@ -79,7 +87,8 @@ namespace Sras.PublicCoreflow.Data
             IRepository<Conference, Guid> conferenceRepository,
             IRepository<Track, Guid> trackConferenceRepository,
             IRepository<SubjectArea, Guid> subjectAreaRepository,
-            IRepository<EmailTemplate, Guid> emailTemplateRepository)
+            IRepository<EmailTemplate, Guid> emailTemplateRepository,
+            IRepository<Submission, Guid> submissionRepository)
         {
             _guidGenerator = guidGenerator;
             _paperStatusRepository = paperStatusRepository;
@@ -93,6 +102,7 @@ namespace Sras.PublicCoreflow.Data
             _trackConferenceRepository = trackConferenceRepository;
             _subjectAreaRepository = subjectAreaRepository;
             _emailTemplateRepository = emailTemplateRepository;
+            _submissionRepository = submissionRepository;
         }
 
         private async Task CreateParticipantsAsync()
@@ -207,12 +217,12 @@ namespace Sras.PublicCoreflow.Data
 
             var paperStatuses = new List<PaperStatus>
             {
-                new PaperStatus(_guidGenerator.Create(),"Awaiting Decision", null, false, true),
-                new PaperStatus(_guidGenerator.Create(),"Withdrawn", null, false, true),
-                new PaperStatus(_guidGenerator.Create(),"Desk Reject", null, false, true),
-                new PaperStatus(_guidGenerator.Create(),"Accept", null, false, true),
-                new PaperStatus(_guidGenerator.Create(),"Revision", null, false, true),
-                new PaperStatus(_guidGenerator.Create(),"Reject", null, false, true)
+                new PaperStatus(_paperStatusAwaitingDecision = _guidGenerator.Create(),"Awaiting Decision", null, false, true),
+                new PaperStatus(_paperStatusWithdrawn = _guidGenerator.Create(),"Withdrawn", null, false, true),
+                new PaperStatus(_paperStatusDeskReject = _guidGenerator.Create(),"Desk Reject", null, false, true),
+                new PaperStatus(_paperStatusAccept = _guidGenerator.Create(),"Accept", null, false, true),
+                new PaperStatus(_paperStatusRevision = _guidGenerator.Create(),"Revision", null, false, true),
+                new PaperStatus(_paperStatusReject = _guidGenerator.Create(),"Reject", null, false, true)
             };
 
             await _paperStatusRepository.InsertManyAsync(paperStatuses, autoSave: true);
@@ -367,6 +377,30 @@ namespace Sras.PublicCoreflow.Data
             await _emailTemplateRepository.InsertManyAsync(emailTemplates, autoSave: true);
         }
 
+        private async Task CreateSubmissionAsync()
+        {/* Add data for Submission table */
+            if (await _submissionRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var submissions = new List<Submission>
+            {
+                new Submission(_guidGenerator.Create(), "First Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusDeskReject, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Second Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusAccept, null, null, null, true),
+                new Submission(_guidGenerator.Create(), "Third Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Fourth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusReject, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Fifth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Sixth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Seventh Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusRevision, null, null, null, true),
+                new Submission(_guidGenerator.Create(), "Eighth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusDeskReject, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Ninth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusAccept, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Tenth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusWithdrawn, null, null, null, false),
+            };
+
+            await _submissionRepository.InsertManyAsync(submissions, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -385,6 +419,8 @@ namespace Sras.PublicCoreflow.Data
 
             await CreateSubjectAreaAsync();
             await CreateEmailTemplateAsync();
+
+            await CreateSubmissionAsync();
         }
     }
 }
