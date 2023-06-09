@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -52,7 +53,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 {
                     var trackId = _guidGenerator.Create();
                     var isDefault = dbContext.Conferences.Where(c => c.Id == conferenceId).First().IsSingleTrack;
-                    var track = new Track(trackId, isDefault, name, conferenceId, null, null, null, null, null, null);
+                    var track = new Track(trackId, isDefault, name, conferenceId, 
+                                            null, null, null, null, null, 
+                                            JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
                     dbContext.Conferences.Where(cc => cc.Id == conferenceId).First().Tracks.Add(track);
                     dbContext.Tracks.Add(track);
                     dbContext.SaveChanges();

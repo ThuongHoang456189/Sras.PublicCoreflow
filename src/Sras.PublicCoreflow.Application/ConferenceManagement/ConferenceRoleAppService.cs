@@ -270,5 +270,22 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _incumbentRepository.GetConferenceParticipationInfoAsync(input.AccountId, input.ConferenceId, input.TrackId);
         }
+
+        public async Task<List<object>> GetAllConferenceRole()
+        {
+            var conferenceRoleList = await _conferenceRoleRepository.GetListAsync();
+            List<object> resultList = new ();
+            conferenceRoleList.ForEach(x =>
+            {
+                resultList.Add(new
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Factor = x.Factor
+                });
+            });
+
+            return resultList;
+        }
     }
 }

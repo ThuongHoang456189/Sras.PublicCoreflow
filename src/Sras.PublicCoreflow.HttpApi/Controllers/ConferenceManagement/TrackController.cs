@@ -41,5 +41,17 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("{id}/subject-area-relevance")]
+        public async Task<object?> UpdateTrackSubjectAreaRelevanceCoefficientsAsync(Guid id, SubjectAreaRelevanceCoefficients input)
+        {
+            return await _trackAppService.UpdateTrackSubjectAreaRelevanceCoefficientsAsync(id, input);
+        }
+
+        [HttpGet("{id}/subject-area-relevance")]
+        public async Task<object?> GetTrackSubjectAreaRelevanceCoefficientsAsync(Guid id)
+        {
+            return await _trackAppService.GetTrackSubjectAreaRelevanceCoefficientsAsync(id);
+        }
     }
 }
