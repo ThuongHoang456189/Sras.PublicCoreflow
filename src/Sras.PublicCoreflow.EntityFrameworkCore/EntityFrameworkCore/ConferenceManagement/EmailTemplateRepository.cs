@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Domain.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class EmailTemplateRepository : EfCoreRepository<PublicCoreflowDbContext, EmailTemplate, Guid>, IEmailTemplateRepository
     {
-        public EmailTemplateRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
+        private readonly IPlaceHolderRepository _placeHolderRepository;
+        public EmailTemplateRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator, IPlaceHolderRepository placeHolderRepository) : base(dbContextProvider)
         {
             _guidGenerator = guidGenerator;
+            _placeHolderRepository = placeHolderRepository;
         }
 
         private readonly IGuidGenerator _guidGenerator;
@@ -100,6 +103,52 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 throw new Exception("[ERROR][GetEmailTemplateByConferenceId] " + ex.Message, ex);
             }
         }
+
+        public async Task<object> GetEmailSendEachStatus(PaperStatusToEmail request)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                var sender = (await dbContext.Users.FindAsync(request.userId));
+                var emailSender = sender.Email;
+                var submission = dbContext.Submissions.Where(s => s.TrackId == request.trackId);
+                request.statuses.Select(st =>
+                {
+                    var conference = dbContext.Tracks.Where(t => t.Id == request.trackId).First().Conference;
+                    var template = dbContext.EmailTemplates.FindAsync(st.templateId).Result;
+                    var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode));
+                    var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode));
+                    var authors = submission.Where(ss => ss.StatusId == st.paperStatusId)
+                    .SelectMany(ss => ss.Authors);
+                    authors.Select(au => 
+                    {
+                        var pa = au.Participant;
+                        if (pa.Outsider != null)
+                        {
+                            RecipientInforForEmail recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.FirstName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
+                            var subjectString = template.Subject.ToString();
+                            var bodyString = template.Body.ToString();
+                            return new
+                            {
+                                from = emailSender,
+                                to = pa.Outsider.Email,
+                                subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
+                            .Aggregate(subjectString, (subject, p) => subject.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender))),
+                                body = placeHoldersContainInBody
+                            };
+                        }
+                    });
+                    
+                    return authors.
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        
 
     }
 }
