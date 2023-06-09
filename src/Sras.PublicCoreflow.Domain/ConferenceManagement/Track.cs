@@ -21,12 +21,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? CameraReadySubmissionSettings { get; internal set; }
         public string? SubjectAreaRelevanceCoefficients { get; internal set; }
 
-        public ICollection<Incumbent> Incumbents { get; private set; }
-        public ICollection<SubjectArea> SubjectAreas { get; private set; }
-        public ICollection<Submission> Submissions { get; private set; }
-        public ICollection<ConflictCase> ConflictCases { get; private set; }
-        public ICollection<QuestionGroupTrack> QuestionGroups { get; private set; }
-        public ICollection<ActivityDeadline> ActivityDeadlines { get; private set; }
+        public ICollection<Incumbent> Incumbents { get; set; }
+        public ICollection<SubjectArea> SubjectAreas { get; set; }
+        public ICollection<Submission> Submissions { get; set; }
+        public ICollection<ConflictCase> ConflictCases { get; set; }
+        public ICollection<QuestionGroupTrack> QuestionGroups { get; set; }
+        public ICollection<ActivityDeadline> ActivityDeadlines { get; set; }
 
         public Track(
         Guid id,
@@ -59,12 +59,26 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ActivityDeadlines = new Collection<ActivityDeadline>();
         }
 
-        public Track(Guid id, bool isDefault, string name, Guid conferenceId) : base(id)
-        {
-            IsDefault = isDefault;
-            SetName(name);
-            ConferenceId = conferenceId;
-        }
+        //public Track(Guid id, bool isDefault, string name, Guid conferenceId) : base(id)
+        //{
+        //    IsDefault = isDefault;
+        //    SetName(name);
+        //    ConferenceId = conferenceId;
+
+        //    SetSubmissionInstruction(null);
+        //    SubmissionSettings = null;
+        //    ConflictSettings = null;
+        //    ReviewSettings = null;
+        //    CameraReadySubmissionSettings = null;
+        //    SubjectAreaRelevanceCoefficients = null;
+
+        //    Incumbents = new Collection<Incumbent>();
+        //    SubjectAreas = new Collection<SubjectArea>();
+        //    Submissions = new Collection<Submission>();
+        //    ConflictCases = new Collection<ConflictCase>();
+        //    QuestionGroups = new Collection<QuestionGroupTrack>();
+        //    ActivityDeadlines = new Collection<ActivityDeadline>();
+        //}
 
         public Track SetName(string name)
         {
