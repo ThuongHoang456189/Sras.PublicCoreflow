@@ -155,7 +155,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .Include(x => x.ConferenceAccounts)
                 .ThenInclude(x => x.Incumbents)
                 .Include(x => x.Tracks)
-                .ThenInclude(x => x.ActivityDeadlines);
+                .ThenInclude(x => x.SubjectAreas);
         }
     }
 }

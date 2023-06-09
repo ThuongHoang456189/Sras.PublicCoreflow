@@ -52,7 +52,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 {
                     var trackId = _guidGenerator.Create();
                     var isDefault = dbContext.Conferences.Where(c => c.Id == conferenceId).First().IsSingleTrack;
-                    var track = new Track(trackId, isDefault, name, conferenceId);
+                    var track = new Track(trackId, isDefault, name, conferenceId, null, null, null, null, null, null);
                     dbContext.Conferences.Where(cc => cc.Id == conferenceId).First().Tracks.Add(track);
                     dbContext.Tracks.Add(track);
                     dbContext.SaveChanges();
@@ -70,6 +70,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 throw new Exception("[ERROR][CreateTrackAsync] " + ex.Message);
             }
 
+        }
+
+        public override async Task<IQueryable<Track>> WithDetailsAsync()
+        {
+            return (await GetQueryableAsync())
+                .Include(x => x.SubjectAreas);
         }
 
     }
