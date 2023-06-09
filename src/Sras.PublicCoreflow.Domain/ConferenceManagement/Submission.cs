@@ -67,26 +67,26 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
-        public Submission AddSubmissionSubjectArea(Guid subjectAreaId, bool isPrimary)
+        public Submission AddSubmissionSubjectArea(Guid submissionSubjectAreaId, Guid subjectAreaId, bool isPrimary)
         {
             if(SubjectAreas.Any(x => x.SubjectAreaId == subjectAreaId))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToSubmission);
             }
 
-            SubjectAreas.Add(new SubmissionSubjectArea(Id, subjectAreaId, isPrimary));
+            SubjectAreas.Add(new SubmissionSubjectArea(submissionSubjectAreaId, Id, subjectAreaId, isPrimary));
 
             return this;
         }
 
-        public Submission AddAuthor(Guid participantId, bool isPrimaryContact)
+        public Submission AddAuthor(Guid authorId, Guid participantId, bool isPrimaryContact)
         {
             if(Authors.Any(x => x.ParticipantId == participantId))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.AuthorAlreadyExistToSubmission);
             }
 
-            Authors.Add(new Author(participantId, Id, isPrimaryContact, false));
+            Authors.Add(new Author(authorId, participantId, Id, isPrimaryContact, false));
 
             return this;
         }

@@ -211,8 +211,6 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Authors", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
-
-            b.HasKey(x => new { x.ParticipantId, x.SubmissionId });
         });
 
         builder.Entity<Reviewer>(b =>
@@ -230,16 +228,12 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("ReviewerSubjectAreas", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
-
-            b.HasKey(x => new { x.ReviewerId, x.SubjectAreaId });
         });
 
         builder.Entity<Conflict>(b =>
         {
             b.ToTable("Conflicts", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
-
-            b.HasKey(x => new { x.SubmissionId, x.IncumbentId, x.ConflictCaseId });
         });
 
         builder.Entity<ConflictCase>(b =>
@@ -402,8 +396,6 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("SubmissionSubjectAreas", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
-
-            b.HasKey(x => new { x.SubmissionId, x.SubjectAreaId });
         });
 
         builder.Entity<SupportedPlaceholder>(b =>
