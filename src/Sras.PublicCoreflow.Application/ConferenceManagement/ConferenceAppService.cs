@@ -11,6 +11,7 @@ using Volo.Abp.Guids;
 using Volo.Abp.Identity;
 using Volo.Abp.Users;
 using Volo.Abp;
+using System.Text.Json;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -126,7 +127,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             if (input.IsSingleTrack)
             {
-                var newTrack = new Track(_guidGenerator.Create(), true, DefaultTrackName, conferenceId, null, null, null, null, null, null);
+                var newTrack = new Track(_guidGenerator.Create(), true, DefaultTrackName, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
 
                 newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
                 newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
@@ -144,7 +145,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 {
                     input.Tracks.ForEach(x =>
                     {
-                        var newTrack = new Track(_guidGenerator.Create(), false, x, conferenceId, null, null, null, null, null, null);
+                        var newTrack = new Track(_guidGenerator.Create(), false, x, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
 
                         newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
                         newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
