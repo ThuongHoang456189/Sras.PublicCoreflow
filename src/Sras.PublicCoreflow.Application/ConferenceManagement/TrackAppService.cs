@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
@@ -69,7 +70,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                 Guid trackId = _guidGenerator.Create();
                 conference.IsSingleTrack = false;
-                conference.AddTrack(new Track(trackId, false, trackName, conferenceId, null, null, null, null, null, null));
+                conference.AddTrack(new Track(trackId, false, trackName, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients)));
 
                 await _conferenceRepository.UpdateAsync(conference);
                 return ObjectMapper.Map<Track, TrackBriefInfo>(await _trackRepository.FindAsync(trackId));

@@ -263,3 +263,4 @@ src/Sras.PublicCoreflow.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
+/src/Sras.PublicCoreflow.HttpApi.Host/host/sras-submissions/4a6e935d-ed44-ae8d-7dae-3a0bb239804b
