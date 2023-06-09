@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
@@ -109,38 +110,51 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             try
             {
                 var dbContext = await GetDbContextAsync();
-                var sender = (await dbContext.Users.FindAsync(request.userId));
+                var sender = await dbContext.Users.FindAsync(request.userId);
                 var emailSender = sender.Email;
-                var submission = dbContext.Submissions.Where(s => s.TrackId == request.trackId);
-                request.statuses.Select(st =>
+                var submissions = await dbContext.Submissions.Where(s => s.TrackId == request.trackId).ToListAsync();
+
+                return request.statuses.SelectMany(st =>
                 {
                     var conference = dbContext.Tracks.Where(t => t.Id == request.trackId).First().Conference;
-                    var template = dbContext.EmailTemplates.FindAsync(st.templateId).Result;
+                    var template = dbContext.EmailTemplates.Find(st.templateId);
                     var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode));
                     var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode));
-                    var authors = submission.Where(ss => ss.StatusId == st.paperStatusId)
-                    .SelectMany(ss => ss.Authors);
-                    authors.Select(au => 
-                    {
-                        var pa = au.Participant;
-                        if (pa.Outsider != null)
+
+                    return submissions
+                        .Where(ss => ss.StatusId == st.paperStatusId)
+                        .SelectMany(ss => ss.Authors)
+                        .Select(au =>
                         {
-                            RecipientInforForEmail recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.FirstName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
-                            var subjectString = template.Subject.ToString();
-                            var bodyString = template.Body.ToString();
+                            var pa = au.Participant;
+                            RecipientInforForEmail recipient;
+                            string subjectString = template.Subject.ToString();
+                            string bodyString = template.Body.ToString();
+
+                            if (pa.Outsider != null)
+                            {
+                                recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.LastName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
+                            }
+                            else
+                            {
+                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
+                            }
+
+                            var subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
+                                .Aggregate(subjectString, (subject, p) => subject.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
+
+                            var body = placeHoldersContainInBody.Select(pl => pl.Encode).ToList()
+                                .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
+
                             return new
                             {
                                 from = emailSender,
-                                to = pa.Outsider.Email,
-                                subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
-                            .Aggregate(subjectString, (subject, p) => subject.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender))),
-                                body = placeHoldersContainInBody
+                                to = recipient.Email,
+                                subject,
+                                body
                             };
-                        }
-                    });
-                    
-                    return authors.
-                });
+                        });
+                }).ToList();
             }
             catch (Exception ex)
             {
