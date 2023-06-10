@@ -9,6 +9,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<List<ConflictWithDetails>> GetListReviewerConflictAsync(Guid incumbentId, Guid submissionId);
 
-        Task<List<ReviewerConflictOperation>> GetReviewerConflictOperationTableAsync(Guid incumbentId, Guid submissionId);
+        Task<List<ConflictOperation>> GetReviewerConflictOperationTableAsync(Guid incumbentId, Guid submissionId);
+
+        Task<List<ConflictOperation>> GetSubmissionConflictOperationTableAsync(Guid submissionId);
     }
 }

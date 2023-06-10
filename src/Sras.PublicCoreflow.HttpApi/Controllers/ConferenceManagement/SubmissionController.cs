@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Content;
 
@@ -77,6 +78,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             var result = await _submissionAppService.GetSubmissionsAsync();
             return Ok(result);
+        }
+
+        [HttpPost("{id}/conflicts")]
+        public async Task<IActionResult> UpdateSubmissionConflict(Guid id, List<ConflictInput> conflicts)
+        {
+            return Ok(await _submissionAppService.UpdateSubmissionConflict(id, conflicts));
+        }
+
+        [HttpGet("{id}/conflicts")]
+        public async Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid id)
+        {
+            return await _submissionAppService.GetListReviewerWithConflictDetails(id);
         }
     }
 }

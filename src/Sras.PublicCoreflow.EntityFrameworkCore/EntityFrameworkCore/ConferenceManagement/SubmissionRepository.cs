@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
+using Volo.Abp.Identity;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -122,6 +125,97 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 NotifiedStatusId = s.NotifiedStatusId,
                 NotifiedStatusName = s.NotifiedStatus.Name
             }).ToList();
+        }
+
+        public async Task<int> GetCountConflictedReviewer(Guid submissionId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var submission = await FindAsync(submissionId);
+            if (submission == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
+            var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
+                                      join r in dbContext.Set<Reviewer>() on i.Id equals r.Id
+                                      select i)
+                                        .Where(x => x.TrackId == submission.TrackId);
+            
+            return await incumbentQueryable.CountAsync();
+        }
+
+        public async Task<List<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid submissionId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var submission = await FindAsync(submissionId);
+            if (submission == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
+            List<ReviewerWithConflictDetails> result = new List<ReviewerWithConflictDetails>();
+
+            var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
+                                      join r in dbContext.Set<Reviewer>() on i.Id equals r.Id
+                                      select i)
+                                        .Where(x => x.TrackId == submission.TrackId);
+
+            var accountQueryable = (from ca in dbContext.Set<ConferenceAccount>()
+                                    join i in incumbentQueryable on ca.Id equals i.ConferenceAccountId
+                                    join a in dbContext.Set<IdentityUser>() on ca.AccountId equals a.Id
+                                    select new
+                                    {
+                                        AccountId = a.Id,
+                                        ReviewerId = i.Id
+                                    });
+
+            var accountList = await accountQueryable.ToListAsync();
+
+            accountList.ForEach(x =>
+            {
+                var user = dbContext.Set<IdentityUser>().First(y => y.Id == x.AccountId);
+
+                if(user != null)
+                {
+                    var conflictQueryable = (from c in dbContext.Set<Conflict>()
+                                             join cc in dbContext.Set<ConflictCase>() on c.ConflictCaseId equals cc.Id
+                                             select new ConflictWithDetails
+                                             {
+                                                 SubmissionId = c.SubmissionId,
+                                                 IncumbentId = c.IncumbentId,
+                                                 ConflictCaseId = c.ConflictCaseId,
+                                                 ConflictCaseName = cc.Name,
+                                                 IsIndividualConflictCase = cc.IsIndividual,
+                                                 IsDefaultConflictCase = cc.IsDefault,
+                                                 TrackId = cc.TrackId,
+                                                 IsDefinedByReviewer = c.IsDefinedByReviewer
+                                             })
+                                         .Where(y => y.IncumbentId == x.ReviewerId
+                                         && y.SubmissionId == submissionId
+                                         && !y.IsDefinedByReviewer);
+
+                    ReviewerWithConflictDetails reviewer = new ReviewerWithConflictDetails
+                    {
+                        ReviewerId = x.ReviewerId,
+                        FirstName = user.Name,
+                        MiddleName = user.GetProperty<string?>(AccountConsts.MiddleNamePropertyName),
+                        LastName = user.Surname,
+                        Email = user.Email,
+                        Organization = user.GetProperty<string?>(AccountConsts.OrganizationPropertyName),
+                        Conflicts = conflictQueryable.ToList()
+                    };
+
+                    result.Add(reviewer);
+                }
+            });
+
+            return result;
+        }
+
+        public override async Task<IQueryable<Submission>> WithDetailsAsync()
+        {
+            return (await GetQueryableAsync())
+                .Include(x => x.Conflicts)
+                .Include(x => x.Clones)
+                .ThenInclude(x => x.Reviews);
         }
     }
 }

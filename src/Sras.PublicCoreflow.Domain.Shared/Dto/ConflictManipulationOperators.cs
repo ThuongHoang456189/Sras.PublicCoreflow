@@ -1,6 +1,6 @@
 ﻿namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public enum ReviewerConflictManipulationOperators
+    public enum ConflictManipulationOperators
     {
         None, Add, Del
     }

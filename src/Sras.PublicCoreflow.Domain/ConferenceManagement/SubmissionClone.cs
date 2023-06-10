@@ -10,7 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Guid SubmissionId { get; private set; }
         public Submission Submission { get; private set; }
 
-        public ICollection<ReviewAssignment> Reviews { get; private set; }
+        public ICollection<ReviewAssignment> Reviews { get; set; }
 
         public SubmissionClone(Guid id, Guid submissionId) : base(id)
         {

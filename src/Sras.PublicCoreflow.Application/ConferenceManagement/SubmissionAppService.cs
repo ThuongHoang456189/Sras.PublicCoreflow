@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Content;
 using Volo.Abp.Data;
@@ -26,6 +27,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
         private readonly ISubmissionRepository _submissionRepository;
+        private readonly IConflictRepository _conflictRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -33,16 +35,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         private const string AwaitingDecision = "Awaiting Decision";
 
-        public SubmissionAppService(IRepository<Track, Guid> trackRepository, IRepository<PaperStatus, Guid> paperStatusRepository, 
+        public SubmissionAppService(
+            IRepository<Track, Guid> trackRepository, 
+            IRepository<PaperStatus, Guid> paperStatusRepository, 
             IRepository<SubjectArea, Guid> subjectAreaRepository,
             IIncumbentRepository incumbentRepository,
             IConferenceRepository conferenceRepository,
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
             IRepository<IdentityUser, Guid> userRepository,
-            ICurrentUser currentUser, IGuidGenerator guidGenerator, 
-            IBlobContainer<SubmissionContainer> submissionBlobContainer,
-            ISubmissionRepository submissionRepository
-            )
+            ISubmissionRepository submissionRepository,
+            IConflictRepository conflictRepository,
+            ICurrentUser currentUser, 
+            IGuidGenerator guidGenerator, 
+            IBlobContainer<SubmissionContainer> submissionBlobContainer)
         {
             _trackRepository = trackRepository;
             _paperStatusRepository = paperStatusRepository;
@@ -51,10 +56,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _conferenceRepository = conferenceRepository;
             _conferenceAccountRepository = conferenceAccountRepository;
             _userRepository = userRepository;
+            _submissionRepository = submissionRepository;
+            _conflictRepository = conflictRepository;
+
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
-            _submissionBlobContainer = submissionBlobContainer;
-            _submissionRepository = submissionRepository;
+            _submissionBlobContainer = submissionBlobContainer;  
         }
 
         //public async Task SaveBytesAsync(byte[] bytes)
@@ -193,15 +200,96 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _submissionRepository.GetSubmissionAsync();
         }
 
-        public async Task<ResponseDto> UpdateSubmissionConflict(SubmissionConflictInput input)
+        public async Task<ResponseDto> UpdateSubmissionConflict(Guid submissionId, List<ConflictInput> conflicts)
         {
             ResponseDto response = new ResponseDto();
 
             // Get submission
-            //var submission = 
+            var submission = await _submissionRepository.FindAsync(submissionId);
+            if (submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
 
+            var submissionConflicts = await _conflictRepository.GetListAsync(x => x.SubmissionId == submissionId);
+            if (!submission.Conflicts.Any())
+            {
+                submissionConflicts.ForEach(x =>
+                {
+                    submission.Conflicts.Add(x);
+                });
+            }
+
+            // Clean and Validate input
+
+            try
+            {
+                var submissionConflictOperationTable = await _conflictRepository.GetSubmissionConflictOperationTableAsync(submissionId);
+
+                // Allocation operation
+                submissionConflictOperationTable.ForEach(x =>
+                {
+                    if(!conflicts.Any(y => y.ConflictCaseId == x.ConflictCaseId && y.ReviewerId == x.IncumbentId))
+                    {
+                        x.Operation = ConflictManipulationOperators.Del;
+                    }
+                });
+
+                conflicts.ForEach(x =>
+                {
+                    if(!submissionConflictOperationTable.Any(y => y.IncumbentId == x.ReviewerId && y.ConflictCaseId == x.ConflictCaseId))
+                    {
+                        ConflictOperation newOperation = new ConflictOperation
+                        {
+                            SubmissionId = submissionId,
+                            IncumbentId = x.ReviewerId,
+                            ConflictCaseId = x.ConflictCaseId,
+                            IsDefinedByReviewer = false,
+                            Operation = ConflictManipulationOperators.Add
+                        };
+
+                        submissionConflictOperationTable.Add(newOperation);
+                    }
+                });
+
+                // Perform operations
+                submissionConflictOperationTable.ForEach(x =>
+                {
+                    if(x.Operation == ConflictManipulationOperators.Add)
+                    {
+                        Conflict newConflict = new Conflict(_guidGenerator.Create(), x.SubmissionId, x.IncumbentId, x.ConflictCaseId, x.IsDefinedByReviewer);
+                        submission.Conflicts.Add(newConflict);
+                    }else if(x.Operation == ConflictManipulationOperators.Del)
+                    {
+                        var foundConflict = submission.Conflicts.FirstOrDefault(y => y.ConflictCaseId == x.ConflictCaseId && y.IncumbentId == x.IncumbentId && !y.IsDefinedByReviewer);
+                        if (foundConflict != null)
+                        {
+                            submission.Conflicts.Remove(foundConflict);
+                        }
+                    }
+                });
+
+                await _submissionRepository.UpdateAsync(submission);
+
+                response.IsSuccess = true;
+                response.Message = "Update successfully";
+            }
+            catch (Exception)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+            }
 
             return await Task.FromResult(response);
+        }
+
+        public async Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid submissionId)
+        {
+            var reviewers = await _submissionRepository.GetListReviewerWithConflictDetails(submissionId);
+
+            var totalCount = await _submissionRepository.GetCountConflictedReviewer(submissionId);
+
+            return new PagedResultDto<ReviewerWithConflictDetails>(totalCount, reviewers);
         }
     }
 }
