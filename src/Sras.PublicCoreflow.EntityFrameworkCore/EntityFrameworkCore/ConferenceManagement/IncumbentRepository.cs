@@ -503,5 +503,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
         //    return incumbent;
         //}
+
+        public override async Task<IQueryable<Incumbent>> WithDetailsAsync()
+        {
+            return (await GetQueryableAsync())
+                .Include(x => x.Conflicts);
+        }
     }
 }

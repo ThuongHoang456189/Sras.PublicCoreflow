@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class ReviewerSubjectAreaInput
+    public class ReviewerConflictLookUpInput
     {
         public Guid AccountId { get; set; }
         public Guid ConferenceId { get; set; }
         public Guid TrackId { get; set; }
-        public List<SelectedSubjectAreaInput> SubjectAreas { get; set; } = new List<SelectedSubjectAreaInput>();
+        public Guid SubmissionId { get; set; }
     }
 }

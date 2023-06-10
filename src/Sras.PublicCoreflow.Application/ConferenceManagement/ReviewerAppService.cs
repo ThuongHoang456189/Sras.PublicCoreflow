@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -12,6 +13,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         private readonly IReviewerRepository _reviewerRepository;
         private readonly IReviewerSubjectAreaRepository _reviewerSubjectAreaRepository;
+        private readonly IIncumbentRepository _incumbentRepository;
+        private readonly IConflictRepository _conflictRepository;
+        private readonly IRepository<Submission, Guid> _submissionRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -19,11 +23,17 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public ReviewerAppService(
             IReviewerRepository reviewerRepository,
             IReviewerSubjectAreaRepository reviewerSubjectAreaRepository,
+            IIncumbentRepository incumbentRepository,
+            IConflictRepository conflictRepository,
+            IRepository<Submission, Guid> submissionRepository,
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator)
         {
             _reviewerRepository = reviewerRepository;
             _reviewerSubjectAreaRepository = reviewerSubjectAreaRepository;
+            _incumbentRepository = incumbentRepository;
+            _conflictRepository = conflictRepository;
+            _submissionRepository = submissionRepository;
 
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
@@ -76,8 +86,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 });
             }
 
-            if (reviewer == null)
-                throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
             // Clean input
 
             try
@@ -151,7 +159,93 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = true;
                 response.Message = "Update successfully";
             }
-            catch(Exception ex)
+            catch(Exception)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+            }
+
+            return await Task.FromResult(response);
+        }
+
+        public async Task<ResponseDto> UpdateReviewerConflict (ReviewerConflictInput input)
+        {
+            ResponseDto response = new ResponseDto();
+
+            // Get reviewer
+            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, input.TrackId);
+            if (reviewer == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
+
+            if(await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId) == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
+            var incumbent = await _incumbentRepository.FindAsync(reviewer.Id);
+            var incumbentConflicts = await _conflictRepository.GetListAsync(x => x.IncumbentId == reviewer.Id && x.IsDefinedByReviewer);
+
+            if (!incumbent.Conflicts.Any())
+            {
+                incumbentConflicts.ForEach(x =>
+                {
+                    incumbent.Conflicts.Add(x);
+                });
+            }
+
+            // Clean input
+
+            try
+            {
+                // Allocate operation
+                var reviewerConflictOperationTable = await _conflictRepository.GetReviewerConflictOperationTableAsync(incumbent.Id, input.SubmissionId);
+                reviewerConflictOperationTable.ForEach(x =>
+                {
+                    if (!input.ConflictCases.Any(y => y == x.ConflictCaseId))
+                    {
+                        x.Operation = ReviewerConflictManipulationOperators.Del;
+                    }
+                });
+
+                input.ConflictCases.ForEach(x =>
+                {
+                    if (!reviewerConflictOperationTable.Any(y => y.ConflictCaseId == x))
+                    {
+                        ReviewerConflictOperation newOperation = new ReviewerConflictOperation
+                        {
+                            SubmissionId = input.SubmissionId,
+                            IncumbentId = incumbent.Id,
+                            ConflictCaseId = x,
+                            IsDefinedByReviewer = true,
+                            Operation = ReviewerConflictManipulationOperators.Add
+                        };
+
+                        reviewerConflictOperationTable.Add(newOperation);
+                    }
+                });
+
+                // Perform operation
+                reviewerConflictOperationTable.ForEach(x =>
+                {
+                    if (x.Operation == ReviewerConflictManipulationOperators.Add)
+                    {
+                        Conflict newConflict = new Conflict(_guidGenerator.Create(), x.SubmissionId, x.IncumbentId, x.ConflictCaseId, x.IsDefinedByReviewer);
+                        incumbent.Conflicts.Add(newConflict);
+                    }
+                    else if (x.Operation == ReviewerConflictManipulationOperators.Del)
+                    {
+                        var foundConflict = incumbent.Conflicts.FirstOrDefault(y => y.ConflictCaseId == x.ConflictCaseId && y.IsDefinedByReviewer);
+                        if (foundConflict != null)
+                        {
+                            incumbent.Conflicts.Remove(foundConflict);
+                        }
+                    }
+                });
+
+                await _incumbentRepository.UpdateAsync(incumbent);
+
+                response.IsSuccess = true;
+                response.Message = "Update successfully";
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 response.IsSuccess = false;
@@ -159,6 +253,18 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             return await Task.FromResult(response);
+        }
+
+        public async Task<List<ConflictWithDetails>> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input)
+        {
+            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, input.TrackId);
+            if (reviewer == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
+
+            if (await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId) == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
+            return await _conflictRepository.GetListReviewerConflictAsync(reviewer.Id, input.SubmissionId);
         }
     }
 }
