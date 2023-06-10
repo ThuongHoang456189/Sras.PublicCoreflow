@@ -25,11 +25,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllPaperStatus()
+        public async Task<ActionResult<IEnumerable<object>>> GetAllPaperStatus(Guid? conferenceId)
         {
             try
             {
-                var result = await _paperStatusAppService.GetAllPaperStatusAsync();
+                var result = await _paperStatusAppService.GetAllPaperStatusAsync(conferenceId);
                 return Ok(result);
             } catch (Exception ex)
             {

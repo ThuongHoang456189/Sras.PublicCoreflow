@@ -7,6 +7,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IPaperStatusAppService
     {
-        Task<IEnumerable<object>> GetAllPaperStatusAsync();
+        Task<IEnumerable<object>> GetAllPaperStatusAsync(Guid? conferenceId);
     }
 }

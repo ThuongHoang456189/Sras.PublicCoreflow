@@ -14,9 +14,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _paperStatusRepository = paperStatusRepository;
         }
 
-        public async Task<IEnumerable<object>> GetAllPaperStatusAsync()
+        public async Task<IEnumerable<object>> GetAllPaperStatusAsync(Guid? conferenceId)
         {
-            return await _paperStatusRepository.GetAllPaperStatus();
+            return await _paperStatusRepository.GetAllPaperStatus(conferenceId);
         }
 
     }

@@ -8,6 +8,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IPaperStatusRepository
     {
-        Task<IEnumerable<object>> GetAllPaperStatus();
+        Task<IEnumerable<object>> GetAllPaperStatus(Guid? conferenceId);
     }
 }

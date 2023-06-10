@@ -17,14 +17,16 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
         }
 
-        public async Task<IEnumerable<object>> GetAllPaperStatus()
+        public async Task<IEnumerable<object>> GetAllPaperStatus(Guid? conferenceId)
         {
             var dbContext = await GetDbContextAsync();
-            var result = await dbContext.PaperStatuses.Select(p => new
+            IEnumerable<PaperStatus> paperStatusList = await dbContext.PaperStatuses.ToListAsync();
+            if (conferenceId != null) paperStatusList = paperStatusList.Where(ps => ps.ConferenceId == conferenceId);
+            var result = paperStatusList.Select(p => new
             {
                 statusId = p.Id,
                 statusName = p.Name
-            }).ToListAsync();
+            }).ToList();
 
             return result;
         }
