@@ -1,4 +1,5 @@
 ﻿using Sras.PublicCoreflow.Domain.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 return await _emailTemplateRespository.GetEmailTemplateByConferenceIdAndTrackId(conferenceId, trackId);
             }
+        }
+
+        public async Task<object> GetEmailSendEachStatus(PaperStatusToEmail request)
+        {
+            return await _emailTemplateRespository.GetEmailSendEachStatus(request);
         }
 
     }
