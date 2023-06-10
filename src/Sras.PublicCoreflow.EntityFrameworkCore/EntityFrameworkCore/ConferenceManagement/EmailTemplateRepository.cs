@@ -114,14 +114,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 var emailSender = sender.Email;
                 var submissions = await dbContext.Submissions.Where(s => s.TrackId == request.trackId).ToListAsync();
 
-                return request.statuses.SelectMany(st =>
+                return request.statuses.Select(st =>
                 {
                     var conference = dbContext.Tracks.Where(t => t.Id == request.trackId).First().Conference;
                     var template = dbContext.EmailTemplates.Find(st.templateId);
-                    var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode));
-                    var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode));
+                    var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode)).ToList();
+                    var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode)).ToList();
 
-                    return submissions
+                    return new
+                    {
+                        paperId = st.paperStatusId,
+                        PaperName = dbContext.PaperStatuses.Where(p => p.Id == st.paperStatusId).First().Name,
+                        sendEmail = submissions
                         .Where(ss => ss.StatusId == st.paperStatusId)
                         .SelectMany(ss => ss.Authors)
                         .Select(au =>
@@ -153,7 +157,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 subject,
                                 body
                             };
-                        });
+                        })
+                    };
                 }).ToList();
             }
             catch (Exception ex)
