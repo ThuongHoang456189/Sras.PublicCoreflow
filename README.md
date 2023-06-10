@@ -1,0 +1,3 @@
+# Sras.PublicCoreflow
+Public coreflow for sras
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/17920056-2bdf3936-7d55-45f9-8882-9cd34dd6917f?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D17920056-2bdf3936-7d55-45f9-8882-9cd34dd6917f%26entityType%3Dcollection%26workspaceId%3D1e0de07b-35f5-4698-83c0-2db421f86fdf#?env%5Btest%20for%20FE%5D=W3sia2V5IjoiTG9jYWxVUkwiLCJ2YWx1ZSI6Imh0dHBzOi8vbG9jYWxob3N0OjQ0MzQ3IiwiZW5hYmxlZCI6dHJ1ZSwidHlwZSI6InRleHQifSx7ImtleSI6Im91dHNpZGVySWQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWUsInR5cGUiOiJhbnkifV0=)
