@@ -12,5 +12,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> CreateOrUpdateAsync(UserConferenceRoleInput input);
 
         Task<ConferenceParticipationInfo?> GetConferenceParticipationInfoAsync(ConferenceParticipationInput input);
+
+        Task<List<object>> GetAllConferenceRole();
     }
 }

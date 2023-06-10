@@ -19,7 +19,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? ConflictSettings { get; internal set; }
         public string? ReviewSettings { get; internal set; }
         public string? CameraReadySubmissionSettings { get; internal set; }
-        public string? SubjectAreaRelevanceCoefficients { get; internal set; }
+        public string? SubjectAreaRelevanceCoefficients { get; set; }
 
         public ICollection<Incumbent> Incumbents { get; set; }
         public ICollection<SubjectArea> SubjectAreas { get; set; }

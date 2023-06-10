@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Volo.Abp;
+using System.Xml.Linq;
 using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -19,22 +24,10 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _conferenceRoleAppService = conferenceRoleAppService;
         }
 
-        //[HttpGet("test")]
-        //public async Task<ConferenceWithDetails> CreateOrUpdateTestAsync(UserConferenceRoleInput input)
-        //{
-        //    return await _conferenceRoleAppService.CreateOrUpdateTestAsync(input);
-        //}
-
-        [HttpPost]
-        public async Task<IActionResult> CreateOrUpdateAsync(UserConferenceRoleInput input)
-        {
-            return Ok( await _conferenceRoleAppService.CreateOrUpdateAsync(input) );
-        }
-
         [HttpGet]
-        public async Task<ConferenceParticipationInfo?> GetParticipationInfoAsync(ConferenceParticipationInput input)
+        public async Task<List<object>> GetConferenceRoles()
         {
-            return await _conferenceRoleAppService.GetConferenceParticipationInfoAsync(input);
+            return await _conferenceRoleAppService.GetAllConferenceRole();
         }
     }
 }

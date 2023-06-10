@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,19 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             try
             {
                 var result = await _emailTemplateAppService.GetEmailTemplateByConferenceIdOrTrackId(conferenceId, trackId);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("emails-to-sent-each-status")]
+        public async Task<ActionResult<object>> GetEmailsSendEachStatus([FromBody] PaperStatusToEmail request)
+        {
+            try
+            {
+                var result = await _emailTemplateAppService.GetEmailSendEachStatus(request);
                 return Ok(result);
             } catch (Exception ex)
             {
