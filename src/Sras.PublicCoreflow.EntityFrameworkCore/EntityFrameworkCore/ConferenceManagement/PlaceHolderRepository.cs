@@ -15,14 +15,15 @@ using static Volo.Abp.Identity.Settings.IdentitySettingNames;
 using Sras.PublicCoreflow.Extension;
 using Sras.PublicCoreflow.Dto;
 using Volo.Abp.ObjectMapping;
+using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
-    public class PlaceHolderRepository : IPlaceHolderRepository
+    public class PlaceHolderRepository : EfCoreRepository<PublicCoreflowDbContext, SupportedPlaceholder, Guid>, IPlaceHolderRepository
     {
-        private readonly IRepository<IdentityUser, Guid> _userRepository;
-        public PlaceHolderRepository(IRepository<IdentityUser, Guid> userRepository) {
-            _userRepository = userRepository;
+
+        public PlaceHolderRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
+        {
         }
 
         public string GetDataFromPlaceholder(string placeHolderName, Conference? conference, RecipientInforForEmail recipient, Submission? submission, IdentityUser sender)
