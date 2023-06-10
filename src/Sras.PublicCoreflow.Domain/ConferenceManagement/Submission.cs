@@ -28,10 +28,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public DateTime? LastNotificationTime { get; private set; }
         public bool IsRequestedForCameraReady { get; private set; }
 
-        public ICollection<SubmissionSubjectArea> SubjectAreas { get; private set; }
-        public ICollection<Author> Authors { get; private set; }
-        public ICollection<Conflict> Conflicts { get; private set; }
-        public ICollection<SubmissionClone> Clones { get; private set; }
+        public ICollection<SubmissionSubjectArea> SubjectAreas { get; set; }
+        public ICollection<Author> Authors { get; set; }
+        public ICollection<Conflict> Conflicts { get; set; }
+        public ICollection<SubmissionClone> Clones { get; set; }
 
         public Submission(Guid id, string title, string @abstract, string rootFilePath, Guid trackId, string? domainConflicts, Guid? createdIncumbentId, Guid? lastModifiedIncumbentId, string? answers, Guid statusId, bool? isNotified, Guid? notifiedStatusId, DateTime? lastNotificationTime, bool isRequestedForCameraReady) : base(id)
         {

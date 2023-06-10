@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.Domain.Repositories;
@@ -69,14 +70,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                 Guid trackId = _guidGenerator.Create();
                 conference.IsSingleTrack = false;
-                conference.AddTrack(new Track(trackId, false, trackName, conferenceId, null, null, null, null, null, null));
+                conference.AddTrack(new Track(trackId, false, trackName, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients)));
 
                 await _conferenceRepository.UpdateAsync(conference);
                 return ObjectMapper.Map<Track, TrackBriefInfo>(await _trackRepository.FindAsync(trackId));
             }
         }
 
-        public async Task<TrackBriefInfo?> UpdateAsync(Guid conferenceId, Guid trackId, string trackName)
+        public async Task<TrackBriefInfo?> UpdateTrackNameAsync(Guid conferenceId, Guid trackId, string trackName)
         {
             if (_currentUser != null && _currentUser.Id != null)
             {
@@ -92,7 +93,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 return null;
             else
             {
-                conference.UpdateTrack(trackId, trackName, null, null, null, null, null, null);
+                var track = conference.Tracks.FirstOrDefault(x => x.Id == trackId);
+                if (track == null)
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                track.SetName(trackName);
 
                 await _conferenceRepository.UpdateAsync(conference);
                 return ObjectMapper.Map<Track, TrackBriefInfo>(await _trackRepository.FindAsync(trackId));
@@ -109,9 +114,54 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _trackRepository2.CreateTrackAsync(conferenceId, trackName); 
         }
 
+
         public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string roleName)
         {
             return await _trackRepository2.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+        }
+        
+        public async Task<object?> UpdateTrackSubjectAreaRelevanceCoefficientsAsync(Guid trackId, SubjectAreaRelevanceCoefficients input)
+        {
+            try
+            {
+                var track = await _trackRepository.FindAsync(x => x.Id == trackId);
+                if (track == null)
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                if(input.IsDefault)
+                {
+                    track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients);
+                }
+                else
+                {
+                    track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(input);
+                }
+
+                await _trackRepository.UpdateAsync(track);
+                return new
+                {
+                    Id = track.Id,
+                    Name = track.Name,
+                    SubjectAreaRelevanceCoefficients = JsonSerializer.Deserialize< SubjectAreaRelevanceCoefficients>(track.SubjectAreaRelevanceCoefficients)
+                };
+            }catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<object?> GetTrackSubjectAreaRelevanceCoefficientsAsync(Guid trackId)
+        {
+            var track = await _trackRepository.FindAsync(x => x.Id == trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            return new
+            {
+                Id = track.Id,
+                Name = track.Name,
+                SubjectAreaRelevanceCoefficients = track.SubjectAreaRelevanceCoefficients == null ? null : JsonSerializer.Deserialize<SubjectAreaRelevanceCoefficients>(track.SubjectAreaRelevanceCoefficients)
+            };
         }
     }
 }

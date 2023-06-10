@@ -4,5 +4,14 @@
     {
         public const int MaxNameLength = 50;
         public const int MaxSubmissionInstructionLength = 2000;
+
+        public static readonly SubjectAreaRelevanceCoefficients DefaultSubjectAreaRelevanceCoefficients = new SubjectAreaRelevanceCoefficients
+        {
+            IsDefault = true,
+            pp = 0.8,
+            ps = 0.16,
+            sp = 0.16,
+            ss = 0.04
+        };
     }
 }
