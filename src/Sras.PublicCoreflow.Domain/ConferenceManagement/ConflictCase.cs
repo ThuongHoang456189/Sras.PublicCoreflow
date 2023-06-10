@@ -10,12 +10,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Name { get; private set; }
         public bool IsIndividual { get; private set; }
         public bool IsDefault { get; private set; }
-        public Guid TrackId { get; private set; }
-        public Track Track { get; private set; }
+        public Guid? TrackId { get; private set; }
+        public Track? Track { get; private set; }
 
-        public ICollection<Conflict> Conflicts { get; private set; }
+        public ICollection<Conflict> Conflicts { get; set; }
 
-        public ConflictCase (Guid id, string name, bool isIndividual, bool isDefault, Guid trackId) : base (id)
+        public ConflictCase (Guid id, string name, bool isIndividual, bool isDefault, Guid? trackId) : base (id)
         {
             Name = name;
             IsIndividual = isIndividual;

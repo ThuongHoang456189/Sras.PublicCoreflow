@@ -28,6 +28,7 @@ public static class PublicCoreflowDomainErrorCodes
     public const string SubjectAreaAlreadyExistToTrack = ConferencePrefix + "SubjectAreaAlreadyExistToTrack";
     public const string SubjectAreaNotFound = ConferencePrefix + "SubjectAreaNotFound";
     public const string SubmissionAlreadyExistToTrack = ConferencePrefix + "SubmissionAlreadyExistToTrack";
+    public const string SubmissionNotFound = ConferencePrefix + "SubmissionNotFound";
     public const string SubjectAreaAlreadyExistToSubmission = ConferencePrefix + "SubjectAreaAlreadyExistToSubmission";
     public const string AuthorAlreadyExistToSubmission = ConferencePrefix + "AuthorAlreadyExistToSubmission";
     public const string AwaitingDecisionPaperStatusNotFound = ConferencePrefix + "AwaitingDecisionPaperStatusNotFound";

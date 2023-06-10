@@ -20,6 +20,7 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<Participant, Guid> _participantRepository;
         private readonly IRepository<PlaceholderGroup, Guid> _placeholderGroupRepository;
         private readonly IRepository<SupportedPlaceholder, Guid> _supportedPlaceholderRepository;
+        private readonly IRepository<ConflictCase, Guid> _conflictCaseRepository;
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
 
@@ -57,6 +58,7 @@ namespace Sras.PublicCoreflow.Data
             IRepository<Participant, Guid> participantRepository,
             IRepository<PlaceholderGroup, Guid> placeholderGroupRepository,
             IRepository<SupportedPlaceholder, Guid> supportedPlaceholderRepository,
+            IRepository<ConflictCase, Guid> conflictCaseRepository,
             IdentityUserManager identityUserManager,
             IRepository<IdentityUser, Guid> userRepository)
         {
@@ -66,6 +68,8 @@ namespace Sras.PublicCoreflow.Data
             _participantRepository = participantRepository;
             _placeholderGroupRepository = placeholderGroupRepository;
             _supportedPlaceholderRepository = supportedPlaceholderRepository;
+            _conflictCaseRepository = conflictCaseRepository;
+
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
         }
@@ -266,6 +270,28 @@ namespace Sras.PublicCoreflow.Data
             await _supportedPlaceholderRepository.InsertManyAsync(supportedPlaceholders, autoSave: true);
         }
 
+
+        private async Task CreateConflictCaseAsync()
+        {
+            if (await _conflictCaseRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var conflictCases = new List<ConflictCase>
+            {
+                new ConflictCase(_guidGenerator.Create(), "Is a author/co-author", true, true, null),
+                new ConflictCase(_guidGenerator.Create(), "Is/Was a colleague (in last 2 years)", true, true, null),
+                new ConflictCase(_guidGenerator.Create(), "Is/Was a collaborator (in last 2 years)", true, true, null),
+                new ConflictCase(_guidGenerator.Create(), "Is/Was a Primary Thesis Advisor at any time", true, true, null),
+                new ConflictCase(_guidGenerator.Create(), "Is a relative or a friend", true, true, null),
+                new ConflictCase(_guidGenerator.Create(), "Has (a) domain conflicts", false, true, null),
+            };
+
+            await _conflictCaseRepository
+                .InsertManyAsync(conflictCases, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -278,6 +304,7 @@ namespace Sras.PublicCoreflow.Data
             await CreateConferenceRolesAsync();
             await CreatePlaceholderGroupAsync();
             await CreateSupportedPlaceholderAsync();
+            await CreateConflictCaseAsync();
         }
     }
 }
