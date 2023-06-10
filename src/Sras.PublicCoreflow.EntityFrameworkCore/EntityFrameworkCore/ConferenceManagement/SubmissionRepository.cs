@@ -12,7 +12,7 @@ using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
-    public class SubmissionRepository : EfCoreRepository<PublicCoreflowDbContext, Outsider, Guid>, ISubmissionRepository
+    public class SubmissionRepository : EfCoreRepository<PublicCoreflowDbContext, Submission, Guid>, ISubmissionRepository
     {
         private readonly IGuidGenerator _guidGenerator;
 
