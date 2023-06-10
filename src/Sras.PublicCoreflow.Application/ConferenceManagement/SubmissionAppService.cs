@@ -192,5 +192,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _submissionRepository.GetSubmissionAsync();
         }
+
+        public async Task<ResponseDto> UpdateSubmissionConflict(SubmissionConflictInput input)
+        {
+            ResponseDto response = new ResponseDto();
+
+            // Get submission
+            //var submission = 
+
+
+            return await Task.FromResult(response);
+        }
     }
 }
