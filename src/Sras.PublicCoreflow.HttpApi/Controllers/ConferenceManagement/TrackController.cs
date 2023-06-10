@@ -41,5 +41,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-tracks-and-roles-of-chackchair-user/{userId}/{conferenceId}")]
+        public async Task<ActionResult<object>> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string? roleName)
+        {
+            try
+            {
+                var result = _trackAppService.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

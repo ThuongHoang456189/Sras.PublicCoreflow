@@ -108,5 +108,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _trackRepository2.CreateTrackAsync(conferenceId, trackName); 
         }
+
+        public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string roleName)
+        {
+            return await _trackRepository2.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+        }
     }
 }
