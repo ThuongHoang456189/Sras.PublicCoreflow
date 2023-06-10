@@ -181,7 +181,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
 
             var incumbent = await _incumbentRepository.FindAsync(reviewer.Id);
-            var incumbentConflicts = await _conflictRepository.GetListAsync(x => x.IncumbentId == reviewer.Id && x.IsDefinedByReviewer);
+            var incumbentConflicts = await _conflictRepository.GetListAsync(x => x.IncumbentId == reviewer.Id);
 
             if (!incumbent.Conflicts.Any())
             {
@@ -201,7 +201,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 {
                     if (!input.ConflictCases.Any(y => y == x.ConflictCaseId))
                     {
-                        x.Operation = ReviewerConflictManipulationOperators.Del;
+                        x.Operation = ConflictManipulationOperators.Del;
                     }
                 });
 
@@ -209,13 +209,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 {
                     if (!reviewerConflictOperationTable.Any(y => y.ConflictCaseId == x))
                     {
-                        ReviewerConflictOperation newOperation = new ReviewerConflictOperation
+                        ConflictOperation newOperation = new ConflictOperation
                         {
                             SubmissionId = input.SubmissionId,
                             IncumbentId = incumbent.Id,
                             ConflictCaseId = x,
                             IsDefinedByReviewer = true,
-                            Operation = ReviewerConflictManipulationOperators.Add
+                            Operation = ConflictManipulationOperators.Add
                         };
 
                         reviewerConflictOperationTable.Add(newOperation);
@@ -225,14 +225,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 // Perform operation
                 reviewerConflictOperationTable.ForEach(x =>
                 {
-                    if (x.Operation == ReviewerConflictManipulationOperators.Add)
+                    if (x.Operation == ConflictManipulationOperators.Add)
                     {
                         Conflict newConflict = new Conflict(_guidGenerator.Create(), x.SubmissionId, x.IncumbentId, x.ConflictCaseId, x.IsDefinedByReviewer);
                         incumbent.Conflicts.Add(newConflict);
                     }
-                    else if (x.Operation == ReviewerConflictManipulationOperators.Del)
+                    else if (x.Operation == ConflictManipulationOperators.Del)
                     {
-                        var foundConflict = incumbent.Conflicts.FirstOrDefault(y => y.ConflictCaseId == x.ConflictCaseId && y.IsDefinedByReviewer);
+                        var foundConflict = incumbent.Conflicts.FirstOrDefault(y => y.ConflictCaseId == x.ConflictCaseId && y.SubmissionId == x.SubmissionId && y.IsDefinedByReviewer);
                         if (foundConflict != null)
                         {
                             incumbent.Conflicts.Remove(foundConflict);
@@ -245,9 +245,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = true;
                 response.Message = "Update successfully";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
                 response.IsSuccess = false;
                 response.Message = "Exception";
             }

@@ -50,11 +50,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return result;
         }
 
-        public async Task<List<ReviewerConflictOperation>> GetReviewerConflictOperationTableAsync(Guid incumbentId, Guid submissionId)
+        public async Task<List<ConflictOperation>> GetReviewerConflictOperationTableAsync(Guid incumbentId, Guid submissionId)
         {
             var dbContext = await GetDbContextAsync();
 
-            List<ReviewerConflictOperation> result = new List<ReviewerConflictOperation>();
+            List<ConflictOperation> result = new List<ConflictOperation>();
 
             var incumbentQueryable = (from i in dbContext.Set<Incumbent>() select i)
                                         .Where(x => x.Id == incumbentId && !x.IsDeleted);
@@ -62,17 +62,43 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var conflictQueryable = (from c in dbContext.Set<Conflict>()
                                      join i in incumbentQueryable on c.IncumbentId equals i.Id
                                      join cc in dbContext.Set<ConflictCase>() on c.ConflictCaseId equals cc.Id
-                                     select new ReviewerConflictOperation
+                                     select new ConflictOperation
                                      {
                                          SubmissionId = c.SubmissionId,
                                          IncumbentId = c.IncumbentId,
                                          ConflictCaseId = c.ConflictCaseId,
                                          IsDefinedByReviewer = c.IsDefinedByReviewer,
-                                         Operation = ReviewerConflictManipulationOperators.None
+                                         Operation = ConflictManipulationOperators.None
                                      })
                                      .Where(x => x.IncumbentId == incumbentId
                                      && x.SubmissionId == submissionId
                                      && x.IsDefinedByReviewer);
+
+            var list = await conflictQueryable.ToListAsync();
+            if (list.Any())
+                result = list;
+
+            return result;
+        }
+
+        public async Task<List<ConflictOperation>> GetSubmissionConflictOperationTableAsync(Guid submissionId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            List<ConflictOperation> result = new List<ConflictOperation>();
+
+            var conflictQueryable = (from c in dbContext.Set<Conflict>()
+                                     join cc in dbContext.Set<ConflictCase>() on c.ConflictCaseId equals cc.Id
+                                     select new ConflictOperation
+                                     {
+                                         SubmissionId = c.SubmissionId,
+                                         IncumbentId = c.IncumbentId,
+                                         ConflictCaseId = c.ConflictCaseId,
+                                         IsDefinedByReviewer = c.IsDefinedByReviewer,
+                                         Operation = ConflictManipulationOperators.None
+                                     })
+                                     .Where(x => x.SubmissionId == submissionId
+                                     && !x.IsDefinedByReviewer);
 
             var list = await conflictQueryable.ToListAsync();
             if (list.Any())

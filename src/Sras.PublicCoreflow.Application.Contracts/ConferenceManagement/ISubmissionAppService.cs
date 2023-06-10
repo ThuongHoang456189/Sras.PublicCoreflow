@@ -4,6 +4,7 @@ using Volo.Abp.Application.Services;
 using System.Collections.Generic;
 using Volo.Abp.Content;
 using Sras.PublicCoreflow.Dto;
+using Volo.Abp.Application.Dtos;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -15,5 +16,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> GetNumberOfSubmission(Guid trackId);
         Task<object> GetNumberOfSubmissionAndEmail(SubmissionWithEmailRequest request);
         Task<IEnumerable<object>> GetSubmissionsAsync();
+        Task<ResponseDto> UpdateSubmissionConflict(Guid submissionId, List<ConflictInput> conflicts);
+        Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid id);
     }
 }
