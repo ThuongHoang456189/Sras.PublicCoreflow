@@ -124,13 +124,15 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 if (dbContext.Users.Any(u => u.Email == email)) 
                     return dbContext.Users.Where(us => us.Email == email).Select(r => new
                     {
-                        id = r.Id, name = r.Name, email = r.Email, organization = r.OrganizationUnits.FirstOrDefault(), hasAccount= true
+                        id = r.Id, firstName = r.Name, lastName = r.Surname, email = r.Email, organization = r.OrganizationUnits.FirstOrDefault(), hasAccount= true
                     }).First();
                 else if (dbContext.Outsiders.Any(o => o.Email == email))
                     return dbContext.Outsiders.Where(us => us.Email == email).Select(r => new
                     {
                         id = r.Id,
-                        name = r.FirstName + " " + r.MiddleName + " " + r.LastName,
+                        firstname = r.FirstName,
+                        middlename = r.MiddleName,
+                        lastname = r.LastName,
                         email = r.Email,
                         organization = r.Organization,
                         hasAccount = false
