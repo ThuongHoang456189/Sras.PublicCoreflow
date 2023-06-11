@@ -9,14 +9,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public Guid SubmissionId { get; private set; }
         public Submission Submission { get; private set; }
+        public bool IsLast { get; private set; }
 
         public ICollection<ReviewAssignment> Reviews { get; set; }
 
-        public SubmissionClone(Guid id, Guid submissionId) : base(id)
+        public SubmissionClone(Guid id, Guid submissionId, bool isLast) : base(id)
         {
             SubmissionId = submissionId;
 
             Reviews = new Collection<ReviewAssignment>();
+            IsLast = isLast;
         }
     }
 }

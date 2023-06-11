@@ -390,6 +390,9 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("SubmissionClones", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.IsLast)
+            .HasDefaultValue(false);
         });
 
         builder.Entity<SubmissionSubjectArea>(b =>

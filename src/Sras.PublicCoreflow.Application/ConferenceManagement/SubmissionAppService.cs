@@ -111,6 +111,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Submission submission = new Submission(submissionId, input.Title, input.Abstract, submissionId.ToString(), track.Id,
                 input.DomainConflicts, null, null, input.Answers, awaitingDecisionPaperStatus.Id, null, null, null, false);
 
+            // Add first clone
+            submission.Clones.Add(new SubmissionClone(_guidGenerator.Create(), submissionId, true));
+
             // Proceed author list
             var conferenceId = track.ConferenceId;
             var conference = await _conferenceRepository.FindAsync(x => x.Id == conferenceId);
