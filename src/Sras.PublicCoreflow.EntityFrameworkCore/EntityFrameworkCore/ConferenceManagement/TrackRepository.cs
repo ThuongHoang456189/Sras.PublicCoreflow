@@ -109,7 +109,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 trackId = tr,
                 trackName = dbContext.Tracks.Where(t => t.Id == tr).First().Name,
-                roles = dbContext.Incumbents.Where(i => i.TrackId == tr && i.ConferenceAccountId == accConfId).Select(inc => new
+                roles = dbContext.Incumbents.Where(i => i.TrackId == tr && i.ConferenceAccountId == accConfId).OrderBy(incc => incc.ConferenceRole.Factor).Select(inc => new
                 {
                     id = inc.ConferenceRole.Id,
                     name = inc.ConferenceRole.Name
