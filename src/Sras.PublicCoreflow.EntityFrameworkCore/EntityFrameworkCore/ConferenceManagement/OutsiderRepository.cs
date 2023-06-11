@@ -135,6 +135,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         lastname = r.LastName,
                         email = r.Email,
                         organization = r.Organization,
+                        country = r.Country,
                         hasAccount = false
                     }).First();
 
