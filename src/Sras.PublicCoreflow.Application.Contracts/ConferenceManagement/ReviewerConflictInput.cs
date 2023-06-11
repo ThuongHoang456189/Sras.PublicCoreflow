@@ -3,11 +3,12 @@ using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class ReviewerSubjectAreaInput
+    public class ReviewerConflictInput
     {
         public Guid AccountId { get; set; }
         public Guid ConferenceId { get; set; }
         public Guid TrackId { get; set; }
-        public List<SelectedSubjectAreaInput> SubjectAreas { get; set; } = new List<SelectedSubjectAreaInput>();
+        public Guid SubmissionId { get; set; }
+        public List<Guid> ConflictCases { get; set; } = new List<Guid>();
     }
 }

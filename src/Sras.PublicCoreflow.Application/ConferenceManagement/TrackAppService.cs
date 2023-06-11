@@ -122,7 +122,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 if (track == null)
                     throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
 
-                track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(input);
+                if(input.IsDefault)
+                {
+                    track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients);
+                }
+                else
+                {
+                    track.SubjectAreaRelevanceCoefficients = JsonSerializer.Serialize(input);
+                }
 
                 await _trackRepository.UpdateAsync(track);
                 return new
