@@ -62,5 +62,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult<object>> CreateEmailTemplate([FromBody] CreateEmailTemplateRequest request)
+        {
+            try
+            {
+                var result = await _emailTemplateAppService.CreateEmailTemplate(request);
+                return Ok(result);  
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
