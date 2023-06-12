@@ -5,11 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-<<<<<<< HEAD
 using System.Linq.Dynamic.Core;
-=======
-using System.Reflection.Metadata.Ecma335;
->>>>>>> development
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
