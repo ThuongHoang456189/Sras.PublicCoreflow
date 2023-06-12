@@ -63,7 +63,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 var result = dbContext.EmailTemplates.Where(e => e.ConferenceId == conferenceId).Select(em => new
                 {
                     templateId = em.Id,
-                    templateName = "haha"
+                    templateName = em.Name,
+                    body = em.Body,
+                    subject = em.Subject
                 });
                 return result;
             } catch (Exception ex)
@@ -83,19 +85,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     throw new Exception("TrackId Or ConferenceId not exist in DB");
                 }
 
-                var templateOfTrack = dbContext.EmailTemplates
+                var templateOfTrack = dbContext.EmailTemplates //template create by 1 Track Chair
                     .Where(e => e.ConferenceId != null)
                     .Where(e => e.TrackId == trackId)
                     .ToList();
-                var templateOfConference = dbContext.EmailTemplates
+                var templateOfConference = dbContext.EmailTemplates // template create by Chair
                     .Where(em => em.ConferenceId != null && em.TrackId == null)
                     .Where(et => et.ConferenceId == conferenceId)
                     .ToList();
                 templateOfTrack.AddRange(templateOfConference);
                 var totalTemplate = templateOfTrack.Select(r => new
                 {
-                    TemplateId = r.Id,
-                    TemplateName = r.Name
+                    templateId = r.Id,
+                    templateName = r.Name,
+                    body = r.Body,
+                    subject = r.Subject
                 });
                 return totalTemplate;
             }
@@ -167,7 +171,26 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
-        
+        public async Task<object> CreateEmailTempate(CreateEmailTemplateRequest request)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                var templateId = _guidGenerator.Create();
+                if (!dbContext.Tracks.Any(t => t.Id == request.trackId)) throw new Exception($"TrackId {request.trackId} not eixsting");
+                if (!dbContext.Conferences.Any(c => c.Id == request.conferenceId)) throw new Exception($"ConferenceId {request.conferenceId} not found");
+                var templateObject = new EmailTemplate(templateId, request.name.Trim(), request.subject.Trim(), request.body, request.conferenceId, request.trackId);
+                await dbContext.EmailTemplates.AddAsync(templateObject);
+                return new
+                {
+                    message = "Create Template Success"
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
 
     }
 }

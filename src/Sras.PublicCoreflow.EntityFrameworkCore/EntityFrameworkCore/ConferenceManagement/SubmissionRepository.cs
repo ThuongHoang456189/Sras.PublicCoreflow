@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+<<<<<<< HEAD
 using System.Linq.Dynamic.Core;
+=======
+using System.Reflection.Metadata.Ecma335;
+>>>>>>> development
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -26,26 +30,6 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public SubmissionRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
             _guidGenerator = guidGenerator;
-        }
-
-        public async Task<object> GetNumberOfSubmission(Guid trackId)
-        {
-            try
-            {
-                var dbContext = await GetDbContextAsync();
-                if (!dbContext.Submissions.Any(s => s.TrackId == trackId))
-                {
-                    throw new Exception("There Is no Submission for TrackID=" + trackId);
-                }
-                var totalSubmission = dbContext.Submissions.Where(s => s.TrackId == trackId).Count();
-                return new
-                {
-                    numOfSubmission = totalSubmission
-                };
-            } catch (Exception ex)
-            {
-                throw new Exception("[ERROR][GetNumberOfSubmission] " + ex.Message, ex);
-            }
         }
 
         public async Task<object> GetNumOfSubmissionAndEmailWithAllAuthor(SubmissionWithEmailRequest request)

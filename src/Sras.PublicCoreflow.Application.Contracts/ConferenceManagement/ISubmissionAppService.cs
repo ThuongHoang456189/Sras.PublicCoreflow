@@ -12,7 +12,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<Guid> CreateAsync(SubmissionInput input);
         ResponseDto CreateSubmissionFiles(Guid submissionId, List<RemoteStreamContent> files);
-        Task<object> GetNumberOfSubmission(Guid trackId);
         Task<object> GetNumberOfSubmissionAndEmail(SubmissionWithEmailRequest request);
         Task<IEnumerable<object>> GetSubmissionsAsync();
         Task<ResponseDto> UpdateSubmissionConflict(Guid submissionId, List<ConflictInput> conflicts);
