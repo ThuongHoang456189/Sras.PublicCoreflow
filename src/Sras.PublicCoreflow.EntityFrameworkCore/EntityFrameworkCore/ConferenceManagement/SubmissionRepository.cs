@@ -4,6 +4,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -22,26 +23,6 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public SubmissionRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
             _guidGenerator = guidGenerator;
-        }
-
-        public async Task<object> GetNumberOfSubmission(Guid trackId)
-        {
-            try
-            {
-                var dbContext = await GetDbContextAsync();
-                if (!dbContext.Submissions.Any(s => s.TrackId == trackId))
-                {
-                    throw new Exception("There Is no Submission for TrackID=" + trackId);
-                }
-                var totalSubmission = dbContext.Submissions.Where(s => s.TrackId == trackId).Count();
-                return new
-                {
-                    numOfSubmission = totalSubmission
-                };
-            } catch (Exception ex)
-            {
-                throw new Exception("[ERROR][GetNumberOfSubmission] " + ex.Message, ex);
-            }
         }
 
         public async Task<object> GetNumOfSubmissionAndEmailWithAllAuthor(SubmissionWithEmailRequest request)

@@ -8,11 +8,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface ISubmissionRepository : IRepository<Submission, Guid>
     {
-        Task<object> GetNumberOfSubmission(Guid trackId);
         Task<object> GetNumOfSubmissionAndEmailWithAllAuthor(SubmissionWithEmailRequest request);
         Task<object> GetNumOfSubmissionAndEmailWithPrimaryContactAuthor(SubmissionWithEmailRequest request);
         Task<IEnumerable<object>> GetSubmissionAsync();
-
         Task<int> GetCountConflictedReviewer(Guid submissionId);
         Task<List<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid submissionId);
     }

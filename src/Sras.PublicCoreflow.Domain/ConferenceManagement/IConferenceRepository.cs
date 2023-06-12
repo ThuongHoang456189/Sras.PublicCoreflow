@@ -42,5 +42,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             DateTime endDate);
 
         Task<List<IncumbentOperation>> GetIncumbentOperationTableAsync(Guid conferenceId);
+        Task<IEnumerable<object>> GetNumberOfSubmission(Guid? trackId);
+        Task<IEnumerable<object>> GetNumberOfSubmissionByConferenceId(Guid conferenceId);
     }
 }
