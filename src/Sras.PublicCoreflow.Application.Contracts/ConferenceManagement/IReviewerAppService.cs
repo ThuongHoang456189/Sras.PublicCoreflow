@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -14,5 +15,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> UpdateReviewerConflict(ReviewerConflictInput input);
 
         Task<List<ConflictWithDetails>> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input);
+
+        Task<ResponseDto> UploadReview(Guid reviewAssignmentId, List<RemoteStreamContent> files, int? totalScore);
     }
 }

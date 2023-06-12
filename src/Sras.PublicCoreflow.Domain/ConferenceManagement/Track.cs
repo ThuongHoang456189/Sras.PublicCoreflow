@@ -142,7 +142,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             Submissions.Add(new Submission(submissionId, title, @abstract, rootFilePath, Id, domainConflicts, 
-                createdIncumbentId, createdIncumbentId, answers, statusId, null, null, null, false));
+                createdIncumbentId, createdIncumbentId, answers, statusId, null, null, null, false, false, null, false, null));
 
             return this;
         }

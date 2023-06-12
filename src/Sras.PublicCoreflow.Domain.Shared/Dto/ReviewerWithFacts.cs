@@ -15,7 +15,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public List<ConflictWithDetails> ReviewerConflicts { get; set; }
         public List<ReviewerSubjectAreaBriefInfo> ReviewerSubjectAreas { get; set; }
         public double Relevance { get; set; }
-        public int Quota { get; set; }
+        public int? Quota { get; set; }
         public int NumberOfAssignments { get; set; }
         public bool IsAssigned { get; set; }
         public double SortingFactor { get; set; }

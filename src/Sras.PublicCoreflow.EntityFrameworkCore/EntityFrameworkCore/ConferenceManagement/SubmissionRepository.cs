@@ -3,7 +3,9 @@ using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -19,6 +21,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
     public class SubmissionRepository : EfCoreRepository<PublicCoreflowDbContext, Submission, Guid>, ISubmissionRepository
     {
         private readonly IGuidGenerator _guidGenerator;
+        private readonly string HostBlobPrefix = "host";
 
         public SubmissionRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
@@ -284,7 +287,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return 0;
         }
 
-        public async Task<List<ReviewerWithFacts>> GetListReviewerWithFacts(Guid submissionId)
+        public async Task<SubmissionReviewerAssignmentSuggestion> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
         {
             var dbContext = await GetDbContextAsync();
 
@@ -295,6 +298,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var track = await dbContext.Tracks.FindAsync(submission.TrackId);
             if (track == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var result = new SubmissionReviewerAssignmentSuggestion();
 
             var relevanceFormula = track.SubjectAreaRelevanceCoefficients == null ?
                 TrackConsts.DefaultSubjectAreaRelevanceCoefficients :
@@ -313,7 +318,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             var submissionSubjectAreaList = submissionSubjectAreaQueryable.ToList();
 
-            List<ReviewerWithFacts> result = new List<ReviewerWithFacts>();
+            List<ReviewerWithFacts> reviewers = new List<ReviewerWithFacts>();
 
             var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
                                       join r in dbContext.Set<Reviewer>() on i.Id equals r.Id
@@ -397,11 +402,15 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     var trackSubmissionQueryable = (from s in dbContext.Set<Submission>() select s)
                                                     .Where(y => y.TrackId == submission.TrackId);
 
-                    var reviewAssignmentQueryable = (from sc in dbContext.Set<SubmissionClone>()
+                    var submissionCloneQueryable = (from sc in dbContext.Set<SubmissionClone>()
                                                      join s in trackSubmissionQueryable on sc.SubmissionId equals s.Id
                                                      select sc)
-                                                    .Where(y => y.SubmissionId == submission.Id);
-                    // Bo sung isLast
+                                                    .Where(y => y.IsLast);
+                    var reviewAssignmentQueryable = (from ra in dbContext.Set<ReviewAssignment>()
+                                                     join sc in submissionCloneQueryable on ra.SubmissionCloneId equals sc.Id
+                                                     select ra)
+                                                     .Where(y => y.ReviewerId == x.ReviewerId);
+                    var numberOfAssignments = reviewAssignmentQueryable.Count();
 
                     // Get IsAssigned
                     var lastSubmissionClone = (from sc in dbContext.Set<SubmissionClone>()
@@ -411,13 +420,26 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                                         .LastOrDefault();
 
                     var isAssigned = false;
-                    if (lastSubmissionClone != null && foundReviewer != null)
+                    if (lastSubmissionClone != null)
                     {
                         isAssigned = (from ra in dbContext.Set<ReviewAssignment>()
                                       select ra)
                                       .Where(y => y.SubmissionCloneId == lastSubmissionClone.Id
-                                                  && y.ReviewerId == foundReviewer.Id
+                                                  && y.ReviewerId == x.ReviewerId
                                                   && y.IsActive).ToList().Count > 0;
+                    }
+
+                    var sortingFactor = 2;
+                    if(!submissionConflictQueryable.Any() && !reviewerConflictQueryable.Any())
+                    {
+                        if(quota != null && quota - numberOfAssignments <= 0)
+                        {
+                            sortingFactor = 1;
+                        }
+                        else
+                        {
+                            sortingFactor = 0;
+                        }
                     }
 
                     ReviewerWithFacts reviewer = new ReviewerWithFacts
@@ -431,13 +453,237 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         SubmissionConflicts = submissionConflictQueryable.ToList(),
                         ReviewerConflicts = reviewerConflictQueryable.ToList(),
                         ReviewerSubjectAreas = reviewerSubjectAreaList,
+                        Relevance = relevanceScore,
+                        Quota = quota,
+                        NumberOfAssignments = numberOfAssignments,
+                        IsAssigned = isAssigned,
+                        SortingFactor = sortingFactor
                     };
 
-                    result.Add(reviewer);
+                    reviewers.Add(reviewer);
                 }
             });
 
+            result.TrackId = track.Id;
+            result.TrackName = track.Name;
+            result.SubmissionId = submission.Id;
+            result.SubmissionTitle = submission.Title;
+            result.SubmissionSubjectAreas = submissionSubjectAreaList;
+            result.Reviewers = reviewers.OrderBy(x => x.SortingFactor)
+                .ThenBy(x => -x.Relevance)
+                .ToList();
+
             return result;
+        }
+
+        public async Task<List<SubmissionAggregation>> GetListSubmissionAggregation(
+            Guid conferenceId,
+            Guid? trackId = null,
+            string? sorting = SubmissionConsts.DefaultSorting,
+            int skipCount = 0,
+            int maxResultCount = SubmissionConsts.DefaultMaxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            // Check valid conferenceId
+            var conference = await dbContext.Set<Conference>().FindAsync(conferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            // Check valid trackId optional
+            if(trackId != null)
+            {
+                var track = await dbContext.Set<Track>().FindAsync(trackId);
+                if (track == null)
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
+
+            var submissionList = await (from t in dbContext.Set<Track>()
+                                       join s in dbContext.Set<Submission>() on t.Id equals s.TrackId
+                                       join c in dbContext.Set<Conference>() on t.ConferenceId equals c.Id
+                                       select s)
+                                       .WhereIf(trackId != null, x => x.TrackId == trackId)
+                                       .OrderBy(sorting)
+                                       .PageBy(skipCount, maxResultCount)
+                                       .ToListAsync();
+
+            List<SubmissionAggregation> result = new List<SubmissionAggregation>();
+
+            submissionList.ForEach(x =>
+            {
+                SubmissionAggregation submission = new SubmissionAggregation();
+
+                submission.SubmissionId = x.Id;
+                submission.SubmissionTitle = x.Title;
+
+                var authorList = (from a in dbContext.Set<Author>()
+                                  where a.SubmissionId == x.Id
+                                  select a).ToList();
+                List<AuthorBriefInfo> authors = new List<AuthorBriefInfo>();
+                int numberOfUnregisteredAuthors = 0;
+                authorList.ForEach(y =>
+                {
+                    var participant = dbContext.Set<Participant>().Find(y.ParticipantId);
+                    var author = new AuthorBriefInfo();
+                    author.Id = y.Id;
+                    author.IsPrimaryContact = y.IsPrimaryContact;
+                    author.ParticipantId = y.ParticipantId;
+
+                    if (participant != null)
+                    {
+                        if (participant.AccountId != null)
+                        {
+                            var user = dbContext.Set<IdentityUser>().Find(participant.AccountId);
+                            if (user != null)
+                            {
+                                author.FirstName = user.Name;
+                                author.MiddleName = user.GetProperty<string?>(AccountConsts.MiddleNamePropertyName);
+                                author.LastName = user.Surname;
+                                author.Email = user.Email;
+
+                                authors.Add(author);
+                            }
+                        }
+                        else if (participant.OutsiderId != null)
+                        {
+                            var outsider = dbContext.Set<Outsider>().Find(participant.OutsiderId);
+                            if (outsider != null)
+                            {
+                                author.FirstName = outsider.FirstName;
+                                author.MiddleName = outsider.MiddleName;
+                                author.LastName = outsider.LastName;
+                                author.Email = outsider.Email;
+
+                                authors.Add(author);
+
+                                numberOfUnregisteredAuthors++;
+                            }
+                        }
+                    }
+                });
+                submission.Authors = authors;
+                submission.NumberOfUnregisteredAuthors = numberOfUnregisteredAuthors;
+
+                var path = HostBlobPrefix + "/" + x.Id.ToString();
+                if (Directory.Exists(path))
+                {
+                    submission.NumberOfSubmissionFiles = Directory.GetFiles(path, "*.*", SearchOption.TopDirectoryOnly).Length;
+                }
+                else
+                {
+                    submission.NumberOfSubmissionFiles = 0;
+                }
+
+                var submissionSubjectAreaQueryable = (from ssa in dbContext.Set<SubmissionSubjectArea>() select ssa)
+                                                     .Where(y => y.SubmissionId == x.Id);
+                var submissionSubjectAreas = (from ssa in submissionSubjectAreaQueryable
+                                              join sa in dbContext.Set<SubjectArea>() on ssa.SubjectAreaId equals sa.Id
+                                              select new SelectedSubjectAreaBriefInfo
+                                              {
+                                                  SubjectAreaId = ssa.SubjectAreaId,
+                                                  SubjectAreaName = sa.Name,
+                                                  IsPrimary = ssa.IsPrimary
+                                              }).ToList();
+                submission.SubmissionSubjectAreas = submissionSubjectAreas;
+
+                var submissionTrack = dbContext.Set<Track>().Find(x.TrackId);
+                if (submissionTrack != null)
+                {
+                    var t = new TrackBriefInfo(submissionTrack.Id, submissionTrack.Name);
+                    t.IsDefault = submissionTrack.IsDefault;
+                    submission.Track = t;
+                }
+
+                // Temporary ChairNote is null
+                submission.ChairNoteId = null;
+
+                var conflictList = (from c in dbContext.Set<Conflict>()
+                                    select c).Where(y => y.SubmissionId == x.Id).ToList();
+                var conflictedReviewerList = new List<Guid>();
+                conflictList.ForEach(y =>
+                {
+                    if (!conflictedReviewerList.Any(r => r == y.IncumbentId))
+                    {
+                        var incumbent = dbContext.Set<Incumbent>().Find(y.IncumbentId);
+                        if (incumbent != null)
+                        {
+                            conflictedReviewerList.Add(y.IncumbentId);
+                        }
+                    }
+                });
+                submission.NumberOfConflicts = conflictedReviewerList.Count;
+
+                // Temporary NumberOfDisputedConflicts = 0
+                submission.NumberOfDisputedConflicts = 0;
+
+                var lastCloneSubmission = (from c in dbContext.Set<SubmissionClone>()
+                                           select c)
+                                                    .Where(y => y.SubmissionId == x.Id && y.IsLast)
+                                                    .SingleOrDefault();
+
+                var reviewerList = (from r in dbContext.Set<Reviewer>()
+                                    join ra in dbContext.Set<ReviewAssignment>() on r.Id equals ra.ReviewerId
+                                    join i in dbContext.Set<Incumbent>() on r.Id equals i.Id
+                                    select ra)
+                                         .Where(y => y.IsActive && lastCloneSubmission != null && y.SubmissionCloneId == lastCloneSubmission.Id)
+                                         .ToList();
+                var reviewers = new List<ReviewerBriefInfo>();
+
+                int numberOfCompletedReviews = 0;
+                reviewerList.ForEach(y =>
+                {
+                    var found = (from ca in dbContext.Set<ConferenceAccount>()
+                                 join i in dbContext.Set<Incumbent>() on ca.Id equals i.ConferenceAccountId
+                                 join u in dbContext.Set<IdentityUser>() on ca.AccountId equals u.Id
+                                 select new
+                                 {
+                                     ReviewerId = i.Id,
+                                     AccountId = u.Id,
+                                 })
+                                 .Where(r => r.ReviewerId == y.ReviewerId)
+                                 .SingleOrDefault();
+
+                    var user = dbContext.Set<IdentityUser>().Find(found?.AccountId);
+                    if (found != null && user != null)
+                    {
+                        reviewers.Add(new ReviewerBriefInfo
+                        {
+                            ReviewerId = found.ReviewerId,
+                            FirstName = user.Name,
+                            MiddleName = user.GetProperty<string?>(AccountConsts.MiddleNamePropertyName),
+                            LastName = user.Surname,
+                            Email = user.Email,
+                            Organization = user.GetProperty<string?>(AccountConsts.OrganizationPropertyName)
+                        });
+                    }
+
+                    if (!y.Review.IsNullOrWhiteSpace())
+                    {
+                        numberOfCompletedReviews++;
+                    }
+                });
+
+                submission.Reviewers = reviewers;
+                submission.NumberOfAssignment = reviewers.Count;
+                submission.NumberOfCompletedReviews = numberOfCompletedReviews;
+
+                var status = dbContext.Set<PaperStatus>().Find(x.StatusId);
+                submission.Status = status?.Name;
+
+                var revision = dbContext.Set<Revision>().Find(lastCloneSubmission?.Id);
+                submission.IsRevisionSubmitted = revision == null ? false : !revision.RootFilePath.IsNullOrEmpty();
+
+                submission.IsRequestedForCameraReady = x.IsRequestedForCameraReady;
+
+                // Temporary IsCameraReadySubmitted = false
+                submission.IsCameraReadySubmitted = false;
+
+                submission.IsRequestedForPresentation = x.IsRequestedForPresentation;
+
+                result.Add(submission);
+            });
+
+            return await Task.FromResult(result);
         }
 
         public override async Task<IQueryable<Submission>> WithDetailsAsync()

@@ -78,6 +78,8 @@ public class PublicCoreflowDbContext :
     public DbSet<SubmissionClone> SubmissionClones { get; set; }
     public DbSet<SubmissionSubjectArea> SubmissionSubjectAreas { get; set; }
     public DbSet<SupportedPlaceholder> SupportedPlaceholders { get; set; }
+    public DbSet<Revision> Revisions { get; set; }
+
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -370,6 +372,9 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.RootFilePath)
             .HasMaxLength(SubmissionConsts.MaxRootFilePathLength);
 
+            b.Property(x => x.IsRequestedForPresentation)
+            .HasDefaultValue(false);
+
             b.Property(x => x.DomainConflicts)
             .HasMaxLength(SubmissionConsts.MaxDomainConflictsLength);
 
@@ -384,6 +389,15 @@ public class PublicCoreflowDbContext :
             .HasForeignKey(i => i.Id)
             .IsRequired(true)
             .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<Revision>(b =>
+        {
+            b.ToTable("Revisions", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootFilePath)
+            .HasMaxLength(RevisionConsts.MaxRootFilePathLength);
         });
 
         builder.Entity<SubmissionClone>(b =>

@@ -96,7 +96,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return await query.ToListAsync();
         }
 
-        public async Task<List<ConferenceWithBriefInfo>> GetListAsync(string? sorting = null, int skipCount = 0, int maxResultCount = int.MaxValue, string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, Guid? accountId = null, CancellationToken cancellationToken = default)
+        public async Task<List<ConferenceWithBriefInfo>> 
+            GetListAsync(string? sorting = null, int skipCount = 0, int maxResultCount = int.MaxValue, string? inclusionText = null, string? fullName = null, string? shortName = null, string? city = null, string? country = null, DateTime? startDate = null, DateTime? endDate = null, Guid? accountId = null, CancellationToken cancellationToken = default)
         {
             var dbContext = await GetDbContextAsync();
 

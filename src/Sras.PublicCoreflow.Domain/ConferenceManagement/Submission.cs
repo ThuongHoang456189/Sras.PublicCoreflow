@@ -11,7 +11,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public string Title { get; private set; }
         public string Abstract { get; private set; }
-        public string RootFilePath { get; private set; }
+        public string? RootFilePath { get; private set; }
         public Guid TrackId { get; private set; }
         public Track Track { get; private set; }
         public string? DomainConflicts { get; private set; }
@@ -20,20 +20,32 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Guid? LastModifiedIncumbentId { get; private set; }
         public Incumbent? LastModifiedIncumbent { get; private set; }
         public string? Answers { get; private set; }
-        public Guid StatusId { get; private set; }
+        public Guid StatusId { get; set; }
         public PaperStatus Status { get; private set; }
-        public bool? IsNotified { get; private set; }
-        public Guid? NotifiedStatusId { get; private set; }
+        public bool? IsNotified { get; set; }
+        public Guid? NotifiedStatusId { get; set; }
         public PaperStatus? NotifiedStatus { get; private set; }
         public DateTime? LastNotificationTime { get; private set; }
+        public bool IsFinallyDecided { get; private set; }
         public bool IsRequestedForCameraReady { get; private set; }
+        public DateTime? CameraReadyRequestTime { get; private set; }
+        public bool IsRequestedForPresentation { get; private set; }
+        public DateTime? PresentationRequestTime { get; private set; }
 
         public ICollection<SubmissionSubjectArea> SubjectAreas { get; set; }
         public ICollection<Author> Authors { get; set; }
         public ICollection<Conflict> Conflicts { get; set; }
         public ICollection<SubmissionClone> Clones { get; set; }
 
-        public Submission(Guid id, string title, string @abstract, string rootFilePath, Guid trackId, string? domainConflicts, Guid? createdIncumbentId, Guid? lastModifiedIncumbentId, string? answers, Guid statusId, bool? isNotified, Guid? notifiedStatusId, DateTime? lastNotificationTime, bool isRequestedForCameraReady) : base(id)
+        public Submission(Guid id, string title, 
+            string @abstract, string? rootFilePath, 
+            Guid trackId, string? domainConflicts, 
+            Guid? createdIncumbentId, Guid? lastModifiedIncumbentId, 
+            string? answers, Guid statusId, bool? isNotified, 
+            Guid? notifiedStatusId, DateTime? lastNotificationTime,
+            bool isFinallyDecided, 
+            bool isRequestedForCameraReady, DateTime? cameraReadyRequestTime,
+            bool isRequestedForPresentation, DateTime? presentationRequestTime) : base(id)
         {
             SetTitle(title);
             SetAbstract(@abstract);
@@ -47,7 +59,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IsNotified = isNotified;
             NotifiedStatusId = notifiedStatusId;
             LastNotificationTime = lastNotificationTime;
+            IsFinallyDecided = isFinallyDecided;
             IsRequestedForCameraReady = isRequestedForCameraReady;
+            CameraReadyRequestTime = cameraReadyRequestTime;
+            IsRequestedForPresentation = isRequestedForPresentation;
+            PresentationRequestTime = presentationRequestTime;
 
             SubjectAreas = new Collection<SubmissionSubjectArea>();
             Authors = new Collection<Author>();

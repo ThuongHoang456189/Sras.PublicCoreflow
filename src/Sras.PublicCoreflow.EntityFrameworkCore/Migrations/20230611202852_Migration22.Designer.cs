@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230611202852_Migration22")]
+    partial class Migration22
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1772,9 +1775,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<string>("Answers")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CameraReadyRequestTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasMaxLength(40)
@@ -1823,11 +1823,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<bool>("IsRequestedForCameraReady")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsRequestedForPresentation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("LastModificationTime");
@@ -1844,9 +1839,6 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.Property<Guid?>("NotifiedStatusId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("PresentationRequestTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("RootFilePath")
                         .HasMaxLength(1024)

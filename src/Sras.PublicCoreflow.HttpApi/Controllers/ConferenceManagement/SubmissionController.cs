@@ -91,5 +91,35 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _submissionAppService.GetListReviewerWithConflictDetails(id);
         }
+
+        [HttpGet("{id}/reviewer-assignment")]
+        public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid id)
+        {
+            return await _submissionAppService.GeSubmissionReviewerAssignmentSuggestionAsync(id);
+        }
+
+        [HttpPost("{id}/reviewer-assignment")]
+        public async Task<IActionResult> UpdateSubmissionReviewAssignment(Guid id, Guid reviewerId, bool isAssigned)
+        {
+            return Ok(await _submissionAppService.AssignReviewerAsync(id, reviewerId, isAssigned));
+        }
+
+        [HttpPost("{id}/revisions")]
+        public async Task<IActionResult> CreateRevision(Guid id, [FromForm] List<RemoteStreamContent> files)
+        {
+            return Ok(await _submissionAppService.CreateRevisionAsync(id, files));
+        }
+
+        [HttpPost("{id}/decision")]
+        public async Task<IActionResult> UpdateDecision(Guid id, Guid paperStatusId)
+        {
+            return Ok(await _submissionAppService.DecideOnPaper(id, paperStatusId));
+        }
+
+        [HttpGet("aggregation")]
+        public async Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter)
+        {
+            return await _submissionAppService.GetListSubmissionAggregation(filter);
+        }
     }
 }
