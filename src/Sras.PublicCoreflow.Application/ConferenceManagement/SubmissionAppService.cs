@@ -179,11 +179,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return response;
         }
 
-        public async Task<object> GetNumberOfSubmission(Guid trackId)
-        {
-            return await _submissionRepository.GetNumberOfSubmission(trackId);
-        }
-
         public async Task<object> GetNumberOfSubmissionAndEmail(SubmissionWithEmailRequest request)
         {
             if (request.AllAuthors)

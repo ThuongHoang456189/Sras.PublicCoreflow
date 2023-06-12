@@ -57,5 +57,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _conferenceService.GetConferenceUserListAsync(id, input);
         }
+
+        [HttpGet("numOfSubmission/{conferenceId}")]
+        public async Task<object> GetNumberOfSubmission(Guid conferenceId, Guid? trackId)
+        {
+            var result = await _conferenceService.GetNumberOfSubmission(conferenceId, trackId);
+            return result;
+        }
     }
 }
