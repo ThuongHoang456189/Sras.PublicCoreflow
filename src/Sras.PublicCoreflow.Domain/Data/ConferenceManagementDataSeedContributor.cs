@@ -59,6 +59,7 @@ namespace Sras.PublicCoreflow.Data
         private Guid _conference1stSciId;
         private Guid _conference2ndSciId;
         private Guid _conference3rdSciId;
+        private Guid _conferenceSingleTrackId;
 
         private Guid _track1stSci1Id;
         private Guid _track1stSci2Id;
@@ -68,6 +69,7 @@ namespace Sras.PublicCoreflow.Data
         private Guid _track3rdSci1Id;
         private Guid _track3rdSci2Id;
         private Guid _track3rdSci3Id;
+        private Guid _trackSingleId;
 
         private Guid _paperStatusAwaitingDecision;
         private Guid _paperStatusWithdrawn;
@@ -309,9 +311,10 @@ namespace Sras.PublicCoreflow.Data
         {/* Add data for Conference table */
             var conferences = new List<Conference>
             {
-                new Conference(_conference1stSciId = _guidGenerator.Create(), "First Science Conference", "1stSci", "HoChiMinh", "VietNam", new DateTime(2022, 04, 23), new DateTime(2022, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
-                new Conference(_conference2ndSciId = _guidGenerator.Create(), "Second Science Conference", "2ndSci", "HoChiMinh", "VietNam", new DateTime(2023, 04, 23), new DateTime(2023, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
-                new Conference(_conference3rdSciId = _guidGenerator.Create(), "Third Science Conference", "3rdSci", "HoChiMinh", "VietNam", new DateTime(2024, 04, 23), new DateTime(2024, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
+                new Conference(_conference1stSciId = _guidGenerator.Create(), "First Science Conference", "1stSci", "HoChiMinh", "VietNam", new DateTime(2022, 04, 23), new DateTime(2022, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", false),
+                new Conference(_conference2ndSciId = _guidGenerator.Create(), "Second Science Conference", "2ndSci", "HoChiMinh", "VietNam", new DateTime(2023, 04, 23), new DateTime(2023, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", false),
+                new Conference(_conference3rdSciId = _guidGenerator.Create(), "Third Science Conference", "3rdSci", "HoChiMinh", "VietNam", new DateTime(2024, 04, 23), new DateTime(2024, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", false),
+                new Conference(_conferenceSingleTrackId = _guidGenerator.Create(), "Single Track Conference", "3rdSci", "HoChiMinh", "VietNam", new DateTime(2023, 04, 23), new DateTime(2023, 08, 23), null, null, null, "https://daihoc.fpt.edu.vn/wp-content/uploads/2023/04/cropped-cropped-2021-FPTU-Long.png", true),
             };
 
             await _conferenceRepository.InsertManyAsync(conferences);
@@ -334,6 +337,7 @@ namespace Sras.PublicCoreflow.Data
                 new Track(_track3rdSci1Id = _guidGenerator.Create(), true, "Cloud Computing", _conference3rdSciId, null, null, null, null, null, null),
                 new Track(_track3rdSci2Id = _guidGenerator.Create(), true, "Artificial Intelligence", _conference3rdSciId, null, null, null, null, null, null),
                 new Track(_track3rdSci3Id = _guidGenerator.Create(), true, "Programming with Alice", _conference3rdSciId, null, null, null, null, null, null),
+                new Track(_trackSingleId = _guidGenerator.Create(), true, "Single Track", _conferenceSingleTrackId, null, null, null, null, null, null),
             };
 
             await _trackConferenceRepository.InsertManyAsync(tracks, autoSave: true);
@@ -355,6 +359,7 @@ namespace Sras.PublicCoreflow.Data
                 new SubjectArea(_guidGenerator.Create(), "Programming with Alice", _track2ndSci1Id),
                 new SubjectArea(_guidGenerator.Create(), "Cloud Computing", _track3rdSci1Id),
                 new SubjectArea(_guidGenerator.Create(), "Programming with Alice", _track3rdSci3Id),
+                new SubjectArea(_guidGenerator.Create(), "Single Track Subject Area", _trackSingleId),
             };
 
             await _subjectAreaRepository.InsertManyAsync(subjectAreas, autoSave: true);
@@ -390,16 +395,17 @@ namespace Sras.PublicCoreflow.Data
 
             var submissions = new List<Submission>
             {
-                new Submission(_guidGenerator.Create(), "First Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusDeskReject, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Second Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusAccept, null, null, null, true),
+                new Submission(_guidGenerator.Create(), "First Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusDeskReject, true, _paperStatusDeskReject, null, false),
+                new Submission(_guidGenerator.Create(), "Second Science Paper", "This paper is a submission for the first Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track1stSci1Id, null, null, null, null, _paperStatusAccept, true, _paperStatusAccept, null, true),
                 new Submission(_guidGenerator.Create(), "Third Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Fourth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusReject, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Fourth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusReject, true, _paperStatusReject, null, false),
                 new Submission(_guidGenerator.Create(), "Fifth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Sixth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAwaitingDecision, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Seventh Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusRevision, null, null, null, true),
-                new Submission(_guidGenerator.Create(), "Eighth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusDeskReject, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Ninth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusAccept, null, null, null, false),
-                new Submission(_guidGenerator.Create(), "Tenth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusWithdrawn, null, null, null, false),
+                new Submission(_guidGenerator.Create(), "Sixth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci1Id, null, null, null, null, _paperStatusAccept, false, null, null, false),
+                new Submission(_guidGenerator.Create(), "Seventh Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusRevision, true, _paperStatusRevision, null, true),
+                new Submission(_guidGenerator.Create(), "Eighth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci2Id, null, null, null, null, _paperStatusDeskReject, true, _paperStatusDeskReject, null, false),
+                new Submission(_guidGenerator.Create(), "Ninth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusAccept, true, _paperStatusAccept, null, false),
+                new Submission(_guidGenerator.Create(), "Tenth Science Paper", "This paper is a submission for the secound Science Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _track2ndSci3Id, null, null, null, null, _paperStatusWithdrawn, true, _paperStatusWithdrawn, null, false),
+                new Submission(_guidGenerator.Create(), "Single Track Paper", "This paper is a submission for the Single Track Conference.", "https://cmt3.research.microsoft.com/api/ResFes2023/Files/356", _trackSingleId, null, null, null, null, _paperStatusAccept, true, _paperStatusAccept, null, false),
             };
 
             await _submissionRepository.InsertManyAsync(submissions, autoSave: true);
