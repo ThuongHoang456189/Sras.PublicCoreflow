@@ -39,5 +39,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _emailTemplateRespository.GetEmailSendEachStatus(request);
         }
 
+        public async Task<object> CreateEmailTemplate(CreateEmailTemplateRequest request)
+        {
+            return await _emailTemplateRespository.CreateEmailTempate(request);
+        }
+
     }
 }
