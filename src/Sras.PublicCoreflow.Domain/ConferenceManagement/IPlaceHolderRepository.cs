@@ -10,6 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IPlaceHolderRepository
     {
+        Task<IEnumerable<object>> GetAllSupportedPlaceHolder();
         string GetDataFromPlaceholder(string placeHolderName, Conference? conference, RecipientInforForEmail recipient, Submission? submission, IdentityUser sender);
     }
 }
