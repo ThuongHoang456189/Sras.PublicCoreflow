@@ -133,12 +133,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                     return new
                     {
-                        paperId = st.paperStatusId,
-                        PaperName = dbContext.PaperStatuses.Where(p => p.Id == st.paperStatusId).First().Name,
-                        sendEmail = submissions
-                        .Where(ss => ss.StatusId == st.paperStatusId)
+                        statusId = st.statusId,
+                        name = dbContext.PaperStatuses.Where(p => p.Id == st.statusId).First().Name,
+                        sendEmails = submissions
+                        .Where(ss => ss.StatusId == st.statusId)
                         .SelectMany(ss => ss.Authors)
-                        .Select(au =>
+                        .Select((au, index) =>
                         {
                             var pa = au.Participant;
                             RecipientInforForEmail recipient;
@@ -162,10 +162,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                             return new
                             {
-                                from = emailSender,
-                                to = recipient.Email,
-                                subject,
-                                body
+                                id = index,
+                                fromName = sender.Name,
+                                fromEmail = emailSender,
+                                toFullName = recipient.FullName,
+                                toEmail = recipient.Email,
+                                subject = subject,
+                                body = body
                             };
                         })
                     };
