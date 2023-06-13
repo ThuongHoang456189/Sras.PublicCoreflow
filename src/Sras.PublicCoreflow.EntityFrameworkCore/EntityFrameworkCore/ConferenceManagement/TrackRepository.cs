@@ -186,5 +186,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             };
         }
 
+        public async Task<bool> isChairOfConference(Guid userId, Guid conferenceId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.ConferenceAccounts.Include(ca => ca.Incumbents)
+                .Where(ca => ca.AccountId == userId && ca.ConferenceId == conferenceId)
+                .First().Incumbents.Any(i => i.TrackId == null);
+        }
+
     }
 }

@@ -117,7 +117,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string roleName)
         {
-            return await _trackRepository2.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+            
+            if (_trackRepository2.isChairOfConference(userId, conferenceId).Result)
+            {
+                return await _trackRepository2.GetTracksAndRoleOfChair(userId, conferenceId);
+            } else
+            {
+                return await _trackRepository2.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+            }
         }
         
         public async Task<object?> UpdateTrackSubjectAreaRelevanceCoefficientsAsync(Guid trackId, SubjectAreaRelevanceCoefficients input)
