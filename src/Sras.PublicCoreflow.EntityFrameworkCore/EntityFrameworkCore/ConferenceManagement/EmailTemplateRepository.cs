@@ -122,11 +122,16 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 var dbContext = await GetDbContextAsync();
                 var sender = await dbContext.Users.FindAsync(request.userId);
                 var emailSender = sender.Email;
-                var submissions = await dbContext.Submissions.Where(s => s.TrackId == request.trackId).ToListAsync();
-
+                var submissions = await dbContext.Submissions
+                    .Include(s => s.Authors)
+                    .ThenInclude(a => a.Participant)
+                    .ThenInclude(p => p.Outsider)
+                    .Include(s => s.Authors).ThenInclude(a => a.Participant).ThenInclude(p => p.Account)
+                    .Where(s => s.TrackId == request.trackId).ToListAsync();
+                dbContext.Authors.Include(a => a.Participant);
                 return request.statuses.Select(st =>
                 {
-                    var conference = dbContext.Tracks.Where(t => t.Id == request.trackId).First().Conference;
+                    var conference = dbContext.Tracks.Include(t => t.Conference).Where(t => t.Id == request.trackId).First().Conference;
                     var template = dbContext.EmailTemplates.Find(st.templateId);
                     var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode)).ToList();
                     var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode)).ToList();
