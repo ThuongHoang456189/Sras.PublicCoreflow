@@ -14,5 +14,6 @@ namespace Sras.PublicCoreflow.Domain.ConferenceManagement
         Task<IEnumerable<object>> GetEmailTemplateByConferenceId(Guid conferenceId);
         Task<IEnumerable<object>> GetEmailTemplateByConferenceIdAndTrackId(Guid conferenceId, Guid? trackId);
         Task<object> GetEmailTemplateById(Guid id);
+        Task<object> UpdateEmailTempalte(UpdateEmailTemplateRequest request);
     }
 }
