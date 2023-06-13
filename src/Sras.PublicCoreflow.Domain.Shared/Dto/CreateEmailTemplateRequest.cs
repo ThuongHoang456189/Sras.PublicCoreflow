@@ -10,6 +10,6 @@ namespace Sras.PublicCoreflow.Dto
         public string subject { get; set; }
         public string body { get; set; }
         public Guid conferenceId { get; set; }
-        public Guid trackId { get; set; }
+        public Guid? trackId { get; set; }
     }
 }
