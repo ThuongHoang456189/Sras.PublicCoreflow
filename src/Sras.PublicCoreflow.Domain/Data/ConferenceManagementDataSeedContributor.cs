@@ -441,19 +441,19 @@ namespace Sras.PublicCoreflow.Data
                 await CreateParticipantsAsync();
             }
 
-            await CreatePaperStatusesAsync();
-            await CreateConferenceRolesAsync();
-            await CreatePlaceholderGroupAsync();
-            await CreateSupportedPlaceholderAsync();
+            if (await _paperStatusRepository.GetCountAsync() <= 1) await CreatePaperStatusesAsync();
+            if (await _conferenceRoleRepository.GetCountAsync() <= 1) await CreateConferenceRolesAsync();
+            if (await _placeholderGroupRepository.GetCountAsync() <= 1) await CreatePlaceholderGroupAsync();
+            if (await _supportedPlaceholderRepository.GetCountAsync() <= 1) await CreateSupportedPlaceholderAsync();
 
-            await CreateConferenceAsync();
-            await CreateTrackConferenceAsync();
+            if (await _conferenceRepository.GetCountAsync() <= 1) await CreateConferenceAsync();
+            if (await _trackConferenceRepository.GetCountAsync() <= 1) await CreateTrackConferenceAsync();
 
-            await CreateSubjectAreaAsync();
-            await CreateEmailTemplateAsync();
+            if (await _subjectAreaRepository.GetCountAsync() <= 1) await CreateSubjectAreaAsync();
+            if (await _emailTemplateRepository.GetCountAsync() <= 1) await CreateEmailTemplateAsync();
 
-            await CreateSubmissionAsync();
-            await CreateConflictCaseAsync();
+            if (await _submissionRepository.GetCountAsync() <= 1) await CreateSubmissionAsync();
+            if (await _conflictCaseRepository.GetCountAsync() <= 1) await CreateConflictCaseAsync();
         }
     }
 }
