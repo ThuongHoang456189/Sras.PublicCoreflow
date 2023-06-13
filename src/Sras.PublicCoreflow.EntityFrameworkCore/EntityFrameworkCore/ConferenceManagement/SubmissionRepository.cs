@@ -30,24 +30,24 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             try
             {
                 var dbContext = await GetDbContextAsync();
-                if (!dbContext.Tracks.Any(t => t.Id == request.TrackId))
+                if (!dbContext.Tracks.Any(t => t.Id == request.trackId))
                     throw new Exception("TrackId not existing");
-                if (!request.PaperStatuses.All(ps => dbContext.PaperStatuses.Any(statusDB => statusDB.Id == ps)))
+                if (!request.paperStatuses.All(ps => dbContext.PaperStatuses.Any(statusDB => statusDB.Id == ps)))
                 {
                     throw new Exception("One Of Paper Status Id not existing");
                 }
-                var result = request.PaperStatuses.Select(ps =>
+                var result = request.paperStatuses.Select(ps =>
                 {
-                    var submissions = dbContext.Submissions.Where(s => s.TrackId == request.TrackId && s.StatusId == ps);
+                    var submissions = dbContext.Submissions.Where(s => s.TrackId == request.trackId && s.StatusId == ps);
                     var numOfAllAuthor = submissions.SelectMany(s => s.Authors).Count();
                     var submissionOfOneStatus = dbContext.Submissions.Where(s => s.StatusId == ps).ToList();
                     var statusName = dbContext.PaperStatuses.Where(p => p.Id == ps).First().Name;
                     return new
                     {
                         statusId = ps,
-                        statusName = statusName,
-                        numberSubmission = submissionOfOneStatus,
-                        numberEmailSend = numOfAllAuthor
+                        name = statusName,
+                        numberOfSubmissions = submissionOfOneStatus,
+                        numberOfEmail = numOfAllAuthor
                     };
                 });
 
@@ -64,15 +64,15 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             try
             {
                 var dbContext = await GetDbContextAsync();
-                if (!dbContext.Tracks.Any(t => t.Id == request.TrackId))
+                if (!dbContext.Tracks.Any(t => t.Id == request.trackId))
                     throw new Exception("TrackId not existing");
-                if (!request.PaperStatuses.All(ps => dbContext.PaperStatuses.Any(statusDB => statusDB.Id == ps)))
+                if (!request.paperStatuses.All(ps => dbContext.PaperStatuses.Any(statusDB => statusDB.Id == ps)))
                 {
                     throw new Exception("One Of Paper Status Id not existing");
                 }
-                var result = request.PaperStatuses.Select(ps =>
+                var result = request.paperStatuses.Select(ps =>
                 {
-                    var submissions = dbContext.Submissions.Where(s => s.TrackId == request.TrackId && s.StatusId == ps);
+                    var submissions = dbContext.Submissions.Where(s => s.TrackId == request.trackId && s.StatusId == ps);
                     var numOfPrimaryAuthor = submissions.SelectMany(ss => ss.Authors).Where(au => au.IsPrimaryContact).Count();
                     var numOfAllAuthor = submissions.SelectMany(s => s.Authors).Count();
                     var submissionOfOneStatus = dbContext.Submissions.Where(s => s.StatusId == ps).ToList();
@@ -80,9 +80,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     return new
                     {
                         statusId = ps,
-                        statusName = statusName,
-                        numberSubmission = submissionOfOneStatus,
-                        numberEmailSend = numOfPrimaryAuthor,
+                        name = statusName,
+                        numberOfSubmissions = submissionOfOneStatus,
+                        numberOfEmail = numOfPrimaryAuthor,
                     };
                 });
 
