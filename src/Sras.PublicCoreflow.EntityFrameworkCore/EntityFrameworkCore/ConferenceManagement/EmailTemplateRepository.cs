@@ -136,11 +136,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode)).ToList();
                     var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode)).ToList();
 
-                    return new
+                    if (request.allAuthors)
                     {
-                        statusId = st.statusId,
-                        name = dbContext.PaperStatuses.Where(p => p.Id == st.statusId).First().Name,
-                        sendEmails = submissions
+                        return new
+                        {
+                            statusId = st.statusId,
+                            name = dbContext.PaperStatuses.Where(p => p.Id == st.statusId).First().Name,
+                            sendEmails = submissions
                         .Where(ss => ss.StatusId == st.statusId)
                         .SelectMany(ss => ss.Authors)
                         .Select((au, index) =>
@@ -176,7 +178,52 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 body = body
                             };
                         })
-                    };
+                        };
+                    } else
+                    {
+                        return new
+                        {
+                            statusId = st.statusId,
+                            name = dbContext.PaperStatuses.Where(p => p.Id == st.statusId).First().Name,
+                            sendEmails = submissions
+                        .Where(ss => ss.StatusId == st.statusId)
+                        .SelectMany(ss => ss.Authors)
+                        .Where(aus => aus.IsPrimaryContact)
+                        .Select((au, index) =>
+                        {
+                            var pa = au.Participant;
+                            RecipientInforForEmail recipient;
+                            string subjectString = template.Subject.ToString();
+                            string bodyString = template.Body.ToString();
+
+                            if (pa.Outsider != null)
+                            {
+                                recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.LastName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
+                            }
+                            else
+                            {
+                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
+                            }
+
+                            var subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
+                                .Aggregate(subjectString, (subject, p) => subject.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
+
+                            var body = placeHoldersContainInBody.Select(pl => pl.Encode).ToList()
+                                .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
+
+                            return new
+                            {
+                                id = index,
+                                fromName = sender.Name,
+                                fromEmail = emailSender,
+                                toFullName = recipient.FullName,
+                                toEmail = recipient.Email,
+                                subject = subject,
+                                body = body
+                            };
+                        })
+                        };
+                    }
                 }).ToList();
             }
             catch (Exception ex)
