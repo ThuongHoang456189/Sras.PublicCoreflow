@@ -379,5 +379,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _incumbentRepository.GetConferenceUserListAsync(conferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
         }
+        public async Task<IEnumerable<object>> GetNumberOfSubmission(Guid conferenceId, Guid? trackId)
+        {
+            if (trackId == null) return await _conferenceRepository.GetNumberOfSubmissionByConferenceId(conferenceId);
+            else return await _conferenceRepository.GetNumberOfSubmission(trackId);
+        }
     }
 }

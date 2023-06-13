@@ -4,6 +4,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -38,23 +39,6 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return Ok(_submissionAppService.CreateSubmissionFiles(id, files));
         }
 
-        [HttpGet("numOfSubmission/{trackId}")]
-        public async Task<ActionResult<object>> GetNumberOfSubmissionByTrackId(Guid trackId)
-        {
-            try
-            {
-                if (trackId == null)
-                {
-                    throw new Exception("Invalid TrackId");
-                } else
-                {
-                    var result = await _submissionAppService.GetNumberOfSubmission(trackId);
-                    return Ok(result);
-                }
-            } catch (Exception ex) {
-                return BadRequest(ex.Message);
-            }
-        }
 
         [HttpPost("get-number-submissions-and-email-by-status")]
         public async Task<ActionResult<object>> GetNumberOfSubmissionAndEmail([FromBody] SubmissionWithEmailRequest request)

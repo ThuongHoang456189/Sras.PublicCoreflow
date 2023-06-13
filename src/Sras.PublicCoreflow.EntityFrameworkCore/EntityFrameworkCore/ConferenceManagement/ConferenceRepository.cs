@@ -157,5 +157,51 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .Include(x => x.Tracks)
                 .ThenInclude(x => x.SubjectAreas);
         }
+
+        public async Task<IEnumerable<object>> GetNumberOfSubmission(Guid? trackId)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (!dbContext.Submissions.Any(s => s.TrackId == trackId))
+                {
+                    return new List<object>();
+                }
+                var trackName = dbContext.Tracks.Where(t => t.Id == trackId).First().Name;
+                var totalSubmission = dbContext.Submissions.Where(s => s.TrackId == trackId).Count();
+                return new List<object> {
+                    new {
+                        trackId = trackId,
+                        trackName = trackName,
+                        numOfSubmissions = totalSubmission
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("[ERROR][GetNumberOfSubmission] " + ex.Message, ex);
+            }
+        }
+
+        public async Task<IEnumerable<object>> GetNumberOfSubmissionByConferenceId(Guid conferenceId)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (!dbContext.Conferences.Any(c => c.Id == conferenceId)) throw new Exception($"ConferenenId {conferenceId} is not exist");
+                return dbContext.Tracks.Where(t => t.ConferenceId == conferenceId)
+                    .Select(t => new
+                    {
+                        trackId = t.Id,
+                        trackName = t.Name,
+                        numOfSubmissions = dbContext.Submissions.Where(s => s.TrackId == t.Id).Count()
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("[ERROR][GetNumberOfSubmission] " + ex.Message, ex);
+            }
+        }
     }
 }

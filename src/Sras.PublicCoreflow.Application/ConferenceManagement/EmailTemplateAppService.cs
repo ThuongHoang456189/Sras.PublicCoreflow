@@ -1,21 +1,26 @@
-﻿using Sras.PublicCoreflow.Domain.ConferenceManagement;
+﻿using Scriban;
+using Sras.PublicCoreflow.Domain.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Volo.Abp.Guids;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class EmailTemplateAppService : PublicCoreflowAppService, IEmailTemplateAppService
     {
         private readonly IEmailTemplateRepository _emailTemplateRespository;
+        private readonly IPaperStatusRepository _paperStatusRespository;
         private readonly IGuidGenerator _guidGenerator;
-        public EmailTemplateAppService(IEmailTemplateRepository emailTemplateRepository, IGuidGenerator guidGenerator) {
+        public EmailTemplateAppService(IEmailTemplateRepository emailTemplateRepository, IPaperStatusRepository paperStatusRepository, IGuidGenerator guidGenerator) {
             _emailTemplateRespository = emailTemplateRepository;
             _guidGenerator = guidGenerator;
+            _paperStatusRespository = paperStatusRepository;
         }
 
         public async Task<object> GetEmailTemplateById(Guid id)
@@ -23,14 +28,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _emailTemplateRespository.GetEmailTemplateById(id);
         }
 
-        public async Task<IEnumerable<object>> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId)
+        public async Task<object> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId)
         {
+            var paperStatus = await _paperStatusRespository.GetPaperStatusesAllField(conferenceId);           
             if (trackId == null)
             {
-                return await _emailTemplateRespository.GetEmailTemplateByConferenceId(conferenceId);
+                return new
+                {
+                    statuses = paperStatus.Select(ps => new
+                    {
+                        statusId = ps.Id,
+                        name = ps.Name
+                    }),
+                    templates = await _emailTemplateRespository.GetEmailTemplateByConferenceId(conferenceId)
+                };
             } else
             {
-                return await _emailTemplateRespository.GetEmailTemplateByConferenceIdAndTrackId(conferenceId, trackId);
+                return new
+                {
+                    statuses = paperStatus.Select(ps => new
+                    {
+                        statusId = ps.Id,
+                        name = ps.Name
+                    }),
+                    templates = await _emailTemplateRespository.GetEmailTemplateByConferenceIdAndTrackId(conferenceId, trackId)
+                };
             }
         }
 

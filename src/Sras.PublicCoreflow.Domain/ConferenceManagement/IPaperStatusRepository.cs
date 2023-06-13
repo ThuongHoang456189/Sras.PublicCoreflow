@@ -9,5 +9,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public interface IPaperStatusRepository
     {
         Task<IEnumerable<object>> GetAllPaperStatus(Guid? conferenceId);
+        Task<IEnumerable<PaperStatus>> GetPaperStatusesAllField(Guid conferenceId);
     }
 }

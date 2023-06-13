@@ -16,6 +16,7 @@ using Sras.PublicCoreflow.Extension;
 using Sras.PublicCoreflow.Dto;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Guids;
+using Microsoft.EntityFrameworkCore;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -86,6 +87,23 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
+        public async Task<IEnumerable<object>> GetAllSupportedPlaceHolder()
+        {
+            var dbContext = await GetDbContextAsync();
 
+            var result = await dbContext.PlaceholderGroups.Select(p => new
+            {
+                placeHolderGroupId = p.Id,
+                placeHolderGroupName = p.Name,
+                supportedPlaceholders = p.SupportedPlaceholders.Select(s => new
+                {
+                    id = s.Id,
+                    encode = s.Encode,
+                    description = s.Description,
+                }),
+            }).ToListAsync();
+
+            return result;
+        }
     }
 }
