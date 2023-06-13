@@ -245,11 +245,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     });
 
                     //Update Status by List SubmissionId
-                    List<Task<object>> result = new();
+                    List<object> result = new();
                     submissionIds.ForEach(sid =>
                     {
-                        result.Add(UpdateStatusRequestForCameraReady(sid, status));
+                        var updateStatus = UpdateStatusRequestForCameraReady(sid, status).Result;
+                        result.Add(updateStatus);
                     });
+
+                    //Get return data
+                    /* Return All Data of Submission
+                    List<Submission> result = new();
+                    trackIds.ForEach(tid =>
+                    {
+                        List<Submission> queryResult = dbContext.Submissions.Where(s => s.TrackId == tid).ToList();
+                        result.AddRange(queryResult);
+                    });
+                    */
                     return result;
                 }
                 else

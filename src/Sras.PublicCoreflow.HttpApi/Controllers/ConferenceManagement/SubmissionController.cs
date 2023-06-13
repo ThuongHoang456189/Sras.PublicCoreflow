@@ -110,7 +110,6 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 }
                 else
                 {
-
                     var result = await _submissionAppService.UpdateStatusRequestForAllCameraReady(conferenceId, status);
                     return Ok(result);
                 }
