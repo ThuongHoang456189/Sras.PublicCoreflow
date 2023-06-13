@@ -39,7 +39,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     return new
                     {
                         subject = queryResult.Subject,
-                        body = queryResult.Body
+                        body = queryResult.Body,
+                        templateName = queryResult.Name,
+                        templateId = queryResult.Id,
+                        trackId = queryResult.TrackId
                     };
                 }
             } catch (Exception ex)
@@ -66,7 +69,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     templateId = em.Id,
                     templateName = em.Name,
                     body = em.Body,
-                    subject = em.Subject
+                    subject = em.Subject,
+                    trackId = em.TrackId
                 });
                 return result;
             } catch (Exception ex)
@@ -100,7 +104,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     templateId = r.Id,
                     templateName = r.Name,
                     body = r.Body,
-                    subject = r.Subject
+                    subject = r.Subject,
+                    trackId = r.TrackId
                 });
                 return totalTemplate;
             }
@@ -180,7 +185,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 var templateId = _guidGenerator.Create();
                 if (request.trackId != null && !dbContext.Tracks.Any(t => t.Id == request.trackId)) throw new Exception($"TrackId {request.trackId} not eixsting");
                 if (!dbContext.Conferences.Any(c => c.Id == request.conferenceId)) throw new Exception($"ConferenceId {request.conferenceId} not found");
-                var templateObject = new EmailTemplate(templateId, request.name.Trim(), request.subject.Trim(), request.body, request.conferenceId, request.trackId);
+                var templateObject = new EmailTemplate(templateId, request.templateName.Trim(), request.subject.Trim(), request.body, request.conferenceId, request.trackId);
                 await dbContext.EmailTemplates.AddAsync(templateObject);
                 await dbContext.SaveChangesAsync();
                 var newTemplate = dbContext.EmailTemplates.Where(et => et.Id == templateId).First();
@@ -189,7 +194,37 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     templateId = newTemplate.Id,
                     templateName = newTemplate.Name,
                     subject = newTemplate.Subject,
-                    body = newTemplate.Body
+                    body = newTemplate.Body,
+                    trackId = newTemplate.TrackId
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<object> UpdateEmailTempalte(UpdateEmailTemplateRequest request)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (!dbContext.EmailTemplates.Any(c => c.Id == request.templateId)) throw new Exception($"TemplateId {request.templateId} not found");
+                EmailTemplate oldTemplate = dbContext.EmailTemplates.Where(et => et.Id == request.templateId).First();
+
+                oldTemplate.Body = request.body;
+                oldTemplate.Subject = request.subject;
+                oldTemplate.Name = request.templateName;
+     
+                await dbContext.SaveChangesAsync();
+                var newTemplate = dbContext.EmailTemplates.Where(et => et.Id == request.templateId).First();
+                return new
+                {
+                    templateId = newTemplate.Id,
+                    templateName = newTemplate.Name,
+                    subject = newTemplate.Subject,
+                    body = newTemplate.Body,
+                    trackId = newTemplate.TrackId
                 };
             }
             catch (Exception ex)

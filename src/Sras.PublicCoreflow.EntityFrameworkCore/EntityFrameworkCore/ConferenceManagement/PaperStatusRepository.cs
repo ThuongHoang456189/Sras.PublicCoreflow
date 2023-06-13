@@ -8,13 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class PaperStatusRepository : EfCoreRepository<PublicCoreflowDbContext, Outsider, Guid>,  IPaperStatusRepository
     {
-        public PaperStatusRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
+
+        private readonly IGuidGenerator _guidGenerator;
+        public PaperStatusRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
+            _guidGenerator = guidGenerator;
         }
 
         public async Task<IEnumerable<object>> GetAllPaperStatus(Guid? conferenceId)

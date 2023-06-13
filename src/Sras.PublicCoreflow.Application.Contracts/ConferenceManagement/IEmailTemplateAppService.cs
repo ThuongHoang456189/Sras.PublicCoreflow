@@ -12,5 +12,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> GetEmailSendEachStatus(PaperStatusToEmail request);
         Task<object> GetEmailTemplateByConferenceIdOrTrackId(Guid conferenceId, Guid? trackId);
         Task<object> GetEmailTemplateById(Guid id);
+        Task<object> UpdateEmailTemplate(UpdateEmailTemplateRequest request);
     }
 }
