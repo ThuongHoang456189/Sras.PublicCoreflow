@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sras.PublicCoreflow.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<IEnumerable<object>> GetAllPaperStatus(Guid? conferenceId);
         Task<IEnumerable<PaperStatus>> GetPaperStatusesAllField(Guid conferenceId);
+        Task<object> CreatePaperStatus(PaperStatusCreateRequest createRequest);
     }
 }
