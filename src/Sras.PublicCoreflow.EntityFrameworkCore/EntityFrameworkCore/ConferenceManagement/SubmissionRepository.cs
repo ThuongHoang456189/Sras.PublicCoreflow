@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
@@ -197,6 +197,33 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .Include(x => x.Conflicts)
                 .Include(x => x.Clones)
                 .ThenInclude(x => x.Reviews);
+        }
+
+        public async Task<object> UpdateStatusRequestForCameraReady(Guid submissionId, bool status)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.Submissions.Any(s => s.Id == submissionId))
+                {
+                    dbContext.Submissions.Where(s => s.Id == submissionId)
+                        .ExecuteUpdate(e => e.SetProperty(x => x.IsRequestedForCameraReady, x => status));
+                    Submission queryResult = dbContext.Submissions.Where(s => s.Id == submissionId).First();
+                    return new
+                    {
+                        submissionId = queryResult.Id,
+                        status = queryResult.IsRequestedForCameraReady
+                    };
+                }
+                else
+                {
+                    throw new Exception("SubmissionId not existing");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("[ERROR][UpdateStatusRequestForCameraReady] " + ex.Message);
+            }
         }
     }
 }

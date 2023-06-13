@@ -75,5 +75,27 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _submissionAppService.GetListReviewerWithConflictDetails(id);
         }
+
+        [HttpPost("request-camera-ready/{submissionId}/{status}")]
+        public async Task<IActionResult> RequestForCameraReady(Guid submissionId, bool status)
+        {/* status == true => Yes;
+            status == false => No; */
+            try
+            {
+                if (submissionId == null)
+                {
+                    throw new Exception("SubmissionId is Null");
+                }
+                else
+                {
+                    var result = await _submissionAppService.UpdateStatusRequestForCameraReady(submissionId, status);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

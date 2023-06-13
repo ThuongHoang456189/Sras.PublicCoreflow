@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Volo.Abp;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -89,6 +91,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Authors.Add(new Author(authorId, participantId, Id, isPrimaryContact, false));
 
             return this;
+        }
+
+        public void ExecuteUpdate<TSource>(Func<object, TSource> value) where TSource : IHasExtraProperties
+        {
+            throw new NotImplementedException();
         }
     }
 }

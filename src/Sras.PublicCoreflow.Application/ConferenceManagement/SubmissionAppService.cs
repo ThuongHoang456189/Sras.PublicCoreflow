@@ -28,6 +28,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IRepository<IdentityUser, Guid> _userRepository;
         private readonly ISubmissionRepository _submissionRepository;
         private readonly IConflictRepository _conflictRepository;
+        private readonly ISubmissionRepository _iSubmissionRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -45,6 +46,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IRepository<IdentityUser, Guid> userRepository,
             ISubmissionRepository submissionRepository,
             IConflictRepository conflictRepository,
+            ISubmissionRepository iSubmissionRepository,
             ICurrentUser currentUser, 
             IGuidGenerator guidGenerator, 
             IBlobContainer<SubmissionContainer> submissionBlobContainer)
@@ -58,7 +60,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _userRepository = userRepository;
             _submissionRepository = submissionRepository;
             _conflictRepository = conflictRepository;
-
+            _iSubmissionRepository = iSubmissionRepository;
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _submissionBlobContainer = submissionBlobContainer;  
@@ -285,6 +287,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var totalCount = await _submissionRepository.GetCountConflictedReviewer(submissionId);
 
             return new PagedResultDto<ReviewerWithConflictDetails>(totalCount, reviewers);
+        }
+
+        public async Task<object> UpdateStatusRequestForCameraReady(Guid submissionId, bool status)
+        {
+            return await _iSubmissionRepository.UpdateStatusRequestForCameraReady(submissionId, status);
         }
     }
 }
