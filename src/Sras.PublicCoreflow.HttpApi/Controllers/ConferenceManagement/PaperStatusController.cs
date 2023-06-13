@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,20 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 var result = await _paperStatusAppService.GetAllPaperStatusAsync(conferenceId);
                 return Ok(result);
             } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<object>> CreatePaperStatus(PaperStatusCreateRequest request)
+        {
+            try
+            {
+                var result = await _paperStatusAppService.CreatePaperStatusAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

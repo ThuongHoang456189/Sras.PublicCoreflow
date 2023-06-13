@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sras.PublicCoreflow.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +20,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _paperStatusRepository.GetAllPaperStatus(conferenceId);
         }
 
+        public async Task<object> CreatePaperStatusAsync(PaperStatusCreateRequest createRequest)
+        {
+            return await _paperStatusRepository.CreatePaperStatus(createRequest);
+        }
     }
 }
