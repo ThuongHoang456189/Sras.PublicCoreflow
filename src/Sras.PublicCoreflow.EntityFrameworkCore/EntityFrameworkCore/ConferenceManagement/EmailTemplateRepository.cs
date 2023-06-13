@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Domain.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
@@ -177,13 +178,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 var dbContext = await GetDbContextAsync();
                 var templateId = _guidGenerator.Create();
-                if (!dbContext.Tracks.Any(t => t.Id == request.trackId)) throw new Exception($"TrackId {request.trackId} not eixsting");
+                if (request.trackId != null && !dbContext.Tracks.Any(t => t.Id == request.trackId)) throw new Exception($"TrackId {request.trackId} not eixsting");
                 if (!dbContext.Conferences.Any(c => c.Id == request.conferenceId)) throw new Exception($"ConferenceId {request.conferenceId} not found");
                 var templateObject = new EmailTemplate(templateId, request.name.Trim(), request.subject.Trim(), request.body, request.conferenceId, request.trackId);
                 await dbContext.EmailTemplates.AddAsync(templateObject);
+                await dbContext.SaveChangesAsync();
+                var newTemplate = dbContext.EmailTemplates.Where(et => et.Id == templateId).First();
                 return new
                 {
-                    message = "Create Template Success"
+                    templateId = newTemplate.Id,
+                    templateName = newTemplate.Name,
+                    subject = newTemplate.Subject,
+                    body = newTemplate.Body
                 };
             }
             catch (Exception ex)
