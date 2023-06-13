@@ -9,6 +9,7 @@ namespace Sras.PublicCoreflow.Dto
         public Guid userId { get; set; }
         public Guid trackId { get; set; }
         public List<PaperStatusIdAndTemplateId> statuses { get; set; }
+        public bool allAuthors { get; set; }
 
     }
 
