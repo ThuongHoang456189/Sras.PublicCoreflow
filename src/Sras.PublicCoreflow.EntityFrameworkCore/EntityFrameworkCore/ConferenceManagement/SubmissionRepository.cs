@@ -217,12 +217,49 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 }
                 else
                 {
-                    throw new Exception("SubmissionId not existing");
+                    throw new Exception("SubmissionId does not exist");
                 }
             }
             catch (Exception ex)
             {
                 throw new Exception("[ERROR][UpdateStatusRequestForCameraReady] " + ex.Message);
+            }
+        }
+
+        public async Task<object> UpdateStatusRequestForAllCameraReady(Guid conferenceId, bool status)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.Conferences.Any(c => c.Id == conferenceId))
+                {
+                    //Get List TrackId by ConferenceId
+                    List<Guid> trackIds = dbContext.Tracks.Where(t => t.ConferenceId == conferenceId).Select(a => a.Id).ToList();
+                    
+                    //Get List SubmissionId by list TrackId
+                    List<Guid> submissionIds = new();
+                    trackIds.ForEach(tid =>
+                    {
+                        List<Guid> queryResult = dbContext.Submissions.Where(s => s.TrackId == tid).Select(b => b.Id).ToList();
+                        submissionIds.AddRange(queryResult);
+                    });
+
+                    //Update Status by List SubmissionId
+                    List<Task<object>> result = new();
+                    submissionIds.ForEach(sid =>
+                    {
+                        result.Add(UpdateStatusRequestForCameraReady(sid, status));
+                    });
+                    return result;
+                }
+                else
+                {
+                    throw new Exception("ConferenceId does not exist");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("[ERROR][UpdateStatusRequestForAllCameraReady] " + ex.Message);
             }
         }
     }

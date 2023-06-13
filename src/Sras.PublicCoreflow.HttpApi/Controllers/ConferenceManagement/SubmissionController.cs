@@ -97,5 +97,28 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("request-all-camera-ready/{conferenceId}/{status}")]
+        public async Task<IActionResult> RequestAllForCameraReady(Guid conferenceId, bool status)
+        {/* status == true => Yes;
+            status == false => No; */
+            try
+            {
+                if (conferenceId == null)
+                {
+                    throw new Exception("ConferenceId is Null");
+                }
+                else
+                {
+
+                    var result = await _submissionAppService.UpdateStatusRequestForAllCameraReady(conferenceId, status);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

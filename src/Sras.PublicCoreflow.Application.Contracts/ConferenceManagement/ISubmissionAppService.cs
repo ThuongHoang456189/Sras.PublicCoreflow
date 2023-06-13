@@ -18,5 +18,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid id);
 
         Task<object> UpdateStatusRequestForCameraReady(Guid submissionId, bool status);
+        Task<object> UpdateStatusRequestForAllCameraReady(Guid conferenceId, bool status);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Sras.PublicCoreflow.BlobContainer;
+using Sras.PublicCoreflow.BlobContainer;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
@@ -292,6 +292,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<object> UpdateStatusRequestForCameraReady(Guid submissionId, bool status)
         {
             return await _iSubmissionRepository.UpdateStatusRequestForCameraReady(submissionId, status);
+        }
+        
+        public async Task<object> UpdateStatusRequestForAllCameraReady(Guid conferenceId, bool status)
+        {
+            return await _iSubmissionRepository.UpdateStatusRequestForAllCameraReady(conferenceId, status);
         }
     }
 }
