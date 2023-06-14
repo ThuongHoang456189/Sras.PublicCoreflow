@@ -7,6 +7,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public Guid SubmissionId { get; set; }
         public string? SubmissionTitle { get; set; }
+        public string? SubmissionAbstract { get; set; }
         public List<AuthorBriefInfo>? Authors { get; set; }
         public int NumberOfUnregisteredAuthors { get; set; }
         public int NumberOfSubmissionFiles { get; set; }

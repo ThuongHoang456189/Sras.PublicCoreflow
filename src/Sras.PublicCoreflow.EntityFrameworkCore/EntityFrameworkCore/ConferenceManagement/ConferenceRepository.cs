@@ -91,7 +91,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                                       inc.Id,
                                                       inc.ConferenceRoleId,
                                                       IncumbentManipulationOperators.None,
-                                                      inc.IsPrimaryContact);
+                                                      inc.IsDecisionMaker);
 
             return await query.ToListAsync();
         }

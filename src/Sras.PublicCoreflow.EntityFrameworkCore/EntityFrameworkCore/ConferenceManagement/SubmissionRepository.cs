@@ -495,6 +495,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                 submission.SubmissionId = x.Id;
                 submission.SubmissionTitle = x.Title;
+                submission.SubmissionAbstract = x.Abstract;
 
                 var authorList = (from a in dbContext.Set<Author>()
                                   where a.SubmissionId == x.Id

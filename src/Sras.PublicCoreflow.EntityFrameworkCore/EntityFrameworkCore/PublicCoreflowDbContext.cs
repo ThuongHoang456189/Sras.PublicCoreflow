@@ -168,6 +168,9 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Incumbents", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.IsDecisionMaker)
+            .HasDefaultValue(false);
         });
 
         builder.Entity<Participant>(b =>

@@ -311,7 +311,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     if (chairRow != null)
                     {
                         chairRow.Operation = IncumbentManipulationOperators.Up2;
-                        chairRow.IsPrimaryContact = false;
+                        chairRow.IsDecisionMaker = false;
                     }
                     else
                         chairTable.Add(new IncumbentOperation(_guidGenerator.Create(), x, _guidGenerator.Create(), chairRole.Id, IncumbentManipulationOperators.UpAdd, false));
@@ -336,14 +336,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 if (x.Operation == IncumbentManipulationOperators.Add2)
                 {
-                    var chairIncumbent = new Incumbent(x.IncumbentId, x.ConferenceAccountId, chairRole.Id, null, x.IsPrimaryContact);
+                    var chairIncumbent = new Incumbent(x.IncumbentId, x.ConferenceAccountId, chairRole.Id, null, x.IsDecisionMaker);
                 }
                 else if (x.Operation == IncumbentManipulationOperators.Up2)
                 {
                     var updatedConferenceAccount = conference.ConferenceAccounts.SingleOrDefault(y => y.Id == x.ConferenceAccountId);
                     if (updatedConferenceAccount != null)
                     {
-                        updatedConferenceAccount.UpdateIncumbent(x.IncumbentId, x.IsPrimaryContact);
+                        updatedConferenceAccount.UpdateIncumbent(x.IncumbentId, x.IsDecisionMaker);
                         conference.UpdateConferenceAccount(updatedConferenceAccount);
                     }
                 }
@@ -352,7 +352,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     var updatedConferenceAccount = conference.ConferenceAccounts.SingleOrDefault(y => y.Id == x.ConferenceAccountId);
                     if (updatedConferenceAccount != null)
                     {
-                        updatedConferenceAccount.AddIncumbent(x.IncumbentId, chairRole.Id, null, x.IsPrimaryContact);
+                        updatedConferenceAccount.AddIncumbent(x.IncumbentId, chairRole.Id, null, x.IsDecisionMaker);
                         conference.UpdateConferenceAccount(updatedConferenceAccount);
                     }
                 }

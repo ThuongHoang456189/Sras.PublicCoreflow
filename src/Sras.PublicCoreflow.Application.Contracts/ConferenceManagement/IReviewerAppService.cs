@@ -14,7 +14,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         Task<ResponseDto> UpdateReviewerConflict(ReviewerConflictInput input);
 
-        Task<List<ConflictWithDetails>> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input);
+        Task<ReviewerSubmissionConflictDto> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input);
 
         Task<ResponseDto> UploadReview(Guid reviewAssignmentId, List<RemoteStreamContent> files, int? totalScore);
     }

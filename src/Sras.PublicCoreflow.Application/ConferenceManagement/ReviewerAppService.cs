@@ -20,6 +20,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IConflictRepository _conflictRepository;
         private readonly IRepository<Submission, Guid> _submissionRepository;
         private readonly IReviewAssignmentRepository _reviewAssignmentRepository;
+        private readonly IRepository<Track, Guid> _trackRepository;
         
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -32,6 +33,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IConflictRepository conflictRepository,
             IRepository<Submission, Guid> submissionRepository,
             IReviewAssignmentRepository reviewAssignmentRepository,
+            IRepository<Track, Guid> trackRepository,
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
             IBlobContainer<ReviewContainer> reviewBlobContainer)
@@ -42,6 +44,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _conflictRepository = conflictRepository;
             _submissionRepository = submissionRepository;
             _reviewAssignmentRepository = reviewAssignmentRepository;
+            _trackRepository = trackRepository;
 
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
@@ -263,16 +266,33 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await Task.FromResult(response);
         }
 
-        public async Task<List<ConflictWithDetails>> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input)
+        public async Task<ReviewerSubmissionConflictDto> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input)
         {
-            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, input.TrackId);
+            var submission = await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId);
+            if (submission == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
+            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, submission.TrackId);
             if (reviewer == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
 
-            if (await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId) == null)
-                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            var track = await _trackRepository.FindAsync(submission.TrackId);
+            if (track == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
 
-            return await _conflictRepository.GetListReviewerConflictAsync(reviewer.Id, input.SubmissionId);
+            var conflicts =  await _conflictRepository.GetListReviewerConflictAsync(reviewer.Id, input.SubmissionId);
+
+            var result = new ReviewerSubmissionConflictDto
+            {
+                SubmissionId = submission.Id,
+                SubmissionTitle = submission.Title,
+                TrackId = track.Id,
+                TrackName = track.Name,
+            };
+
+            return result;
         }
 
         private async Task CreateReviewFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
