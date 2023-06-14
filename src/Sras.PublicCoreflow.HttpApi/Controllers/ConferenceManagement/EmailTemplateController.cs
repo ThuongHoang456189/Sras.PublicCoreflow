@@ -16,7 +16,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
     [RemoteService(Name = "Sras")]
     [Area("sras")]
     [ControllerName("EmailTemplate")]
-    [Route("api/sras/email-teamplates")]
+    [Route("api/sras/email-templates")]
     public class EmailTemplateController : AbpController
     {
         private readonly IEmailTemplateAppService _emailTemplateAppService;
@@ -71,6 +71,19 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 var result = await _emailTemplateAppService.CreateEmailTemplate(request);
                 return Ok(result);  
             } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<object>> UpdateEmailTemplate([FromBody] UpdateEmailTemplateRequest request)
+        {
+            try
+            {
+                var result = await _emailTemplateAppService.UpdateEmailTemplate(request);
+                return Ok(result);
+            } catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -207,7 +207,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetNumberOfSubmissionAndEmail(SubmissionWithEmailRequest request)
         {
-            if (request.AllAuthors)
+            if (request.allAuthors)
             {
                 return await _submissionRepository.GetNumOfSubmissionAndEmailWithAllAuthor(request);
             } else
