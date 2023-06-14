@@ -22,7 +22,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? Answers { get; private set; }
         public Guid StatusId { get; private set; }
         public PaperStatus Status { get; private set; }
-        public bool? IsNotified { get; private set; }
+        public bool? IsNotified { get; set; }
         public Guid? NotifiedStatusId { get; private set; }
         public PaperStatus? NotifiedStatus { get; private set; }
         public DateTime? LastNotificationTime { get; private set; }
