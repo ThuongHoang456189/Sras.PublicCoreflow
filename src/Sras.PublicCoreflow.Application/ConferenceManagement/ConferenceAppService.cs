@@ -97,7 +97,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    input.WebsiteLink, null, null, "logotemp1", input.IsSingleTrack);
+                    input.WebsiteLink, null, null, input.Logo ?? "logotemp1", input.IsSingleTrack);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 
@@ -375,9 +375,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return ObjectMapper.Map<Conference, ConferenceWithDetails>(await _conferenceRepository.UpdateAsync(conference, true));
         }
 
-        public async Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter)
+        public async Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter)
         {
-            return await _incumbentRepository.GetConferenceUserListAsync(conferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
+            var users = await _incumbentRepository.GetConferenceUserListAsync(conferenceId, filter.TrackId, filter.SkipCount, filter.MaxResultCount);
+
+            return new PagedResultDto<ConferenceParticipationBriefInfo>(users.Count, users);
         }
         public async Task<IEnumerable<object>> GetNumberOfSubmission(Guid conferenceId, Guid? trackId)
         {

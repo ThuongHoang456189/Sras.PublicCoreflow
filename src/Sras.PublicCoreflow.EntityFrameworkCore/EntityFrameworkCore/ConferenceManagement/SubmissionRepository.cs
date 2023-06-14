@@ -247,21 +247,23 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             var ppcoef = commonSaList.Any(x => x.IsPrimary) ? 1 : 0;
 
-            var primarySubSa = submissionSubjectAreas.First(x => x.IsPrimary);
-            var spcoef = reviewerSubjectAreas.Any(x => !x.IsPrimary && x.Id == primarySubSa.Id) ? 1 : 0;
+            var primarySubSa = submissionSubjectAreas.FirstOrDefault(x => x.IsPrimary);
+            var spcoef = reviewerSubjectAreas.Any(x => !x.IsPrimary && x.Id == primarySubSa?.Id) ? 1 : 0;
 
-            var primaryRevSa = reviewerSubjectAreas.First(x => x.IsPrimary);
-            var pscoef = submissionSubjectAreas.Any(x => !x.IsPrimary && x.Id == primaryRevSa.Id) ? 1 : 0;
+            var primaryRevSa = reviewerSubjectAreas.FirstOrDefault(x => x.IsPrimary);
+            var pscoef = submissionSubjectAreas.Any(x => !x.IsPrimary && x.Id == primaryRevSa?.Id) ? 1 : 0;
 
             var commonSecondarySaList = commonSaList.ToList();
             commonSecondarySaList.RemoveAll(x => x.IsPrimary);
 
             var sscoef = commonSecondarySaList.Count;
 
+            var temp = Sigmoid(sscoef);
+
             if (formula.pp != null && formula.sp != null && formula.ps != null && formula.ss != null)
             {
                 return Math.Round((double)(formula.pp * ppcoef + formula.sp * spcoef + formula.ps * pscoef
-                    + formula.ss * Sigmoid(sscoef)), SubmissionConsts.NumberOfRelevanceScoreDigits);
+                    + formula.ss * 2 * (Sigmoid(sscoef) - 0.5)), SubmissionConsts.NumberOfRelevanceScoreDigits);
             }
 
             return 0;

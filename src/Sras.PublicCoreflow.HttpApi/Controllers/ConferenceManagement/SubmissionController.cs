@@ -71,7 +71,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{id}/conflicts")]
-        public async Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid id)
+        public async Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid id)
         {
             return await _submissionAppService.GetListReviewerWithConflictDetails(id);
         }

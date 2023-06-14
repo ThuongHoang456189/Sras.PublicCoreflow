@@ -184,13 +184,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             ResponseDto response = new ResponseDto();
 
+            var submission = await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId);
+            if (submission == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+
             // Get reviewer
-            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, input.TrackId);
+            var reviewer = await _reviewerRepository.FindAsync(input.AccountId, input.ConferenceId, submission.TrackId);
             if (reviewer == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ReviewerNotFound);
-
-            if(await _submissionRepository.FindAsync(x => x.Id == input.SubmissionId) == null)
-                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
 
             var incumbent = await _incumbentRepository.FindAsync(reviewer.Id);
             var incumbentConflicts = await _conflictRepository.GetListAsync(x => x.IncumbentId == reviewer.Id);

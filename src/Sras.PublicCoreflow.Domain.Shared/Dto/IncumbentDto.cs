@@ -7,6 +7,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Guid ConferenceAccountId { get; set; }
         public Guid ConferenceRoleId { get; set; }
         public Guid? TrackId { get; set; }
-        public bool IsPrimaryContact { get; set; }
+        public bool IsDecisionMaker { get; set; }
     }
 }

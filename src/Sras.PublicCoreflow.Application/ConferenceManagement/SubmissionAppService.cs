@@ -9,7 +9,6 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Content;
-using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
@@ -304,13 +303,34 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await Task.FromResult(response);
         }
 
-        public async Task<PagedResultDto<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid submissionId)
+        public async Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid submissionId)
         {
-            var reviewers = await _submissionRepository.GetListReviewerWithConflictDetails(submissionId);
+            var submission = await _submissionRepository.FindAsync(submissionId);
+            if(submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            var track = await _trackRepository.FindAsync(submission.TrackId);
+            if(track == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
+
+            var reviewerList = await _submissionRepository.GetListReviewerWithConflictDetails(submissionId);
 
             var totalCount = await _submissionRepository.GetCountConflictedReviewer(submissionId);
 
-            return new PagedResultDto<ReviewerWithConflictDetails>(totalCount, reviewers);
+            var reviewers = new PagedResultDto<ReviewerWithConflictDetails>(totalCount, reviewerList);
+
+            return new SubmissionReviewerConflictDto
+            {
+                SubmissionId = submission.Id,
+                SubmissionTitle = submission.Title,
+                TrackId = track.Id,
+                TrackName = track.Name,
+                Reviewers = reviewers
+            };
         }
 
         public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
@@ -422,7 +442,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 var lastAssignmentList = await _reviewAssignmentRepository.GetListAsync(x => x.SubmissionCloneId == lastSubmissionClone.Id);
 
                 // Reviewer Id 
-                var reviewer = _reviewerRepository.FindAsync(reviewerId, submission.TrackId);
+                var reviewer = await _reviewerRepository.FindAsync(reviewerId, submission.TrackId);
                 var reviewAssignment = lastSubmissionClone.Reviews.FirstOrDefault(x => x.ReviewerId == reviewerId && x.SubmissionCloneId == lastSubmissionClone.Id);
                 if (reviewer == null)
                 {
@@ -453,8 +473,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = true;
                 response.Message = action + " successfully";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 response.IsSuccess = false;
                 response.Message = "Exception";
             }
