@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230611100934_Migration21")]
+    partial class Migration21
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -691,16 +694,14 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
-                    b.Property<bool>("IsDecisionMaker")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsPrimaryContact")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
@@ -1642,65 +1643,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.ToTable("ReviewerSubjectAreas", (string)null);
                 });
 
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Revision", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<Guid?>("PreviousRevisionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("RootFilePath")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PreviousRevisionId");
-
-                    b.ToTable("Revisions", (string)null);
-                });
-
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubjectArea", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1774,9 +1716,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<string>("Answers")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CameraReadyRequestTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasMaxLength(40)
@@ -1816,19 +1755,11 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
-                    b.Property<bool>("IsFinallyDecided")
-                        .HasColumnType("bit");
-
                     b.Property<bool?>("IsNotified")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRequestedForCameraReady")
                         .HasColumnType("bit");
-
-                    b.Property<bool>("IsRequestedForPresentation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
@@ -1847,10 +1778,8 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<Guid?>("NotifiedStatusId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("PresentationRequestTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("RootFilePath")
+                        .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
@@ -1882,9 +1811,6 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CloneNo")
-                        .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -4049,23 +3975,6 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Navigation("SubjectArea");
                 });
 
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Revision", b =>
-                {
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.SubmissionClone", "SubmissionClone")
-                        .WithMany("Revisions")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Revision", "PreviousRevision")
-                        .WithMany()
-                        .HasForeignKey("PreviousRevisionId");
-
-                    b.Navigation("PreviousRevision");
-
-                    b.Navigation("SubmissionClone");
-                });
-
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubjectArea", b =>
                 {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Track", "Track")
@@ -4404,8 +4313,6 @@ namespace Sras.PublicCoreflow.Migrations
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionClone", b =>
                 {
                     b.Navigation("Reviews");
-
-                    b.Navigation("Revisions");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Track", b =>

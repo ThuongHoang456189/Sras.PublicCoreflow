@@ -45,6 +45,30 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return null;
         }
 
+        public async Task<Reviewer?> FindAsync(Guid id, Guid trackId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var reviewerQueryable = (from r in dbContext.Set<ConferenceRole>() select r)
+                                    .Where(x => x.Name.Equals(Reviewer));
+
+            var incumbentQueryable = (from i in dbContext.Set<Incumbent>()
+                                      join r in reviewerQueryable on i.ConferenceRoleId equals r.Id
+                                      select i)
+                                      .Where(x => x.Id == id && x.TrackId == trackId);
+
+            var incumbent = await incumbentQueryable.FirstOrDefaultAsync();
+
+            if (incumbent != null)
+            {
+                var reviewer = await dbContext.Set<Reviewer>().FindAsync(incumbent.Id);
+
+                return reviewer;
+            }
+
+            return null;
+        }
+
         public async Task<Reviewer?> UpdateReviewerQuota(Guid accountId, Guid conferenceId, Guid trackId, int? quota)
         {
             var dbContext = await GetDbContextAsync();

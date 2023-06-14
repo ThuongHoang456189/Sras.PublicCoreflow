@@ -19,7 +19,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         Task<bool> DeleteAsync(Guid id);
 
-        Task<List<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter);
+        Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter);
         Task<IEnumerable<object>> GetNumberOfSubmission(Guid conferenceId, Guid? trackId);
     }
 }
