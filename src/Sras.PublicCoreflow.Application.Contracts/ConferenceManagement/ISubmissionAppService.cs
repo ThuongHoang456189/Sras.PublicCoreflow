@@ -18,6 +18,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid submissionId);
         Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
         Task<CreationResponseDto> CreateRevisionAsync(Guid submissionId, List<RemoteStreamContent> files);
+        Task<CreationResponseDto> CreateCameraReadyAsync(Guid submissionId, List<RemoteStreamContent> files);
         Task<ResponseDto> AssignReviewerAsync(Guid submissionId, Guid reviewerId, bool isAssigned);
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);

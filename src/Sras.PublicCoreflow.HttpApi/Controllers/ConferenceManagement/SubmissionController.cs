@@ -94,6 +94,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return Ok(await _submissionAppService.CreateRevisionAsync(id, files));
         }
 
+        [HttpPost("{id}/camera-ready")]
+        public async Task<IActionResult> CreateCameraReady(Guid id, [FromForm] List<RemoteStreamContent> files)
+        {
+            return Ok(await _submissionAppService.CreateCameraReadyAsync(id, files));
+        }
+
         [HttpPost("{id}/decision")]
         public async Task<IActionResult> UpdateDecision(Guid id, Guid paperStatusId)
         {

@@ -36,8 +36,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IGuidGenerator _guidGenerator;
         private readonly IBlobContainer<SubmissionContainer> _submissionBlobContainer;
         private readonly IBlobContainer<RevisionContainer> _revisionBlobContainer;
+        private readonly IBlobContainer<CameraReadyContainer> _cameraReadyContainer;
 
         private const string AwaitingDecision = "Awaiting Decision";
+        private const string Accept = "Accept";
 
         public SubmissionAppService(
             IRepository<Track, Guid> trackRepository, 
@@ -53,10 +55,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IReviewAssignmentRepository reviewAssignmentRepository,
             IRepository<Revision, Guid> revisionRepository,
             IReviewerRepository reviewerRepository,
+            IRepository<CameraReady, Guid> cameraReadyRepository,
             ICurrentUser currentUser, 
             IGuidGenerator guidGenerator, 
             IBlobContainer<SubmissionContainer> submissionBlobContainer,
-            IBlobContainer<RevisionContainer> revisionBlobContainer)
+            IBlobContainer<RevisionContainer> revisionBlobContainer,
+            IBlobContainer<CameraReadyContainer> cameraReadyContainer)
         {
             _trackRepository = trackRepository;
             _paperStatusRepository = paperStatusRepository;
@@ -76,6 +80,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _guidGenerator = guidGenerator;
             _submissionBlobContainer = submissionBlobContainer;
             _revisionBlobContainer = revisionBlobContainer;
+            _cameraReadyContainer = cameraReadyContainer;
         }
 
         //public async Task SaveBytesAsync(byte[] bytes)
@@ -96,6 +101,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private async Task CreateRevisionFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
         {
             await _revisionBlobContainer.SaveAsync(blobName, streamContent.GetStream(), overrideExisting);
+        }
+
+        private async Task CreateCameraReadyFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
+        {
+            await _cameraReadyContainer.SaveAsync(blobName, streamContent.GetStream(), overrideExisting);
         }
 
         private async Task DeleteSubmissionFilesAsync(string blobName)
@@ -543,6 +553,62 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 filter.TrackId, filter.Sorting.IsNullOrEmpty() ? SubmissionConsts.DefaultSorting : filter.Sorting, filter.SkipCount, filter.MaxResultCount);
 
             return new PagedResultDto<SubmissionAggregation>(items.Count, items);
+        }
+
+        public async Task<CreationResponseDto> CreateCameraReadyAsync(Guid submissionId, List<RemoteStreamContent> files)
+        {
+            CreationResponseDto response = new();
+
+            // Get submission
+            var submission = await _submissionRepository.FindAsync(submissionId);
+            if (submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            if(submission.CameraReadies.Any(x => x.Id == submission.Id))
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.CameraReadyAlreadyExist);
+            }
+
+            bool isDemo = true;
+            if (!isDemo)
+            {
+                // Check author relationship
+
+                if(!(submission.IsRequestedForCameraReady && 
+                    submission.NotifiedStatus != null && submission.NotifiedStatus.Name.ToLower().Equals(Accept.ToLower())))
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionIsNotAllowedToSubmitCameraReady);
+                }
+            }
+
+            try
+            {
+                // Assume that the file extension is exactly matched its file name extension
+                files.ForEach(async file =>
+                {
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        await CreateCameraReadyFilesAsync(submission.Id.ToString() + "/" + file.FileName, file, true);
+                    }
+                });
+
+                submission.CameraReadies.Add(new CameraReady(submission.Id, submission.Id.ToString(), null));
+                await _submissionRepository.UpdateAsync(submission);
+
+                response.IsSuccess = true;
+                response.Message = "Create camera ready successfully";
+                response.Id = submission.Id;
+            }
+            catch (Exception)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+                response.Id = null;
+            }
+
+            return response;
         }
     }
 }

@@ -115,7 +115,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
 
-            var submission = await FindAsync(submissionId);
+            var submission = await base.FindAsync(submissionId);
             if (submission == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
 
@@ -131,7 +131,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
 
-            var submission = await FindAsync(submissionId);
+            var submission = await base.FindAsync(submissionId);
             if (submission == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
 
@@ -273,7 +273,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
 
-            var submission = await FindAsync(submissionId);
+            var submission = await base.FindAsync(submissionId);
             if (submission == null)
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
 
@@ -669,15 +669,74 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return await Task.FromResult(result);
         }
 
-        //public async Task<List<SubmissionBriefInfo>> GetRegis
+        public async Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid conferenceId, Guid accountId)
+        {
+            var dbContext = await GetDbContextAsync();
 
+            var account = await dbContext.Set<IdentityUser>().FindAsync(accountId);
+            if (account == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.AccountNotFound);
+            }
+
+            var conference = await dbContext.Set<Conference>().FindAsync(conferenceId);
+            if (conference == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+            }
+
+            RegistrablePaperTable result = new RegistrablePaperTable();
+
+            result.AccountId = account.Id;
+            result.Email = account.Email;
+
+            var participant = await dbContext.Set<Participant>().Where(x => x.AccountId == account.Id).SingleOrDefaultAsync();
+
+            if(participant == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ParticipantNotFound);
+            }
+
+            var conferenceSubmissionQueryable = (from s in dbContext.Set<Submission>()
+                                                 join t in dbContext.Set<Track>() on s.TrackId equals t.Id
+                                                 join a in dbContext.Set<Author>() on s.Id equals a.SubmissionId
+                                                 where t.ConferenceId == conference.Id && a.ParticipantId == participant.Id
+                                                 select s);
+
+            var registrablePaperList = await (from s in conferenceSubmissionQueryable
+                                              join cr in dbContext.Set<CameraReady>() on s.Id equals cr.Id
+                                              select s).ToListAsync();
+
+            List<SubmissionBriefInfo> registrablePapers = new List<SubmissionBriefInfo>();
+
+            registrablePaperList.ForEach(x =>
+            {
+                SubmissionBriefInfo submission = new SubmissionBriefInfo();
+                submission.SubmissionId = x.Id;
+                submission.SubmissionTitle = x.Title;
+
+                var track = dbContext.Set<Track>().Find(x.TrackId);
+                if(track != null)
+                {
+                    submission.TrackId = track.Id;
+                    submission.TrackName = track.Name;
+                }
+
+                registrablePapers.Add(submission);
+            });
+
+            result.RegistrablePapers = registrablePapers;
+
+            return result;
+        }
 
         public override async Task<IQueryable<Submission>> WithDetailsAsync()
         {
             return (await GetQueryableAsync())
                 .Include(x => x.Conflicts)
                 .Include(x => x.Clones)
-                .ThenInclude(x => x.Reviews);
+                .ThenInclude(x => x.Reviews)
+                .Include(x => x.CameraReadies);
         }
     }
 }
