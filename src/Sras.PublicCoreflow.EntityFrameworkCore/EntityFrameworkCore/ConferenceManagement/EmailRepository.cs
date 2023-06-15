@@ -31,7 +31,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var email = new MimeMessage();
             //email.From.Add(MailboxAddress.Parse("fptsciencemanagement@gmail.com"));
-            email.From.Add(MailboxAddress.Parse(""));
+            email.From.Add(MailboxAddress.Parse("abcder"));
             email.To.Add(MailboxAddress.Parse(toEmails));
             email.Subject = subject;
             //body = await File.ReadAllTextAsync("B:\\WorkingSet CODE\\VisualStudio\\ScienceManagement\\Service\\Programming.html");
