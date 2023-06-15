@@ -111,5 +111,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _submissionAppService.GetListSubmissionAggregation(filter);
         }
+
+        [HttpPost("{id}/camera-ready-request")]
+        public async Task<IActionResult> RequestCameraReady(Guid id, bool isCameraReadyRequested)
+        {
+            return Ok(await _submissionAppService.RequestCameraReady(id, isCameraReadyRequested));
+        }
     }
 }

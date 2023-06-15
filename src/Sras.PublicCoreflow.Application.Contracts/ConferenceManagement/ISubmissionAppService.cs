@@ -22,5 +22,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> AssignReviewerAsync(Guid submissionId, Guid reviewerId, bool isAssigned);
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);
+        Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested);
     }
 }

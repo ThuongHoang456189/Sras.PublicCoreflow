@@ -27,8 +27,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public PaperStatus? NotifiedStatus { get; private set; }
         public DateTime? LastNotificationTime { get; private set; }
         public bool IsFinallyDecided { get; private set; }
-        public bool IsRequestedForCameraReady { get; private set; }
-        public DateTime? CameraReadyRequestTime { get; private set; }
+        public bool IsRequestedForCameraReady { get; set; }
+        public DateTime? CameraReadyRequestTime { get; set; }
         public bool IsRequestedForPresentation { get; private set; }
         public DateTime? PresentationRequestTime { get; private set; }
 
