@@ -16,10 +16,14 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
     public class ConferenceController : AbpController
     {
         private readonly IConferenceAppService _conferenceService;
+        private readonly IRegistrationAppService _registrationAppService;
 
-        public ConferenceController(IConferenceAppService conferenceService)
+        public ConferenceController(
+            IConferenceAppService conferenceService,
+            IRegistrationAppService registrationAppService)
         {
             _conferenceService = conferenceService;
+            _registrationAppService = registrationAppService;
         }
 
         [HttpPost]
@@ -53,7 +57,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{id}/users")]
-        public async Task<List<ConferenceParticipationBriefInfo>> GetListConferenceUsersAsync(Guid id, ConferenceParticipationFilterDto input)
+        public async Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetListConferenceUsersAsync(Guid id, ConferenceParticipationFilterDto input)
         {
             return await _conferenceService.GetConferenceUserListAsync(id, input);
         }
@@ -63,6 +67,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             var result = await _conferenceService.GetNumberOfSubmission(conferenceId, trackId);
             return result;
+        }
+
+        [HttpGet("{id}/registration-settings")]
+        public async Task<PriceTable?> GetPriceTable(Guid id)
+        {
+            return await _conferenceService.GetPriceTable(id);
+        }
+
+        [HttpGet("{id}/registrable-papers")]
+        public async Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid id, Guid accountId)
+        {
+            return await _registrationAppService.GetRegistrablePaperTable(id, accountId);
         }
     }
 }

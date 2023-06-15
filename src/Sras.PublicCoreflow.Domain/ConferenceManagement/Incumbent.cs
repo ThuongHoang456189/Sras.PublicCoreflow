@@ -15,7 +15,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public ConferenceRole ConferenceRole { get; private set; }
         public Guid? TrackId { get; private set; }
         public Track? Track { get; private set; }
-        public bool IsPrimaryContact { get; set; }
+        public bool IsDecisionMaker { get; set; }
 
         public ICollection<Conflict> Conflicts { get; set; }
         public ICollection<Submission> CreationSubmissions { get; set; }
@@ -27,12 +27,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Guid conferenceAccountId,
             Guid conferenceRoleId,
             Guid? trackId,
-            bool isPrimaryContact) : base(id)
+            bool isDecisionMaker) : base(id)
         {
             ConferenceAccountId = conferenceAccountId;
             ConferenceRoleId = conferenceRoleId;
             TrackId = trackId;
-            IsPrimaryContact = isPrimaryContact;
+            IsDecisionMaker = isDecisionMaker;
 
             Conflicts = new Collection<Conflict>();
             CreationSubmissions = new Collection<Submission>();

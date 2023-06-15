@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Sras.PublicCoreflow.Dto
+namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class SubjectAreaBriefInfo
     {

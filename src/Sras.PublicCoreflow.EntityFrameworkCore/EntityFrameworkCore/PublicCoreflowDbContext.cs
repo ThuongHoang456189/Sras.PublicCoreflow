@@ -78,6 +78,10 @@ public class PublicCoreflowDbContext :
     public DbSet<SubmissionClone> SubmissionClones { get; set; }
     public DbSet<SubmissionSubjectArea> SubmissionSubjectAreas { get; set; }
     public DbSet<SupportedPlaceholder> SupportedPlaceholders { get; set; }
+    public DbSet<Revision> Revisions { get; set; }
+    public DbSet<CameraReady> CameraReadies { get; set; }
+    public DbSet<Registration> Registrations { get; set; }
+    public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -166,6 +170,9 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Incumbents", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.IsDecisionMaker)
+            .HasDefaultValue(false);
         });
 
         builder.Entity<Participant>(b =>
@@ -370,6 +377,9 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.RootFilePath)
             .HasMaxLength(SubmissionConsts.MaxRootFilePathLength);
 
+            b.Property(x => x.IsRequestedForPresentation)
+            .HasDefaultValue(false);
+
             b.Property(x => x.DomainConflicts)
             .HasMaxLength(SubmissionConsts.MaxDomainConflictsLength);
 
@@ -386,10 +396,22 @@ public class PublicCoreflowDbContext :
             .OnDelete(DeleteBehavior.SetNull);
         });
 
+        builder.Entity<Revision>(b =>
+        {
+            b.ToTable("Revisions", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootFilePath)
+            .HasMaxLength(RevisionConsts.MaxRootFilePathLength);
+        });
+
         builder.Entity<SubmissionClone>(b =>
         {
             b.ToTable("SubmissionClones", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.IsLast)
+            .HasDefaultValue(false);
         });
 
         builder.Entity<SubmissionSubjectArea>(b =>
@@ -408,6 +430,33 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Description)
             .HasMaxLength(1024);
+        });
+
+        builder.Entity<CameraReady>(b =>
+        {
+            b.ToTable("CameraReadies", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootCameraReadyFilePath)
+            .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
+
+            b.Property(x => x.CopyRightFilePath)
+            .HasMaxLength (CameraReadyConsts.MaxFilePathLength);
+        });
+
+        builder.Entity<Registration>(b =>
+        {
+            b.ToTable("Registrations", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<RegistrationPaper>(b =>
+        {
+            b.ToTable("RegistrationPapers", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootPresentationFilePath)
+            .HasMaxLength(RegistrationPaperConsts.MaxRootPresentationFilePathLength);
         });
     }
 }

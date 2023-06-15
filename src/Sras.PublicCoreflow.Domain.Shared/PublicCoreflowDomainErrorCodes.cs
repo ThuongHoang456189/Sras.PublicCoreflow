@@ -36,4 +36,12 @@ public static class PublicCoreflowDomainErrorCodes
     public const string ConferenceRoleAuthorNotFound = ConferencePrefix + "ConferenceRoleAuthorNotFound";
     public const string ReviewerAlreadyExist = ConferencePrefix + "ReviewerAlreadyExist";
     public const string ReviewerNotFound = ConferencePrefix + "ReviewerNotFound";
+    public const string LastSubmissionCloneNotFound = ConferencePrefix + "LastSubmissionCloneNotFound";
+    public const string ReviewAssignmentNotFound = ConferencePrefix + "ReviewAssignmentNotFound";
+    public const string NoFilesIncluded = ConferencePrefix + "NoFilesIncluded";
+    public const string ParticipantNotFound = ConferencePrefix + "ParticipantNotFound";
+    public const string MainPaperOptionNotFound = ConferencePrefix + "MainPaperOptionNotFound";
+    public const string InvalidNumberOfExtraPages = ConferencePrefix + "InvalidNumberOfExtraPages";
+    public const string SubmissionIsNotAllowedToSubmitCameraReady = ConferencePrefix + "SubmissionIsNotAllowedToSubmitCameraReady";
+    public const string CameraReadyAlreadyExist = ConferencePrefix + "CameraReadyAlreadyExist";
 }

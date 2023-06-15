@@ -9,10 +9,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public SubmissionClone SubmissionClone { get; private set; }
         public Guid ReviewerId { get; private set; }
         public Reviewer Reviewer { get; private set; }
-        public string? Review { get; private set; }
-        public int? TotalScore { get; private set; }
-        public bool IsActive { get; private set; }
-        public bool IsNotified { get; private set; }
+        public string? Review { get; set; }
+        public int? TotalScore { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsNotified { get; set; }
 
         public ReviewAssignment(Guid id, Guid submissionCloneId, Guid reviewerId, string? review, int? totalScore, bool isActive, bool isNotified) : base(id)
         {

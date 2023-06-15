@@ -80,7 +80,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public ConferenceAccount UpdateIncumbent(
             Guid incumbentId,
-            bool isPrimaryContact)
+            bool isDecisionMaker)
         {
             var found = Incumbents.SingleOrDefault(x => x.Id == incumbentId);
             if (found == null)
@@ -88,7 +88,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.IncumbentNotFound);
             }
 
-            found.IsPrimaryContact = isPrimaryContact;
+            found.IsDecisionMaker = isDecisionMaker;
 
             return this;
         }
