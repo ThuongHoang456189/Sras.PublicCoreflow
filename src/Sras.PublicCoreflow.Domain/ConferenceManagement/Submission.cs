@@ -1,4 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -91,11 +91,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Authors.Add(new Author(authorId, participantId, Id, isPrimaryContact, false));
 
             return this;
-        }
-
-        public void ExecuteUpdate<TSource>(Func<object, TSource> value) where TSource : IHasExtraProperties
-        {
-            throw new NotImplementedException();
         }
     }
 }
