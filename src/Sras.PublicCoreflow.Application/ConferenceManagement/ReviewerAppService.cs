@@ -291,6 +291,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 SubmissionTitle = submission.Title,
                 TrackId = track.Id,
                 TrackName = track.Name,
+                Conflicts = conflicts,
             };
 
             return result;

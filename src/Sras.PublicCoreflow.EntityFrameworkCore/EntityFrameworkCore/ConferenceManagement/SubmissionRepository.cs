@@ -669,6 +669,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return await Task.FromResult(result);
         }
 
+        //public async Task<List<SubmissionBriefInfo>> GetRegis
+
+
         public override async Task<IQueryable<Submission>> WithDetailsAsync()
         {
             return (await GetQueryableAsync())

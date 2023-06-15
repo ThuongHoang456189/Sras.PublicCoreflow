@@ -21,5 +21,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetConferenceUserListAsync(Guid conferenceId, ConferenceParticipationFilterDto filter);
         Task<IEnumerable<object>> GetNumberOfSubmission(Guid conferenceId, Guid? trackId);
+        Task<PriceTable?> GetPriceTable(Guid id);
     }
 }
