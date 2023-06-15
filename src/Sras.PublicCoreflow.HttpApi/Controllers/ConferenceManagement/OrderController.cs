@@ -37,5 +37,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("create-new-payment")]
+        public async Task<ActionResult<object>> CreatePaymentAsync(CreatePaymentRequest request)
+        {
+            try
+            {
+                var result = await _orderAppService.CreatePaymentAsync(request);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

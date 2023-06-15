@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sras.PublicCoreflow.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,16 +9,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class OrderAppService : PublicCoreflowAppService, IOrderAppService
     {
-        private readonly IOrderRepository orderRepository;
+        private readonly IOrderRepository _orderRepository;
 
         public OrderAppService(IOrderRepository orderRepository)
         {
-            this.orderRepository = orderRepository;
+            this._orderRepository = orderRepository;
         }
 
         public async Task<object> GetOrderDetail(Guid orderId)
         {
-            return await orderRepository.GetOrderDetail(orderId);
+            return await _orderRepository.GetOrderDetail(orderId);
+        }
+
+        public async Task<object> CreatePaymentAsync(CreatePaymentRequest request)
+        {
+            return await _orderRepository.CreatePaymentAsync(request);
         }
     }
 }
