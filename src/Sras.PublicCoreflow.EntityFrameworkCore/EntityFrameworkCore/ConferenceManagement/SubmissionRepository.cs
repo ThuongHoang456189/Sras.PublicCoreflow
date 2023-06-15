@@ -217,16 +217,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                 if (submissionNotifyStatusId == Guid.Empty) //Check If Submission Notify Status Id does not exist
                 {
-                    return new { submissionId = submissionId, error = "NotifyStatusId does not exist." };
+                    return new {
+                        submissionId = submissionId,
+                        error = "NotifyStatusId does not exist."
+                    };
                 }
                     string submissionNotifyStatusName = dbContext.PaperStatuses
                             .Where(ps => ps.Id == submissionNotifyStatusId)
                             .Select(a => a.Name)
                             .First();
 
-                if (submissionNotifyStatusName != conditionStatus)
+                if (submissionNotifyStatusName != conditionStatus) //Check If Submission has not been acepted
                 {
-                    return new { submissionId = submissionId, error = "This submission does not meet the requirement of request for camera ready." };
+                    return new {
+                        submissionId = submissionId,
+                        error = "This submission does not meet the requirement of request for camera ready."
+                    };
                 }
                     int check = dbContext.Submissions.Where(sr => sr.Id == submissionId)
                                 .ExecuteUpdate(e => e.SetProperty(x => x.IsRequestedForCameraReady, status));
@@ -234,7 +240,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 //Get Return Value
                 if (check <= 0)
                 {
-                    return new { submissionId = submissionId, error = "Can not update SQL." };
+                    return new {
+                        submissionId = submissionId,
+                        error = "Can not update SQL."
+                    };
                 }
                     return new
                     {
