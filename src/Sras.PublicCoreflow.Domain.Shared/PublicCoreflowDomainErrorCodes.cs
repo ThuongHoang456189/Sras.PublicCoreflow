@@ -34,6 +34,7 @@ public static class PublicCoreflowDomainErrorCodes
     public const string AwaitingDecisionPaperStatusNotFound = ConferencePrefix + "AwaitingDecisionPaperStatusNotFound";
     public const string PrimaryContactCannotSetToNonAccountParticipant = ConferencePrefix + "PrimaryContactCannotSetToNonAccountParticipant";
     public const string ConferenceRoleAuthorNotFound = ConferencePrefix + "ConferenceRoleAuthorNotFound";
+    public const string ConferenceRoleReviewerNotFound = ConferencePrefix + "ConferenceRoleReviewerNotFound";
     public const string ReviewerAlreadyExist = ConferencePrefix + "ReviewerAlreadyExist";
     public const string ReviewerNotFound = ConferencePrefix + "ReviewerNotFound";
     public const string LastSubmissionCloneNotFound = ConferencePrefix + "LastSubmissionCloneNotFound";

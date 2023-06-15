@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Content;
 using Volo.Abp.Domain.Repositories;
@@ -348,6 +349,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             return await Task.FromResult(response);
+        }
+
+        public async Task<PagedResultDto<SubmissionWithFacts>> GetListReviewerAggregation(
+            Guid accountId, Guid conferenceId,
+            string sorting = ReviewerConsts.DefaultSorting,
+            int skipCount = 0,
+            int maxResultCount = ReviewerConsts.DefaultMaxResultCount)
+        {
+            var count = await _reviewerRepository.GetCountReviewerAggregation(accountId, conferenceId);
+
+            var items = await _reviewerRepository.GetListReviewerAggregation(accountId, conferenceId, sorting, skipCount, maxResultCount);
+
+            return new PagedResultDto<SubmissionWithFacts>(count, items);
         }
     }
 }
