@@ -37,5 +37,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("send-email-service")]
+        public async Task<ActionResult<string>> SendEmailAsync(string toEmails, string body, string subject)
+        {
+            try
+            {
+                var result = await _emailAppService.SendEmailAsync(toEmails, body, subject);
+                return Ok(result.ToString());
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

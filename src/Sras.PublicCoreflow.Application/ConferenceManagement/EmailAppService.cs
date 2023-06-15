@@ -19,5 +19,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _emailRepository.SendEmailForEachStatus(request);
         }
+
+        public async Task<string> SendEmailAsync(string toEmails, string body, string subject)
+        {
+            return await _emailRepository.SendEmailAsync(toEmails, body, subject);
+        }
+
     }
 }

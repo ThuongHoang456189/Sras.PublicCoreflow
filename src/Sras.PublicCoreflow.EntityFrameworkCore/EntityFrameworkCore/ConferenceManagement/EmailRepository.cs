@@ -2,14 +2,16 @@
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
+using MimeKit.Text;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -23,6 +25,25 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             _placeHolderRepository = placeHolderRepository;
             _guidGenerator = guidGenerator;
             _outsiderRepository = outsiderRepository;
+        }
+
+        public async Task<string> SendEmailAsync(string toEmails, string body, string subject)
+        {
+            var email = new MimeMessage();
+            //email.From.Add(MailboxAddress.Parse("fptsciencemanagement@gmail.com"));
+            email.From.Add(MailboxAddress.Parse(""));
+            email.To.Add(MailboxAddress.Parse(toEmails));
+            email.Subject = subject;
+            //body = await File.ReadAllTextAsync("B:\\WorkingSet CODE\\VisualStudio\\ScienceManagement\\Service\\Programming.html");
+            email.Body = new TextPart(TextFormat.Html) { Text = body };
+
+            using var smtp = new MailKit.Net.Smtp.SmtpClient();
+            smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+            smtp.Authenticate("fptsciencemanagement@gmail.com", "xvddaoqsyumnascw");
+            var result = smtp.Send(email);
+            await smtp.DisconnectAsync(false);
+
+            return result;
         }
 
         public async Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request)
@@ -99,9 +120,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
 
                             var emailId = _guidGenerator.Create();
-                            
+
+                            this.SendEmailAsync(recipient.Email, body, subject);
                             dbContext.Emails.Add(new Email(emailId, incumbentSenderId, recipientId, subject, body, template.Id));
                             dbContext.SaveChanges();
+
                             return new
                             {
                                 id = index,
@@ -110,7 +133,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 toFullName = recipient.FullName,
                                 toEmail = recipient.Email,
                                 subject = subject,
-                                body = body
+                                body = body,
                             };
                         })
                         };
@@ -152,6 +175,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
 
                             var emailId = _guidGenerator.Create();
+                            this.SendEmailAsync(recipient.Email, body, subject);
                             dbContext.Emails.Add(new Email(emailId, incumbentSenderId, recipientId, subject, body, template.Id));
                             dbContext.SaveChanges();
 
@@ -163,7 +187,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 toFullName = recipient.FullName,
                                 toEmail = recipient.Email,
                                 subject = subject,
-                                body = body
+                                body = body,
                             };
                         })
                         };
