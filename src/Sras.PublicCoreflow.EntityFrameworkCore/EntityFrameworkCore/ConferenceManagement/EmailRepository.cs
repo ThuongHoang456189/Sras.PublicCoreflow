@@ -84,12 +84,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                             if (pa.Outsider != null)
                             {
                                 recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.LastName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
-                                recipientId = (Guid)pa.OutsiderId;
+                                recipientId = (Guid)pa.Id;
                             }
                             else
                             {
                                 recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
-                                recipientId = (Guid)pa.AccountId;
+                                recipientId = (Guid)pa.Id;
                             }
 
                             var subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
@@ -137,12 +137,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                             if (pa.Outsider != null)
                             {
                                 recipient = new RecipientInforForEmail(pa.Outsider.FirstName, pa.Outsider.LastName, pa.Outsider.LastName + " " + pa.Outsider.MiddleName + " " + pa.Outsider.FirstName, pa.Outsider.Email, pa.Outsider.Organization);
-                                recipientId = (Guid)pa.OutsiderId;
+                                recipientId = (Guid)pa.Id;
                             }
                             else
                             {
                                 recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
-                                recipientId = (Guid)pa.AccountId;
+                                recipientId = (Guid)pa.Id;
                             }
 
                             var subject = placeHoldersContainInSubject.Select(pl => pl.Encode).ToList()
