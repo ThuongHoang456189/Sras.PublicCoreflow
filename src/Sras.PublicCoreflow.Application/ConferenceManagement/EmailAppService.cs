@@ -1,0 +1,29 @@
+﻿using Sras.PublicCoreflow.Dto;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Sras.PublicCoreflow.ConferenceManagement
+{
+    public class EmailAppService : PublicCoreflowAppService, IEmailAppService
+    {
+        private readonly IEmailRepository _emailRepository;
+        public EmailAppService(IEmailRepository emailRepository) {
+            _emailRepository = emailRepository;
+        }
+
+        public async Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request)
+        {
+            return await _emailRepository.SendEmailForEachStatus(request);
+        }
+
+        public async Task<string> SendEmailAsync(string toEmails, string body, string subject)
+        {
+            return await _emailRepository.SendEmailAsync(toEmails, body, subject);
+        }
+
+    }
+}

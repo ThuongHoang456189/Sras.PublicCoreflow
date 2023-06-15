@@ -26,7 +26,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             IEnumerable<PaperStatus> paperStatusList = await dbContext.PaperStatuses.ToListAsync();
-            if (conferenceId != null) paperStatusList = paperStatusList.Where(ps => ps.ConferenceId == conferenceId);
+            if (conferenceId != null) paperStatusList = paperStatusList.Where(ps => ps.ConferenceId == conferenceId || ps.ConferenceId == null);
+            if (conferenceId == null) paperStatusList = paperStatusList.Where(ps => ps.ConferenceId == null);
             var result = paperStatusList.Select(p => new
             {
                 statusId = p.Id,
