@@ -64,5 +64,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             var result = await _conferenceService.GetNumberOfSubmission(conferenceId, trackId);
             return result;
         }
+
+        [HttpGet("{id}/registration-settings")]
+        public async Task<PriceTable?> GetPriceTable(Guid id)
+        {
+            return await _conferenceService.GetPriceTable(id);
+        }
     }
 }

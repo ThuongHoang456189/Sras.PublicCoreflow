@@ -79,7 +79,8 @@ public class PublicCoreflowDbContext :
     public DbSet<SubmissionSubjectArea> SubmissionSubjectAreas { get; set; }
     public DbSet<SupportedPlaceholder> SupportedPlaceholders { get; set; }
     public DbSet<Revision> Revisions { get; set; }
-
+    public DbSet<Registration> Registrations { get; set; }
+    public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -428,6 +429,21 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Description)
             .HasMaxLength(1024);
+        });
+
+        builder.Entity<Registration>(b =>
+        {
+            b.ToTable("Registrations", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<RegistrationPaper>(b =>
+        {
+            b.ToTable("RegistrationPapers", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootPresentationFilePath)
+            .HasMaxLength(RegistrationPaperConsts.MaxRootPresentationFilePathLength);
         });
     }
 }

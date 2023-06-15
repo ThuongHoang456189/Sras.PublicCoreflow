@@ -386,5 +386,28 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             if (trackId == null) return await _conferenceRepository.GetNumberOfSubmissionByConferenceId(conferenceId);
             else return await _conferenceRepository.GetNumberOfSubmission(trackId);
         }
+
+        public async Task<PriceTable?> GetPriceTable(Guid id)
+        {
+            var conference = await _conferenceRepository.GetAsync(id);
+            if(conference == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+            }
+
+            // Simulation only
+            var isSimulation = true;
+            if (isSimulation)
+            {
+                return ConferenceConsts.DefaultPriceTable;
+            }
+            else
+            {
+                if (conference.RegistrationSettings == null || conference.RegistrationSettings.IsNullOrWhiteSpace())
+                    return new PriceTable();
+                return JsonSerializer.Deserialize<PriceTable?>(conference.RegistrationSettings);
+            }
+
+        }
     }
 }
