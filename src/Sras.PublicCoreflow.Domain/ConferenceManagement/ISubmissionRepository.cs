@@ -22,5 +22,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? sorting = SubmissionConsts.DefaultSorting,
             int skipCount = 0,
             int maxResultCount = SubmissionConsts.DefaultMaxResultCount);
+
+        Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid conferenceId, Guid accountId);
     }
 }

@@ -16,10 +16,14 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
     public class ConferenceController : AbpController
     {
         private readonly IConferenceAppService _conferenceService;
+        private readonly IRegistrationAppService _registrationAppService;
 
-        public ConferenceController(IConferenceAppService conferenceService)
+        public ConferenceController(
+            IConferenceAppService conferenceService,
+            IRegistrationAppService registrationAppService)
         {
             _conferenceService = conferenceService;
+            _registrationAppService = registrationAppService;
         }
 
         [HttpPost]
@@ -69,6 +73,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<PriceTable?> GetPriceTable(Guid id)
         {
             return await _conferenceService.GetPriceTable(id);
+        }
+
+        [HttpGet("{id}/registrable-papers")]
+        public async Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid id, Guid accountId)
+        {
+            return await _registrationAppService.GetRegistrablePaperTable(id, accountId);
         }
     }
 }

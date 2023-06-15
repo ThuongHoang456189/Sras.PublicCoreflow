@@ -12,8 +12,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public int NumberOfPages { get; private set; }
         public int NumberOfExtraPages { get; private set; }
         public Guid? MainRegistrationPaperId { get; private set; }
-        public RegistrationPaper MainRegistrationPaper { get; private set; }
-        public string? RootPresentationFilePath { get; private set; }
+        public RegistrationPaper? MainRegistrationPaper { get; private set; }
+        public string? RootPresentationFilePath { get; set; }
 
         public RegistrationPaper(Guid id, Guid submissionId, 
             Guid registrationId, int numberOfPages, int numberOfExtraPages, 
