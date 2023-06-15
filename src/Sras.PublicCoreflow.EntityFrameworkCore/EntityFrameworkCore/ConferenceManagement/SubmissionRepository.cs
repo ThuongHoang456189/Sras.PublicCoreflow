@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
@@ -13,6 +14,7 @@ using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -201,24 +203,44 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
         public async Task<object> UpdateStatusRequestForCameraReady(Guid submissionId, bool status)
         {
+            string conditionStatus = "Accept";
             try
             {
                 var dbContext = await GetDbContextAsync();
-                if (dbContext.Submissions.Any(s => s.Id == submissionId))
+                if (!dbContext.Submissions.Any(s => s.Id == submissionId))
                 {
-                    dbContext.Submissions.Where(s => s.Id == submissionId)
-                        .ExecuteUpdate(e => e.SetProperty(x => x.IsRequestedForCameraReady, x => status));
-                    Submission queryResult = dbContext.Submissions.Where(s => s.Id == submissionId).First();
+                    throw new Exception("SubmissionId does not exist.");
+                }
+                    Submission submission = dbContext.Submissions.Where(sf => sf.Id == submissionId).First();
+
+                    Guid submissionNotifyStatusId = submission.StatusId;
+
+                if (submissionNotifyStatusId == Guid.Empty) //Check If Submission Notify Status Id does not exist
+                {
+                    return new { submissionId = submissionId, error = "NotifyStatusId does not exist." };
+                }
+                    string submissionNotifyStatusName = dbContext.PaperStatuses
+                            .Where(ps => ps.Id == submissionNotifyStatusId)
+                            .Select(a => a.Name)
+                            .First();
+
+                if (submissionNotifyStatusName != conditionStatus)
+                {
+                    return new { submissionId = submissionId, error = "This submission does not meet the requirement of request for camera ready." };
+                }
+                    int check = dbContext.Submissions.Where(sr => sr.Id == submissionId)
+                                .ExecuteUpdate(e => e.SetProperty(x => x.IsRequestedForCameraReady, status));
+
+                //Get Return Value
+                if (check <= 0)
+                {
+                    return new { submissionId = submissionId, error = "Can not update SQL." };
+                }
                     return new
                     {
-                        submissionId = queryResult.Id,
-                        status = queryResult.IsRequestedForCameraReady
+                        submissionId = submissionId,
+                        status = status
                     };
-                }
-                else
-                {
-                    throw new Exception("SubmissionId does not exist");
-                }
             }
             catch (Exception ex)
             {
@@ -265,7 +287,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 }
                 else
                 {
-                    throw new Exception("ConferenceId does not exist");
+                    throw new Exception("ConferenceId does not exist.");
                 }
             }
             catch (Exception ex)
