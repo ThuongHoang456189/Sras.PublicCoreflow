@@ -8,6 +8,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IEmailAppService
     {
-        Task<object> SendEmailForEachStatus(PaperStatusToEmail request);
+        Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request);
     }
 }

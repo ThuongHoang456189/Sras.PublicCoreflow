@@ -15,7 +15,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _emailRepository = emailRepository;
         }
 
-        public async Task<object> SendEmailForEachStatus(PaperStatusToEmail request)
+        public async Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request)
         {
             return await _emailRepository.SendEmailForEachStatus(request);
         }

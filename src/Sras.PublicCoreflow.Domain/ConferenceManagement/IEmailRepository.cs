@@ -9,6 +9,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IEmailRepository
     {
-        Task<object> SendEmailForEachStatus(PaperStatusToEmail request);
+        Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request);
     }
 }

@@ -25,7 +25,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             _outsiderRepository = outsiderRepository;
         }
 
-        public async Task<object> SendEmailForEachStatus(PaperStatusToEmail request)
+        public async Task<object> SendEmailForEachStatus(PaperStatusToSendEmail request)
         {
             try
             {
@@ -45,7 +45,24 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     var template = dbContext.EmailTemplates.Find(st.templateId);
                     var placeHoldersContainInSubject = dbContext.SupportedPlaceholders.Where(sp => template.Subject.Contains(sp.Encode)).ToList();
                     var placeHoldersContainInBody = dbContext.SupportedPlaceholders.Where(sp => template.Body.Contains(sp.Encode)).ToList();
-
+                    
+                    var conferenceId = dbContext.Tracks.Where(t => t.Id == request.trackId).First().Conference.Id;
+                    var conferenceAccId = dbContext.ConferenceAccounts.Where(t => t.ConferenceId == conferenceId).Where(cc => cc.AccountId == sender.Id).First().Id;
+                    var incumbentSenderId = _guidGenerator.Create();
+                    if (dbContext.ConferenceRoles.Where(c => c.Id == request.conferenceRoleId).First().Name == "Chair")
+                    {
+                        incumbentSenderId = dbContext.Incumbents
+                            .Where(i => i.ConferenceAccountId == conferenceAccId)
+                            .Where(ii => ii.ConferenceRoleId == request.conferenceRoleId)
+                            .First().Id;
+                    } else
+                    {
+                        incumbentSenderId = dbContext.Incumbents
+                            .Where(i => i.ConferenceAccountId == conferenceAccId)
+                            .Where(ii => ii.ConferenceRoleId == request.conferenceRoleId)
+                            .Where(iii => iii.TrackId == request.trackId)
+                            .First().Id;
+                    }
                     if (request.allAuthors)
                     {
                         submissions.Where(ss => ss.StatusId == st.statusId).ToList().ForEach(su => su.IsNotified = true);
@@ -82,7 +99,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
 
                             var emailId = _guidGenerator.Create();
-                            dbContext.Emails.Add(new Email(emailId, sender.Id, recipientId, subject, body, template.Id));
+                            
+                            dbContext.Emails.Add(new Email(emailId, incumbentSenderId, recipientId, subject, body, template.Id));
                             dbContext.SaveChanges();
                             return new
                             {
@@ -134,7 +152,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                 .Aggregate(bodyString, (body, p) => body.Replace(p, _placeHolderRepository.GetDataFromPlaceholder(p, conference, recipient, au.Submission, sender)));
 
                             var emailId = _guidGenerator.Create();
-                            dbContext.Emails.Add(new Email(emailId, sender.Id, recipientId, subject, body, template.Id));
+                            dbContext.Emails.Add(new Email(emailId, incumbentSenderId, recipientId, subject, body, template.Id));
                             dbContext.SaveChanges();
 
                             return new

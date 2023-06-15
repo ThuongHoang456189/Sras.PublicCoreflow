@@ -26,7 +26,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("send-email-each-status-in-submission")]
-        public async Task<ActionResult<object>> SendEmailForEachStatus(PaperStatusToEmail request)
+        public async Task<ActionResult<object>> SendEmailForEachStatus(PaperStatusToSendEmail request)
         {
             try
             {
