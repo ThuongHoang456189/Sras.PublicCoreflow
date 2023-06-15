@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Content;
 
@@ -17,5 +18,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ReviewerSubmissionConflictDto> GetListReviewerConflictAsync(ReviewerConflictLookUpInput input);
 
         Task<ResponseDto> UploadReview(Guid reviewAssignmentId, List<RemoteStreamContent> files, int? totalScore);
+
+        Task<PagedResultDto<SubmissionWithFacts>> GetListReviewerAggregation(
+            Guid accountId, Guid conferenceId,
+            string sorting = ReviewerConsts.DefaultSorting,
+            int skipCount = 0,
+            int maxResultCount = ReviewerConsts.DefaultMaxResultCount);
     }
 }
