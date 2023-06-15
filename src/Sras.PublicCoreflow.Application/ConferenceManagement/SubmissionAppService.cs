@@ -610,5 +610,42 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return response;
         }
+
+        public async Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested)
+        {
+            ResponseDto response = new();
+
+            // Get submission
+            var submission = await _submissionRepository.FindAsync(submissionId);
+            if (submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            try
+            {
+                submission.IsRequestedForCameraReady = isRequested;
+                if (isRequested)
+                {
+                    submission.CameraReadyRequestTime = DateTime.Now;
+                }
+                else
+                {
+                    submission.CameraReadyRequestTime = null;
+                }
+
+                await _submissionRepository.UpdateAsync(submission);
+
+                response.IsSuccess = true;
+                response.Message = "Update successfully";
+            }
+            catch (Exception)
+            {
+                response.IsSuccess = false;
+                response.Message = "Exception";
+            }
+
+            return response;
+        }
     }
 }
