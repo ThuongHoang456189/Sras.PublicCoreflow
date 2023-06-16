@@ -42,12 +42,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("get-tracks-and-roles-of-chackchair-user/{userId}/{conferenceId}")]
-        public async Task<ActionResult<object>> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string? roleName)
+        [HttpGet("get-tracks-and-roles-of-track-chair-user/{userId}/{conferenceId}")]
+        public async Task<ActionResult<object>> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId)
         {
             try
             {
-                var result = _trackAppService.GetTracksAndRoleOfUser(userId, conferenceId, roleName);
+                var result = await _trackAppService.GetTracksAndRoleOfUser(userId, conferenceId);
                 return Ok(result);
             } catch (Exception ex)
             {
