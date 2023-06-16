@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public interface IOrderRepository
+    public interface IPaymentRepository
     {
-        Task<object> GetOrderDetail(Guid orderId);
+        Task<object> CreatePaymentAsync(CreatePaymentRequest request);
     }
 }

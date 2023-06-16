@@ -11,7 +11,7 @@ using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
-    public class OrderRepository : EfCoreRepository<PublicCoreflowDbContext, Email, Guid>, IOrderRepository
+    public class OrderRepository : EfCoreRepository<PublicCoreflowDbContext, Order, Guid>, IOrderRepository
     {
         private IGuidGenerator _guidGenerator;
         public OrderRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
@@ -26,24 +26,6 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             return JsonSerializer.Deserialize<OrderDto>(result);
         }
-
-        public async Task<object> CreatePaymentAsync(CreatePaymentRequest request)
-        {
-            var dbContext = await GetDbContextAsync();
-            var paymentId = _guidGenerator.Create();
-            if (!dbContext.Orders.Any(o => o.Id == request.orderId)) throw new Exception("OrderId not existing");
-            Payment payment = new Payment(paymentId, request.orderId, (int)request.totalWholeAmount, 0, request.status, null);
-            dbContext.Payments.Add(payment);
-            dbContext.Orders.Where(o => o.Id == request.orderId).First().Payments.Add(payment);
-            dbContext.SaveChanges();
-            var afterAdded = dbContext.Payments.Where(p => p.Id == paymentId).First();
-            return new
-            {
-                paymentId,
-                afterAdded.TotalWholeAmount,
-                afterAdded.Status,
-                afterAdded.OrderId
-            };
-        }
+    
     }
 }

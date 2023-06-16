@@ -21,9 +21,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _orderRepository.GetOrderDetail(orderId);
         }
 
-        public async Task<object> CreatePaymentAsync(CreatePaymentRequest request)
-        {
-            return await _orderRepository.CreatePaymentAsync(request);
-        }
+        
     }
 }

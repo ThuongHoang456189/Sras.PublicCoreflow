@@ -13,7 +13,7 @@ using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
-    public class PaperStatusRepository : EfCoreRepository<PublicCoreflowDbContext, Outsider, Guid>,  IPaperStatusRepository
+    public class PaperStatusRepository : EfCoreRepository<PublicCoreflowDbContext, PaperStatus, Guid>,  IPaperStatusRepository
     {
 
         private readonly IGuidGenerator _guidGenerator;
