@@ -8,7 +8,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IOrderAppService
     {
-        Task<object> CreatePaymentAsync(CreatePaymentRequest request);
         Task<object> GetOrderDetail(Guid orderId);
     }
 }
