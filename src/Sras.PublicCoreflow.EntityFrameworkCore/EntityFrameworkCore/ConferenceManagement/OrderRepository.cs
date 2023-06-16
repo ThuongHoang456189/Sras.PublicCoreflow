@@ -11,7 +11,7 @@ using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
-    public class OrderRepository : EfCoreRepository<PublicCoreflowDbContext, Email, Guid>, IOrderRepository
+    public class OrderRepository : EfCoreRepository<PublicCoreflowDbContext, Order, Guid>, IOrderRepository
     {
         private IGuidGenerator _guidGenerator;
         public OrderRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
@@ -22,9 +22,17 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<object> GetOrderDetail(Guid orderId)
         {
             var dbContext = await GetDbContextAsync();
-            var result = dbContext.Orders.Where(o => o.Id == orderId).First().OrderDetails;
-
-            return JsonSerializer.Deserialize<OrderDto>(result);
+            var order = dbContext.Orders.Where(o => o.Id == orderId).First();
+            var orderDetail = JsonSerializer.Deserialize<OrderDto>(order.OrderDetails);
+            var acc = dbContext.Users.Where(u => u.Id == order.AccountId).First();
+            var firstname = acc.Name;
+            var lastname = acc.Surname;
+            return new
+            {
+                orderDetail,
+                firstname,
+                lastname,
+            };
         }
 
         public async Task<object> CreatePaymentAsync(CreatePaymentRequest request)
