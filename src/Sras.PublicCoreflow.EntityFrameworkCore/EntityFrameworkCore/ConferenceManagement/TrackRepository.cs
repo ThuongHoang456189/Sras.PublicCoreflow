@@ -167,8 +167,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             // get confAccId
             var dbContext = await GetDbContextAsync();
-            var chair = dbContext.ConferenceRoles.Where(cr => cr.Name == "Chair").First();
-            var author = dbContext.ConferenceRoles.Where(cr => cr.Name == "Author").First();
+            var conferenceRoles = await dbContext.ConferenceRoles.ToListAsync();
+            var chair = conferenceRoles.Where(cr => cr.Name == "Chair").First();
+            var author = conferenceRoles.Where(cr => cr.Name == "Author").First();
+            var reviewer = conferenceRoles.Where(cr => cr.Name == "Reviewer").First();
+            var trackChair = conferenceRoles.Where(cr => cr.Name == "Track Chair").First();
             var confAccId = dbContext.ConferenceAccounts.Where(c => c.AccountId == userId && c.ConferenceId == conferenceId).First().Id;
             var defaultSubRoles = new List<object> { };
             defaultSubRoles.Add(new // default author
@@ -176,7 +179,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 id = author.Id,
                 name = author.Name,
             });
-            var allTrackOfConference = DbContext.Tracks.Where(t => t.ConferenceId == conferenceId).Select(tt => tt.Id).ToList();
+            if (haveReviewerRole(confAccId, conferenceRoles).Result)
+            {
+                defaultSubRoles.Add(new // default reviewer
+                {
+                    id = reviewer.Id,
+                    name = reviewer.Name,
+                });
+            }
             if (isChairInConference(confAccId).Result)
             {
                 defaultSubRoles.Add(new // if user is chair always have chair role in subroles
@@ -201,25 +211,29 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 {
                     subRoles = defaultSubRoles;
                     if (group.Where(g => g.ConferenceRole.Id == author.Id).Count() > 0) subRoles.RemoveAt(0);
+                    if (group.Where(g => g.ConferenceRole.Id == reviewer.Id).Count() > 0) subRoles.RemoveAt(0);
                     subRoles.AddRange(group.OrderBy(g => g.ConferenceRole.Factor).Select(inc => new
                     {
                         id = inc.ConferenceRole.Id,
                         name = inc.ConferenceRole.Name,
                     }).ToList());
-                    roles.Add(new
+                    
+                    if (group.Any(g => g.ConferenceRoleId == trackChair.Id)) {
+                        roles.Add(new
+                        {
+                            trackId = group.Key,
+                            subRoles = subRoles
+                        });
+                    } else
                     {
-                        trackId = group.Key,
-                        subRoles = subRoles
-                    });
-                    listTrackIdInTracks.Add((Guid)group.Key);
+                        roles.Add(new
+                        {
+                            trackId = (string)null,
+                            subRoles = subRoles
+                        });
+                    }
                 }
             }
-
-            //allTrackOfConference.Except(listTrackIdInTracks).ToList().ForEach(t =>
-            //{
-            //    subRoles = defaultSubRoles;
-                
-            //});
 
             return new {
                 myConferences = GetMyConference(userId).Result,
@@ -325,6 +339,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = await GetDbContextAsync();
             var chairId = dbContext.ConferenceRoles.Where(cr => cr.Name == "Chair").First().Id;
             return dbContext.Incumbents.Where(i => i.ConferenceRoleId == chairId && i.ConferenceAccountId == conAccId).Count() > 0;
+        }
+
+        private async Task<bool> haveReviewerRole(Guid confAccId, List<ConferenceRole> conferenceRoles)
+        {
+            var dbContext = await GetDbContextAsync();
+            var reviwerId = conferenceRoles.Where(cr => cr.Name == "Reviewer").First().Id;
+            return dbContext.Incumbents.Where(i => i.ConferenceAccountId == confAccId)
+                .Any(i => i.ConferenceRoleId == reviwerId);
         }
 
     }
