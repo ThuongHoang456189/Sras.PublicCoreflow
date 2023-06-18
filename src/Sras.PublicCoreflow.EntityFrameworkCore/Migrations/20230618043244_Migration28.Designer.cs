@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230618043244_Migration28")]
+    partial class Migration28
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2448,10 +2451,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("RootFilePath")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
-
-                    b.Property<string>("TempFilePath")
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 

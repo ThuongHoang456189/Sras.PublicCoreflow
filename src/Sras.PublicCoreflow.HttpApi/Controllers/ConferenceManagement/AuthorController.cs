@@ -32,5 +32,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _authorAppService.GetListAuthorAggregation(accountId, conferenceId, 
                 sorting ?? AuthorConsts.DefaultSorting, skipCount ?? 0, maxResultCount ?? AuthorConsts.DefaultMaxResultCount);
         }
+
+        //[HttpGet("testsp")]
+        //public async Task<IActionResult> TestSPAsync()
+        //{
+        //    await _authorAppService.TestSPAsync();
+        //    return Ok("Hello");
+        //}
     }
 }

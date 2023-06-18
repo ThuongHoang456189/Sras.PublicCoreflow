@@ -82,6 +82,9 @@ public class PublicCoreflowDbContext :
     public DbSet<CameraReady> CameraReadies { get; set; }
     public DbSet<Registration> Registrations { get; set; }
     public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
+    public DbSet<WebTemplate> WebTemplates { get; set; }
+    public DbSet<Website> Websites { get; set; }
+    //public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -458,5 +461,37 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.RootPresentationFilePath)
             .HasMaxLength(RegistrationPaperConsts.MaxRootPresentationFilePathLength);
         });
+
+        builder.Entity<WebTemplate>(b =>
+        {
+            b.ToTable("WebTemplates", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootFilePath)
+            .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+        });
+
+        builder.Entity<Website>(b =>
+        {
+            b.ToTable("Websites", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.NavBar)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
+
+            b.Property(x => x.Pages)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
+
+            b.Property(x => x.RootFilePath)
+            .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+
+            b.Property(x => x.TempFilePath)
+            .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+        });
+
+        //builder.Entity<SubmissionAggregationSP>(b =>
+        //{
+        //    b.HasNoKey();
+        //});
     }
 }

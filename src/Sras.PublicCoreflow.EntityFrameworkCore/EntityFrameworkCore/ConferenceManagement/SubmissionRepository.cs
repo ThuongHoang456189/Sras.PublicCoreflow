@@ -15,6 +15,7 @@ using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -458,6 +459,19 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return result;
         }
 
+        private class SubmissionProjection
+        {
+            public Guid Id { get; set; }
+            public string Title { get; set; } = string.Empty;
+            public string Abstract { get; set; } = string.Empty;
+            public Guid TrackId { get; set; }
+            public Guid StatusId { get; set; }
+            public bool IsRequestedForCameraReady { get; set; }
+            public bool IsRequestedForPresentation { get; set; }
+            public DateTime CreationTime { get; set; }
+            public DateTime? LastModificationTime { get; set; }
+        }
+
         public async Task<List<SubmissionAggregation>> GetListSubmissionAggregation(
             Guid conferenceId,
             Guid? trackId = null,
@@ -467,27 +481,62 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
 
-            // Check valid conferenceId
-            var conference = await dbContext.Set<Conference>().FindAsync(conferenceId);
-            if (conference == null)
+            if (!await dbContext.Set<Conference>().AnyAsync(x => x.Id == conferenceId))
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
 
-            // Check valid trackId optional
-            if(trackId != null)
+            IQueryable< SubmissionProjection> submissionQueryable;
+            if (trackId != null)
             {
-                var track = await dbContext.Set<Track>().FindAsync(trackId);
-                if (track == null)
+                if (!await dbContext.Set<Track>().AnyAsync(x => x.Id == trackId))
                     throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                submissionQueryable = (from s in dbContext.Set<Submission>()
+                                    where s.TrackId == trackId
+                                    select new SubmissionProjection
+                                    {
+                                        Id = s.Id,
+                                        Title = s.Title,
+                                        Abstract = s.Abstract,
+                                        TrackId = s.TrackId,
+                                        StatusId = s.StatusId,
+                                        IsRequestedForCameraReady = s.IsRequestedForCameraReady,
+                                        IsRequestedForPresentation = s.IsRequestedForPresentation,
+                                        CreationTime = s.CreationTime,
+                                        LastModificationTime = s.LastModificationTime
+                                    })
+                                    .OrderByDescending(x => x.LastModificationTime ??  DateTime.MinValue)
+                                    .ThenByDescending(x => x.CreationTime)
+                                    .PageBy(skipCount, maxResultCount);
+            }
+            else
+            {
+                var conferenceTrackQueryable = (from t in dbContext.Set<Track>()
+                                                where t.ConferenceId == conferenceId
+                                                select new
+                                                {
+                                                    Id = t.Id
+                                                });
+
+                submissionQueryable = (from s in dbContext.Set<Submission>()
+                                       join t in conferenceTrackQueryable on s.TrackId equals t.Id
+                                       select new SubmissionProjection
+                                       {
+                                           Id = s.Id,
+                                           Title = s.Title,
+                                           Abstract = s.Abstract,
+                                           TrackId = s.TrackId,
+                                           StatusId = s.StatusId,
+                                           IsRequestedForCameraReady = s.IsRequestedForCameraReady,
+                                           IsRequestedForPresentation = s.IsRequestedForPresentation,
+                                           CreationTime = s.CreationTime,
+                                           LastModificationTime = s.LastModificationTime
+                                       })
+                                    .OrderByDescending(x => x.LastModificationTime ?? DateTime.MinValue)
+                                    .ThenByDescending(x => x.CreationTime)
+                                    .PageBy(skipCount, maxResultCount);
             }
 
-            var submissionList = await (from t in dbContext.Set<Track>()
-                                       join s in dbContext.Set<Submission>() on t.Id equals s.TrackId
-                                       join c in dbContext.Set<Conference>() on t.ConferenceId equals c.Id
-                                       select s)
-                                       .WhereIf(trackId != null, x => x.TrackId == trackId)
-                                       .OrderBy(sorting)
-                                       .PageBy(skipCount, maxResultCount)
-                                       .ToListAsync();
+            var submissionList = await submissionQueryable.ToListAsync();
 
             List<SubmissionAggregation> result = new List<SubmissionAggregation>();
 
@@ -501,7 +550,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                 var authorList = (from a in dbContext.Set<Author>()
                                   where a.SubmissionId == x.Id
-                                  select a).ToList();
+                                  select new
+                                  {
+                                      Id = a.Id,
+                                      IsPrimaryContact = a.IsPrimaryContact,
+                                      ParticipantId = a.ParticipantId,
+                                  }).ToList();
                 List<AuthorBriefInfo> authors = new List<AuthorBriefInfo>();
                 int numberOfUnregisteredAuthors = 0;
                 authorList.ForEach(y =>
@@ -529,7 +583,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         }
                         else if (participant.OutsiderId != null)
                         {
-                            var outsider = dbContext.Set<Outsider>().Find(participant.OutsiderId);
+                            var outsider = dbContext.Set<Outsider>()
+                                            .Where(o => o.Id == participant.OutsiderId)
+                                            .Select(o => new {o.FirstName, o.MiddleName, o.LastName, o.Email}).SingleOrDefault();
                             if (outsider != null)
                             {
                                 author.FirstName = outsider.FirstName;
@@ -557,7 +613,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     submission.NumberOfSubmissionFiles = 0;
                 }
 
-                var submissionSubjectAreaQueryable = (from ssa in dbContext.Set<SubmissionSubjectArea>() select ssa)
+                var submissionSubjectAreaQueryable = (from ssa in dbContext.Set<SubmissionSubjectArea>() select new
+                                                    {
+                                                        SubmissionId = ssa.SubmissionId,
+                                                        SubjectAreaId = ssa.SubjectAreaId,
+                                                        IsPrimary = ssa.IsPrimary
+                                                    })
                                                      .Where(y => y.SubmissionId == x.Id);
                 var submissionSubjectAreas = (from ssa in submissionSubjectAreaQueryable
                                               join sa in dbContext.Set<SubjectArea>() on ssa.SubjectAreaId equals sa.Id
@@ -569,7 +630,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                               }).ToList();
                 submission.SubmissionSubjectAreas = submissionSubjectAreas;
 
-                var submissionTrack = dbContext.Set<Track>().Find(x.TrackId);
+                var submissionTrack = dbContext.Set<Track>().Where(t => t.Id == x.TrackId).Select(t => new {t.Id, t.Name, t.IsDefault}).SingleOrDefault();
                 if (submissionTrack != null)
                 {
                     var t = new TrackBriefInfo(submissionTrack.Id, submissionTrack.Name);
@@ -581,7 +642,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 submission.ChairNoteId = null;
 
                 var conflictList = (from c in dbContext.Set<Conflict>()
-                                    select c).Where(y => y.SubmissionId == x.Id).ToList();
+                                    select new { IncumbentId = c.IncumbentId, SubmissionId = c.SubmissionId })
+                                    .Where(y => y.SubmissionId == x.Id).ToList();
                 var conflictedReviewerList = new List<Guid>();
                 conflictList.ForEach(y =>
                 {
@@ -600,9 +662,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 submission.NumberOfDisputedConflicts = 0;
 
                 var lastCloneSubmission = (from c in dbContext.Set<SubmissionClone>()
-                                           select c)
-                                                    .Where(y => y.SubmissionId == x.Id && y.IsLast)
-                                                    .SingleOrDefault();
+                                           select new
+                                           {
+                                               Id = c.Id,
+                                               SubmissionId = c.SubmissionId,
+                                               IsLast = c.IsLast,
+                                           })
+                                           .Where(y => y.SubmissionId == x.Id && y.IsLast)
+                                           .SingleOrDefault();
 
                 var reviewerList = (from r in dbContext.Set<Reviewer>()
                                     join ra in dbContext.Set<ReviewAssignment>() on r.Id equals ra.ReviewerId
@@ -650,7 +717,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 submission.NumberOfAssignment = reviewers.Count;
                 submission.NumberOfCompletedReviews = numberOfCompletedReviews;
 
-                var status = dbContext.Set<PaperStatus>().Find(x.StatusId);
+                var status = dbContext.Set<PaperStatus>().Where(y => y.Id == x.StatusId).Select(y => new {y.Name}).SingleOrDefault();
                 submission.Status = status?.Name;
 
                 var revision = dbContext.Set<Revision>().Find(lastCloneSubmission?.Id);
