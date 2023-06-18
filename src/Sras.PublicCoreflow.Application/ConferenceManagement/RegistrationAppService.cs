@@ -153,7 +153,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 mainPaper.Amount++;
                 mainPaper.Subtotal = mainPaper.Amount * mainPaper.Price;
-                order.Total += mainPaper.Subtotal;
+
                 if (!hasMainPaper)
                 {
                     hasMainPaper = true;
@@ -171,7 +171,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     {
                         extraPage.Amount += x.MainPaper.NumberOfExtraPages.Value;
                         extraPage.Subtotal = extraPage.Amount * extraPage.Price;
-                        order.Total += extraPage.Subtotal;
 
                         if (!hasExtraPage)
                         {
@@ -190,7 +189,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     case 1:
                         oneExtraPaper.Amount++;
                         oneExtraPaper.Subtotal = oneExtraPaper.Amount * oneExtraPaper.Price;
-                        order.Total += oneExtraPaper.Subtotal;
 
                         if (!hasOneExtraPaper)
                         {
@@ -201,7 +199,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     case 2:
                         twoExtraPaper.Amount++;
                         twoExtraPaper.Subtotal = twoExtraPaper.Amount * twoExtraPaper.Price;
-                        order.Total += twoExtraPaper.Subtotal;
 
                         if (!hasTwoExtraPaper)
                         {
@@ -230,7 +227,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         {
                             extraPage.Amount += y.NumberOfExtraPages.Value;
                             extraPage.Subtotal = extraPage.Amount * extraPage.Price;
-                            order.Total += extraPage.Subtotal;
+                            //order.Total += extraPage.Subtotal;
 
                             if (!hasExtraPage)
                             {
@@ -244,14 +241,26 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             try
             {
                 if (hasMainPaper)
+                {
                     order.Details.Add(mainPaper);
+                    order.Total += mainPaper.Subtotal;
+                }
                 if (hasExtraPage)
+                {
                     order.Details.Add(extraPage);
+                    order.Total += extraPage.Subtotal;
+                }
                 if (hasOneExtraPaper)
+                {
                     order.Details.Add(oneExtraPaper);
+                    order.Total += oneExtraPaper.Subtotal;
+                }
                 if (hasTwoExtraPaper)
+                {
                     order.Details.Add(twoExtraPaper);
-
+                    order.Total += twoExtraPaper.Subtotal;
+                }
+                    
                 var t = await _registrationRepository.InsertAsync(newRegistration);
 
                 var totalWholeAmount = (int)Math.Truncate(order.Total);
