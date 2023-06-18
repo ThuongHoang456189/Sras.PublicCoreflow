@@ -176,7 +176,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 id = author.Id,
                 name = author.Name,
             });
-
+            var allTrackOfConference = DbContext.Tracks.Where(t => t.ConferenceId == conferenceId).Select(tt => tt.Id).ToList();
             if (isChairInConference(confAccId).Result)
             {
                 defaultSubRoles.Add(new // if user is chair always have chair role in subroles
@@ -188,11 +188,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             var tracks = dbContext.Incumbents.Include(i => i.Track).Include(ii => ii.ConferenceRole)
                 .Where(i => i.ConferenceAccountId == confAccId)
+                .Where(ii => ii.TrackId != null)
                 .GroupBy(i => i.TrackId);
-
+            
             var roles = new List<object>(){ };
             var subRoles = new List<object>() { };
-            IEnumerable<Incumbent> groupWithAuthor = null;
+            var listTrackIdInTracks = new List<Guid>() { };
             foreach (var group in tracks)
             {
 
@@ -210,8 +211,15 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         trackId = group.Key,
                         subRoles = subRoles
                     });
+                    listTrackIdInTracks.Add((Guid)group.Key);
                 }
             }
+
+            //allTrackOfConference.Except(listTrackIdInTracks).ToList().ForEach(t =>
+            //{
+            //    subRoles = defaultSubRoles;
+                
+            //});
 
             return new {
                 myConferences = GetMyConference(userId).Result,
