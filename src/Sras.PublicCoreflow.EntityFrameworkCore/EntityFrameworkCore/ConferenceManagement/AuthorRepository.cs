@@ -7,6 +7,7 @@ using Volo.Abp.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using Volo.Abp.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -85,5 +86,15 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                       NotifiedStatusName = status.Name
                                   }).ToList();
         }
+
+        //public async Task TestSPAsync()
+        //{
+        //    var dbContext = await GetDbContextAsync();
+
+        //    var sps = await dbContext.Set<SubmissionAggregationSP>().FromSqlRaw("EXECUTE [dbo].[GetSubmissionAggregation]").ToListAsync();
+
+        //    var temp = "Hello";
+        //    Console.WriteLine(temp);
+        //}
     }
 }
