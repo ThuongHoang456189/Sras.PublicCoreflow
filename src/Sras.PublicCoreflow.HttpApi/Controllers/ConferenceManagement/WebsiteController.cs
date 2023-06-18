@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,19 +27,55 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         [HttpPost("web-template")]
         public async Task<object> CreateWebTemplate([FromBody]string rootFilePath)
         {
-            return await _websiteAppService.CreateWebtemplate(rootFilePath);
+            try
+            {
+                var result = await _websiteAppService.CreateWebtemplate(rootFilePath);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("{conferenceId}/{webTemplateId}")]
         public async Task<object> CreateWebsite(Guid webTemplateId, Guid conferenceId)
         {
-            return await _websiteAppService.CreateWebsite(webTemplateId, conferenceId);
+            try
+            {
+                var result = await _websiteAppService.CreateWebsite(webTemplateId, conferenceId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{conferenceId}")]
-        public async Task<object> GetNavbarOfWebsite(Guid conferenceId)
+        public async Task<ActionResult<object>> GetNavbarOfWebsite(Guid conferenceId)
         {
-            return await _websiteAppService.getNavbarByConferenceId(conferenceId);
+            try
+            {
+                var result = await _websiteAppService.getNavbarByConferenceId(conferenceId);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{conferenceId}/navbar")]
+        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, [FromBody]NavbarDTO navbarDTO)
+        {
+            try
+            {
+                var result = await _websiteAppService.UpdateNavbarByConferenceId(conferenceId, navbarDTO);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

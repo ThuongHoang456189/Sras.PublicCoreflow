@@ -1,4 +1,5 @@
 ﻿using AutoMapper.Internal.Mappers;
+using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId)
         {
             return await _websiteRepository.CreateWebsite(webtemplateId, conferenceId);
+        }
+
+        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, NavbarDTO navbarDTO)
+        {
+            return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, navbarDTO);
         }
 
     }

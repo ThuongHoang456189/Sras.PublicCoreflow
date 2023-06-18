@@ -36,16 +36,24 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var navbarJson = website.NavBar;
             if (navbarJson != null)
             {
-                return JsonSerializer.Deserialize<NavbarDTO>(navbarJson);
+                return new
+                {
+                    conferenceName = dbContext.Conferences.FindAsync(conferenceId).Result.FullName,
+                    navbar = JsonSerializer.Deserialize<NavbarDTO>(navbarJson).navbar
+                };
             } else
             {
-                var navbar = new NavbarDTO()
+                NavbarDTO navbar = new NavbarDTO()
                 {
                     navbar = new List<ParentNavbarDTO> { }
                 };
                 website.NavBar = JsonSerializer.Serialize<NavbarDTO>(navbar);
                 await dbContext.SaveChangesAsync();
-                return navbar;
+                return new
+                {
+                    conferenceName = dbContext.Conferences.FindAsync(conferenceId).Result.FullName,
+                    navbar.navbar
+                };
             }
         }
 
@@ -79,6 +87,23 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 websiteId = w.Id,
                 websiteNavbar = w.NavBar,
                 webTemplateId = w.WebTemplateId
+            }).First();
+        }
+
+        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, NavbarDTO navbarDTO)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (!dbContext.Conferences.Any(w => w.Id == conferenceId)) throw new Exception("ConferenceId is not existing");
+            if (!dbContext.Websites.Any(w => w.Id == conferenceId)) throw new Exception("Website of conferenceId is not existing");
+            var navbarString = JsonSerializer.Serialize<NavbarDTO>(navbarDTO);
+            var oldWebsite = dbContext.Websites.FindAsync(conferenceId).Result;
+            oldWebsite.NavBar = navbarString;
+
+            await dbContext.SaveChangesAsync();
+            return dbContext.Websites.Where(w => w.Id == conferenceId).Select(w => new
+            {
+                Id = w.Id,
+                navbar = w.NavBar
             }).First();
         }
 
