@@ -20,5 +20,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return new PagedResultDto<AuthorSubmission>(count, items);
         }
+
+        //public async Task TestSPAsync()
+        //{
+        //    await _authorRepository.TestSPAsync();
+        //}
     }
 }
