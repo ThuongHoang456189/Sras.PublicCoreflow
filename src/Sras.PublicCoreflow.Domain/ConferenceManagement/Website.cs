@@ -14,7 +14,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? RootFilePath { get; set; } // Location of parent folder for files to finally export
         public string? TempFilePath { get; set; } // Location of parent folder for temp files to load into text editor
         public Guid WebTemplateId { get; private set; }
-        public WebTemplate WebTemplate { get; private set; }
+        public WebTemplate WebTemplate { get; set; }
 
         public Website(Guid id, string? navBar, string? pages, string? rootFilePath, string? tempFilePath, Guid webTemplateId) : base(id) 
         {
