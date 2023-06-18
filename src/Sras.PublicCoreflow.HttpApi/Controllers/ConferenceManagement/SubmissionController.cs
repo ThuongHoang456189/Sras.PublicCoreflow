@@ -117,18 +117,5 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return Ok(await _submissionAppService.RequestCameraReady(id, isCameraReadyRequested));
         }
-
-        [HttpDelete]
-        public async Task<object> DeleteSubmission(Guid submissionId)
-        {
-            try
-            {
-                var result = _submissionAppService.DeleteSubmission(submissionId);
-                return Ok(result);
-            } catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
     }
 }

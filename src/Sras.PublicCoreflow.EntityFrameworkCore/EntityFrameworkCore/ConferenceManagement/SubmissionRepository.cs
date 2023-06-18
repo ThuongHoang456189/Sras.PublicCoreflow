@@ -805,21 +805,5 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .ThenInclude(x => x.Reviews)
                 .Include(x => x.CameraReadies);
         }
-
-        public async Task<string> DeleteSubmission(Guid submissionId)
-        {
-            var dbCotext = await GetDbContextAsync();
-            var submission = await dbCotext.Submissions.FindAsync(submissionId);
-            if (submission != null)
-            {
-                dbCotext.Submissions.Remove(submission);
-                dbCotext.SaveChanges();
-                return "success";
-            } else
-            {
-                throw new Exception("The submissionId is not existing");
-            }
-        }
-
     }
 }
