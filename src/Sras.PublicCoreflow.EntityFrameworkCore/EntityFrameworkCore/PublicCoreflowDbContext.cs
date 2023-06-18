@@ -84,7 +84,7 @@ public class PublicCoreflowDbContext :
     public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
     public DbSet<WebTemplate> WebTemplates { get; set; }
     public DbSet<Website> Websites { get; set; }
-    //public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
+    public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -489,9 +489,9 @@ public class PublicCoreflowDbContext :
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
         });
 
-        //builder.Entity<SubmissionAggregationSP>(b =>
-        //{
-        //    b.HasNoKey();
-        //});
+        builder.Entity<SubmissionAggregationSP>(b =>
+        {
+            b.HasNoKey();
+        });
     }
 }
