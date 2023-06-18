@@ -484,6 +484,9 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+
+            b.Property(x => x.TempFilePath)
+            .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
         });
 
         //builder.Entity<SubmissionAggregationSP>(b =>
