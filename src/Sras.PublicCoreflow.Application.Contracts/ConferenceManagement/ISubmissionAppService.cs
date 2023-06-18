@@ -23,5 +23,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);
         Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested);
+        Task<ResponseDto> DeleteSubmission(Guid submissionId);
     }
 }

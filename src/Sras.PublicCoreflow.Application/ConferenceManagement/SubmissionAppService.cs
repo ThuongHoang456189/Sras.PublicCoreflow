@@ -647,5 +647,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return response;
         }
+
+        public async Task<ResponseDto> DeleteSubmission(Guid submissionId)
+        {
+            try
+            {
+                await _submissionRepository.DeleteAsync(submissionId);
+                return new ResponseDto()
+                {
+                    IsSuccess = true,
+                    Message = "success"
+                };
+            } catch (Exception e)
+            {
+                throw new Exception("Delete");
+            }
+        }
     }
 }
