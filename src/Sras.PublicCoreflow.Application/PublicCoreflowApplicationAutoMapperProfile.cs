@@ -22,5 +22,20 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(i => i.Surname));
         CreateMap<Track, TrackBriefInfo>();
         CreateMap<SubjectArea, SubjectAreaBriefInfo>();
+        CreateMap<SubmissionAggregationSP, SubmissionAggregationDto>()
+            .ForMember(sd => sd.IsRevisionSubmitted,
+            opt => opt.MapFrom(sp => sp.RevisionSubId != null))
+            .ForMember(sd => sd.IsCameraReadySubmitted,
+            opt => opt.MapFrom(sp => sp.CameraReadySubId != null))
+            .ForMember(sd => sd.SubmissionConflicts,
+            opt => opt.MapFrom(sp => sp.SubmissionConflicts == null ? 0 : sp.SubmissionConflicts))
+            .ForMember(sd => sd.ReviewerConflicts,
+            opt => opt.MapFrom(sp => sp.ReviewerConflicts == null ? 0 : sp.ReviewerConflicts))
+            .ForMember(sd => sd.Assigned,
+            opt => opt.MapFrom(sp => sp.Assigned == null ? 0 : sp.Assigned))
+            .ForMember(sd => sd.Reviewed,
+            opt => opt.MapFrom(sp => sp.Reviewed == null ? 0 : sp.Reviewed))
+            .ForMember(sd => sd.AverageScore,
+            opt => opt.MapFrom(sp => sp.AverageScore == null ? 0 : sp.AverageScore));
     }
 }

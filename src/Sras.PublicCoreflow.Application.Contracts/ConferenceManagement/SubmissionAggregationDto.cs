@@ -2,9 +2,8 @@
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class SubmissionAggregationSP
+    public class SubmissionAggregationDto
     {
-        public int? TotalCount { get; set; }
         public Guid? Id { get; set; }
         public string? Title { get; set; }
         public string? Authors { get; set; }
@@ -19,9 +18,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Guid? StatusId { get; set; }
         public string? Status { get; set; }
         public int? CloneNo { get; set; }
-        public Guid? RevisionSubId { get; set; }
+        public bool? IsRevisionSubmitted { get; set; }
         public bool? IsRequestedForCameraReady { get; set; }
-        public Guid? CameraReadySubId { get; set; }
+        public bool? IsCameraReadySubmitted { get; set; }
         public bool? IsRequestedForPresentation { get; set; }
     }
 }
