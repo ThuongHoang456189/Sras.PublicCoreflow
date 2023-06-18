@@ -84,53 +84,140 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .Include(x => x.SubjectAreas);
         }
 
-        public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string roleName)
+        //public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId, string roleName)
+        //{
+        //    var dbContext = await GetDbContextAsync();
+        //    if (roleName == null) roleName = "Track Chair";
+        //    //1(roleName = "track chair")[ConferenceRole] => confRoleId
+
+        //    if (!dbContext.ConferenceRoles.Any(cr => cr.Name == roleName)) throw new Exception("roleName : \"" + roleName + "\" is not exist");
+        //    var conferenceRoleId = dbContext.ConferenceRoles.Where(c => c.Name == roleName).First().Id;
+        //    //2(userId, conferenceId)[ConferenceAccount] => accConfId
+        //    var accConfId = dbContext.ConferenceAccounts.Where(ca => ca.AccountId == userId && ca.ConferenceId == conferenceId).First().Id;
+        //    //3(confRoleId, accConfId)[Incumbent] => TrackIds
+        //    var trackIds = dbContext.Incumbents.Where(i => i.ConferenceRoleId == conferenceRoleId && i.ConferenceAccountId == accConfId).Select(inc => inc.TrackId);
+        //    //4 TrackIds.Select(trackId => {
+        //    //    return {
+        //    //    trackId: trackId,
+        //    //		trackName: Tracks.Where(trackId).First(),
+        //    //		roles: (trackId, accConfId)[Incumbent] => Roles.Select => id,name
+        //    //    }
+        //    //})
+        //    //var DBTracks = await dbContext.Tracks.ToListAsync();
+        //    //var DBIncumbents = await dbContext.Incumbents.ToListAsync();
+        //    var tracks = trackIds.Select(tr => new
+        //    {
+        //        trackId = tr,
+        //        trackName = dbContext.Tracks.Where(t => t.Id == tr).First().Name,
+        //        roles = dbContext.Incumbents.Where(i => i.TrackId == tr && i.ConferenceAccountId == accConfId).OrderBy(incc => incc.ConferenceRole.Factor).Select(inc => new
+        //        {
+        //            id = inc.ConferenceRole.Id,
+        //            name = inc.ConferenceRole.Name
+        //        }).ToList()
+        //    }).ToList();
+        //    //5 Conference = Conferences.Where(conferenceId)
+        //    var conference = dbContext.Conferences.Where(c => c.Id == conferenceId).First();
+        //    if (conference == null) throw new Exception("ConferenceId Not Exist");
+        //    //6 myConferences: (userId)[ConferenceAccount] => ConferenceIds => Conferences => [{ id, name}]
+        //    var myConferences = dbContext.ConferenceAccounts.Where(ca => ca.AccountId == userId).Select(caa => new
+        //    {
+        //        id = caa.Conference.Id,
+        //        name = caa.Conference.FullName
+        //    }).ToList();
+
+        //    return new
+        //    {
+        //        tracks = tracks,
+        //        conferenceName = conference.FullName,
+        //        myConferences = myConferences,
+        //        isSingleTrack = conference.IsSingleTrack
+        //    };
+        //}
+        public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId) 
         {
-            var dbContext = await GetDbContextAsync();
-            if (roleName == null) roleName = "Track Chair";
-            //1(roleName = "track chair")[ConferenceRole] => confRoleId
-
-            if (!dbContext.ConferenceRoles.Any(cr => cr.Name == roleName)) throw new Exception("roleName : \"" + roleName + "\" is not exist");
-            var conferenceRoleId = dbContext.ConferenceRoles.Where(c => c.Name == roleName).First().Id;
-            //2(userId, conferenceId)[ConferenceAccount] => accConfId
-            var accConfId = dbContext.ConferenceAccounts.Where(ca => ca.AccountId == userId && ca.ConferenceId == conferenceId).First().Id;
-            //3(confRoleId, accConfId)[Incumbent] => TrackIds
-            var trackIds = dbContext.Incumbents.Where(i => i.ConferenceRoleId == conferenceRoleId && i.ConferenceAccountId == accConfId).Select(inc => inc.TrackId);
-            //4 TrackIds.Select(trackId => {
-            //    return {
-            //    trackId: trackId,
-            //		trackName: Tracks.Where(trackId).First(),
-            //		roles: (trackId, accConfId)[Incumbent] => Roles.Select => id,name
-            //    }
-            //})
-            //var DBTracks = await dbContext.Tracks.ToListAsync();
-            //var DBIncumbents = await dbContext.Incumbents.ToListAsync();
-            var tracks = trackIds.Select(tr => new
+            if (isUserJoinConference(userId, conferenceId).Result)
             {
-                trackId = tr,
-                trackName = dbContext.Tracks.Where(t => t.Id == tr).First().Name,
-                roles = dbContext.Incumbents.Where(i => i.TrackId == tr && i.ConferenceAccountId == accConfId).OrderBy(incc => incc.ConferenceRole.Factor).Select(inc => new
+                return GetTrackOfTrackChairAndSubRoleEachTrack(userId, conferenceId).Result;
+            } else
+            {
+                var dbContext = await GetDbContextAsync();
+                var Author = dbContext.ConferenceRoles.Where(cr => cr.Name == "Author").First();
+                var id = Author.Id;
+                var name = Author.Name;
+                return new
                 {
-                    id = inc.ConferenceRole.Id,
-                    name = inc.ConferenceRole.Name
-                }).ToList()
-            }).ToList();
-            //5 Conference = Conferences.Where(conferenceId)
-            var conference = dbContext.Conferences.Where(c => c.Id == conferenceId).First();
-            if (conference == null) throw new Exception("ConferenceId Not Exist");
-            //6 myConferences: (userId)[ConferenceAccount] => ConferenceIds => Conferences => [{ id, name}]
-            var myConferences = dbContext.ConferenceAccounts.Where(ca => ca.AccountId == userId).Select(caa => new
-            {
-                id = caa.Conference.Id,
-                name = caa.Conference.FullName
-            }).ToList();
+                    myConferences = GetMyConference(userId),
+                    tracks = new List<object> { },
+                    roles = new List<object> {
+                        new {
+                            trackId = (string) null,
+                            subRoles = new List<object> { 
+                                new {
+                                    id,
+                                    name 
+                                }
+                            },
+                        }, 
+                    },
+                };
+            }
+        }
 
-            return new
+        public async Task<object> GetTrackOfTrackChairAndSubRoleEachTrack(Guid userId, Guid conferenceId)
+        {
+            // get confAccId
+            var dbContext = await GetDbContextAsync();
+            var chair = dbContext.ConferenceRoles.Where(cr => cr.Name == "Chair").First();
+            var author = dbContext.ConferenceRoles.Where(cr => cr.Name == "Author").First();
+            var confAccId = dbContext.ConferenceAccounts.Where(c => c.AccountId == userId && c.ConferenceId == conferenceId).First().Id;
+            var defaultSubRoles = new List<object> { };
+            defaultSubRoles.Add(new // default author
             {
-                tracks = tracks,
-                conferenceName = conference.FullName,
-                myConferences = myConferences,
-                isSingleTrack = conference.IsSingleTrack
+                id = author.Id,
+                name = author.Name,
+            });
+
+            if (isChairInConference(confAccId).Result)
+            {
+                defaultSubRoles.Add(new // if user is chair always have chair role in subroles
+                {
+                    id = chair.Id,
+                    name = chair.Name,
+                });
+            }
+
+            var tracks = dbContext.Incumbents.Include(i => i.Track).Include(ii => ii.ConferenceRole)
+                .Where(i => i.ConferenceAccountId == confAccId)
+                .GroupBy(i => i.TrackId);
+
+            var roles = new List<object>(){ };
+            var subRoles = new List<object>() { };
+            IEnumerable<Incumbent> groupWithAuthor = null;
+            foreach (var group in tracks)
+            {
+
+                if (group.Key != null)
+                {
+                    subRoles = defaultSubRoles;
+                    if (group.Where(g => g.ConferenceRole.Id == author.Id).Count() > 0) subRoles.RemoveAt(0);
+                    subRoles.AddRange(group.OrderBy(g => g.ConferenceRole.Factor).Select(inc => new
+                    {
+                        id = inc.ConferenceRole.Id,
+                        name = inc.ConferenceRole.Name,
+                    }).ToList());
+                    roles.Add(new
+                    {
+                        trackId = group.Key,
+                        subRoles = subRoles
+                    });
+                }
+            }
+
+            return new {
+                myConferences = GetMyConference(userId).Result,
+                tracks = getTrackHaveTrackChairRole(confAccId).Result,
+                roles,
+                isSingleTrack = isSingleTrack(conferenceId).Result
             };
         }
 
@@ -186,12 +273,50 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             };
         }
 
-        public async Task<bool> isChairOfConference(Guid userId, Guid conferenceId)
+
+        private async Task<bool> isUserJoinConference(Guid userId, Guid conferenceId)
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.ConferenceAccounts.Include(ca => ca.Incumbents)
                 .Where(ca => ca.AccountId == userId && ca.ConferenceId == conferenceId)
-                .First().Incumbents.Any(i => i.TrackId == null);
+                .First().Incumbents.Count() > 0;
+
+        }
+
+        private async Task<IEnumerable<object>> GetMyConference(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.ConferenceAccounts.Include(ca => ca.Conference).Where(ca => ca.AccountId == userId)
+                .Select(ca => new
+                {
+                    id = ca.ConferenceId,
+                    name = ca.Conference.FullName
+                }).ToList();
+        }
+
+        private async Task<IEnumerable<object>> getTrackHaveTrackChairRole(Guid conAccId)
+        {
+            var dbContext = await GetDbContextAsync();
+            var trackChairRoleId = dbContext.ConferenceRoles.Where(cr => cr.Name == "Track Chair").First().Id;
+            return dbContext.Incumbents.Include(i => i.Track).Where(i => i.ConferenceAccountId == conAccId && i.ConferenceRoleId == trackChairRoleId)
+                .Select(ii => new
+                {
+                    id = ii.Track.Id,
+                    name = ii.Track.Name
+                }).ToList();
+        }
+
+        private async Task<bool> isSingleTrack(Guid conferenceId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Conferences.Where(c => c.Id == conferenceId).First().IsSingleTrack;
+        }
+
+        private async Task<bool> isChairInConference(Guid conAccId) 
+        {
+            var dbContext = await GetDbContextAsync();
+            var chairId = dbContext.ConferenceRoles.Where(cr => cr.Name == "Chair").First().Id;
+            return dbContext.Incumbents.Where(i => i.ConferenceRoleId == chairId && i.ConferenceAccountId == conAccId).Count() > 0;
         }
 
     }
