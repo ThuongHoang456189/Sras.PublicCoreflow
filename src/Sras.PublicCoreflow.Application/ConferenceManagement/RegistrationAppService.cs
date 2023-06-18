@@ -227,7 +227,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         {
                             extraPage.Amount += y.NumberOfExtraPages.Value;
                             extraPage.Subtotal = extraPage.Amount * extraPage.Price;
-                            //order.Total += extraPage.Subtotal;
 
                             if (!hasExtraPage)
                             {
