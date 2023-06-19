@@ -94,7 +94,7 @@ namespace Sras.PublicCoreflow.Migrations
 				lower(sbjarea.SubjectAreas) like '%'+@InclusionText+'%'))
 				) as ssstt
 
-				select @TotalCount as 'TotalCount', ssstt.Id, ssstt.Title, ssstt.Authors, ssstt.SubjectAreas, ssstt.TrackId, ssstt.TrackName, 
+				select ssstt.Id, ssstt.Title, ssstt.Authors, ssstt.SubjectAreas, ssstt.TrackId, ssstt.TrackName, 
 				subcfcount.SubmissionConflicts, revcfcount.ReviewerConflicts,
 				asgcount.Assigned, revcount.Reviewed, revcount.AverageScore, 
 				ssstt.StatusId, ssstt.Status,

@@ -10,8 +10,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<object> CreateTrackAsync(Guid conferenceId, string name);
         Task<object> GetAllTrackByConferenceId(Guid conferenceId);
-        Task<object> GetTrackOfTrackChairAndSubRoleEachTrack(Guid userId, Guid conferenceId);
-        Task<object> GetTracksAndRoleOfChair(Guid userId, Guid conferenceId);
         Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId);
     }
 }
