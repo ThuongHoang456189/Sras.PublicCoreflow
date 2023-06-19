@@ -100,11 +100,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             oldWebsite.NavBar = navbarString;
 
             await dbContext.SaveChangesAsync();
-            return dbContext.Websites.Where(w => w.Id == conferenceId).Select(w => new
+            var result = dbContext.Websites.Where(w => w.Id == conferenceId).First(); 
+            return new
             {
-                Id = w.Id,
-                navbar = w.NavBar
-            }).First();
+                Id = result.Id,
+                navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar).navbar
+            };
         }
 
     }
