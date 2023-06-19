@@ -117,11 +117,5 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return Ok(await _submissionAppService.RequestCameraReady(id, isCameraReadyRequested));
         }
-
-        [HttpGet("sp-aggregation")]
-        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
-        {
-            return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
-        }
     }
 }

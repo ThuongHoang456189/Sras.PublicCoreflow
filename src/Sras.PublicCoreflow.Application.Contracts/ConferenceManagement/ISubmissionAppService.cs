@@ -23,13 +23,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);
         Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested);
-        Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(
-            string? inclusionText,
-            Guid conferenceId,
-            Guid? trackId,
-            Guid? statusId,
-            int skipCount,
-            int maxResultCount
-        );
     }
 }

@@ -23,15 +23,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             int skipCount = 0,
             int maxResultCount = SubmissionConsts.DefaultMaxResultCount);
 
-        Task<List<SubmissionAggregationSP>> GetListSubmissionAggregationSP(
-            string? inclusionText,
-            Guid conferenceId,
-            Guid? trackId,
-            Guid? statusId,
-            int skipCount,
-            int maxResultCount
-        );
-
         Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid conferenceId, Guid accountId);
     }
 }
