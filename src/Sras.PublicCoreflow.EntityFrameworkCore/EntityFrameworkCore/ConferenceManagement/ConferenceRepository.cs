@@ -9,6 +9,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Identity;
 using System.Linq.Dynamic.Core;
+using System.Runtime.CompilerServices;
+using System.Diagnostics.Metrics;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -203,6 +205,27 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 throw new Exception("[ERROR][GetNumberOfSubmission] " + ex.Message, ex);
             }
+        }
+
+        public async Task<object> GetConferenceDetail(Guid conferenceId)
+        {
+            var dbContext = await GetDbContextAsync();
+            var c = dbContext.Conferences.Where(c => c.Id == conferenceId).First(); 
+            return new
+            {
+                fullName = c.FullName,
+                city = c.City,
+                country = c.Country,
+                startDate = c.StartDate,
+                endDate = c.EndDate,
+                logo = c.Logo,
+            };
+        }
+
+        public async Task<object> GetConferenceAccountByAccIdConfId(Guid accId,  Guid conferenceId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.ConferenceAccounts.Where(c => c.ConferenceId == conferenceId && c.AccountId == accId).First();
         }
     }
 }

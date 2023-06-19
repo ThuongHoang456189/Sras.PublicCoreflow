@@ -80,5 +80,25 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _registrationAppService.GetRegistrablePaperTable(id, accountId);
         }
+
+        [HttpGet("{conferenceId}/detail")]
+        public async Task<ActionResult<object>> GetConferenceDetail(Guid conferenceId)
+        {
+            try
+            {
+                var result = await _conferenceService.GetConferenceDetail(conferenceId);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("ConferenceAccount/{accId}/{conferenceId}")]
+        public async Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId)
+        {
+            return await _conferenceService.GetConferenceAccountByAccIdConfId(accId, conferenceId);
+        }
+
     }
 }

@@ -206,7 +206,6 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var listTrackIdInTracks = new List<Guid>() { };
             foreach (var group in tracks)
             {
-
                 if (group.Key != null)
                 {
                     subRoles = defaultSubRoles;
@@ -234,6 +233,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     }
                 }
             }
+            var incumbent = dbContext.Incumbents.Where(i => i.ConferenceAccountId == confAccId);
+            if (incumbent.Count() == 1 && incumbent.Any(i => i.ConferenceRoleId == chair.Id))
+            {
+                roles.Add(defaultSubRoles);
+            } 
 
             return new {
                 myConferences = GetMyConference(userId, dbContext).Result,
