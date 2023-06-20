@@ -174,6 +174,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var trackChair = conferenceRoles.Where(cr => cr.Name == "Track Chair").First();
             var confAccId = dbContext.ConferenceAccounts.Where(c => c.AccountId == userId && c.ConferenceId == conferenceId).First().Id;
             var defaultSubRoles = new List<object> { };
+            
             defaultSubRoles.Add(new // default author
             {
                 id = author.Id,
@@ -187,14 +188,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     name = reviewer.Name,
                 });
             }
-            if (isChairInConference(confAccId, dbContext))
-            {
-                defaultSubRoles.Add(new // if user is chair always have chair role in subroles
-                {
-                    id = chair.Id,
-                    name = chair.Name,
-                });
-            }
+            
 
             var tracks = dbContext.Incumbents.Include(i => i.Track).Include(ii => ii.ConferenceRole)
                 .Where(i => i.ConferenceAccountId == confAccId)
@@ -236,7 +230,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var incumbent = dbContext.Incumbents.Where(i => i.ConferenceAccountId == confAccId);
             if (incumbent.Count() == 1 && incumbent.Any(i => i.ConferenceRoleId == chair.Id))
             {
-                roles.Add(defaultSubRoles);
+                roles.Add(new
+                {
+                    trackId = (string)null,
+                    subRoles = defaultSubRoles.Distinct()
+                });
             } 
 
             return new {
