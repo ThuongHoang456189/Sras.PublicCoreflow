@@ -409,5 +409,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
         }
+
+        public async Task<object> GetConferenceDetail(Guid conferenceId)
+        {
+            return await _conferenceRepository.GetConferenceDetail(conferenceId);
+        }
+
+        public async Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId)
+        {
+            return await _conferenceRepository.GetConferenceAccountByAccIdConfId(accId, conferenceId);
+        }
+
     }
 }

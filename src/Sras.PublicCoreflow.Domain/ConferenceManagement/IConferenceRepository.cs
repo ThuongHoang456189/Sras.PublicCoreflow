@@ -44,5 +44,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<List<IncumbentOperation>> GetIncumbentOperationTableAsync(Guid conferenceId);
         Task<IEnumerable<object>> GetNumberOfSubmission(Guid? trackId);
         Task<IEnumerable<object>> GetNumberOfSubmissionByConferenceId(Guid conferenceId);
+        Task<object> GetConferenceDetail(Guid conferenceId);
+        Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId);
     }
 }
