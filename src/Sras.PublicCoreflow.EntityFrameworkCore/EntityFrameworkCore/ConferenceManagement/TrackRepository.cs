@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Security;
 using Polly;
 using Sras.PublicCoreflow.ConferenceManagement;
 using System;
@@ -164,6 +165,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
+        private class SubRole
+        {
+            public Guid id { get; set; }
+            public string name { get; set; }
+            public int nth { get; set; }
+        }
+
         public async Task<object> GetTrackOfTrackChairAndSubRoleEachTrack(Guid userId, Guid conferenceId, PublicCoreflowDbContext dbContext)
         {
             // get confAccId
@@ -173,22 +181,34 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var reviewer = conferenceRoles.Where(cr => cr.Name == "Reviewer").First();
             var trackChair = conferenceRoles.Where(cr => cr.Name == "Track Chair").First();
             var confAccId = dbContext.ConferenceAccounts.Where(c => c.AccountId == userId && c.ConferenceId == conferenceId).First().Id;
-            var defaultSubRoles = new List<object> { };
+            var defaultSubRoles = new List<SubRole> { };
             
-            defaultSubRoles.Add(new // default author
+            
+
+            defaultSubRoles.Add(new SubRole// default author
             {
                 id = author.Id,
                 name = author.Name,
+                nth = author.Factor
             });
             if (haveReviewerRole(confAccId, conferenceRoles, dbContext).Result)
             {
-                defaultSubRoles.Add(new // default reviewer
+                defaultSubRoles.Add(new SubRole// default reviewer
                 {
                     id = reviewer.Id,
                     name = reviewer.Name,
+                    nth = reviewer.Factor
                 });
             }
-            
+            if (isChairInConference(confAccId, dbContext))
+            {
+                defaultSubRoles.Add(new SubRole// if user is chair always have chair role in subroles
+                {
+                    id = chair.Id,
+                    name = chair.Name,
+                    nth = chair.Factor
+                });
+            }
 
             var tracks = dbContext.Incumbents.Include(i => i.Track).Include(ii => ii.ConferenceRole)
                 .Where(i => i.ConferenceAccountId == confAccId)
@@ -196,7 +216,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .GroupBy(i => i.TrackId);
             
             var roles = new List<object>(){ };
-            var subRoles = new List<object>() { };
+            var subRoles = new List<SubRole>() { };
             var listTrackIdInTracks = new List<Guid>() { };
             foreach (var group in tracks)
             {
@@ -205,24 +225,33 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     subRoles = defaultSubRoles;
                     if (group.Where(g => g.ConferenceRole.Id == author.Id).Count() > 0) subRoles.RemoveAt(0);
                     if (group.Where(g => g.ConferenceRole.Id == reviewer.Id).Count() > 0) subRoles.RemoveAt(0);
-                    subRoles.AddRange(group.OrderBy(g => g.ConferenceRole.Factor).Select(inc => new
+                    subRoles.AddRange(group.OrderBy(g => g.ConferenceRole.Factor).Select(inc => new SubRole
                     {
                         id = inc.ConferenceRole.Id,
                         name = inc.ConferenceRole.Name,
+                        nth = inc.ConferenceRole.Factor
                     }).ToList());
                     
                     if (group.Any(g => g.ConferenceRoleId == trackChair.Id)) {
                         roles.Add(new
                         {
                             trackId = group.Key,
-                            subRoles = subRoles.Distinct()
+                            subRoles = subRoles.Distinct().OrderBy(s => s.nth).Select(inc => new
+                            {
+                                id = inc.id,
+                                name = inc.name                      
+                            }).Distinct().ToList(),
                         });
                     } else
                     {
                         roles.Add(new
                         {
                             trackId = (string)null,
-                            subRoles = subRoles.Distinct()
+                            subRoles = subRoles.Distinct().OrderBy(s => s.nth).Select(inc => new
+                            {
+                                id = inc.id,
+                                name = inc.name
+                            }).Distinct().ToList(),
                         });
                     }
                 }
@@ -233,7 +262,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 roles.Add(new
                 {
                     trackId = (string)null,
-                    subRoles = defaultSubRoles.Distinct()
+                    subRoles = defaultSubRoles.OrderBy(s => s.nth).Select(inc => new
+                    {
+                        id = inc.id,
+                        name = inc.name
+                    }).Distinct().ToList(),
                 });
             } 
 
