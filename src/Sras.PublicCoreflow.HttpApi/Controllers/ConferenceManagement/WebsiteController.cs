@@ -52,7 +52,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("{conferenceId}")]
+        [HttpGet("get-navbar-{conferenceId}")]
         public async Task<ActionResult<object>> GetNavbarOfWebsite(Guid conferenceId)
         {
             try
