@@ -54,9 +54,10 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("web-template-files")]
-        public ActionResult<ResponseDto> CreateWebTemplate([FromForm] List<RemoteStreamContent> file)
+        public async Task<ActionResult<ResponseDto>> CreateWebTemplate([FromForm] List<RemoteStreamContent> file)
         {
-            return Ok(_webTemplateAppService.CreateTemplate(file.First()));
+            var result = await _webTemplateAppService.CreateTemplate(file.First());
+            return Ok(result);
         }
 
 

@@ -64,16 +64,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-
-
-        public ResponseDto CreateTemplate(RemoteStreamContent file)
+        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file)
         {
             var webTemplateId = _guidGenerator.Create();
             var filePath = webTemplateId + "/" + file.FileName;
-            Task.WhenAll(CreateWebTemplateFiles(filePath, file), 
-                _websiteRepository.CreateTemplate(webTemplateId, filePath));
+            var response = new ResponseDto();
+            try
+            {
+                response = await CreateWebTemplateFiles(filePath, file);
+                _websiteRepository.CreateTemplate(webTemplateId, filePath);
+            } catch (Exception ex)
+            {
+                return new ResponseDto() { IsSuccess = false, Message = "Error in Upload and save file"};
+            }
 
-            return new ResponseDto() { IsSuccess = true };
+            return response;
         }
 
         public async Task<IEnumerable<object>> GetListWebTemplateName()
