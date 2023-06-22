@@ -65,12 +65,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpPut("{conferenceId}/navbar")]
-        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, [FromBody]NavbarDTO navbarDTO)
+        [HttpPut("{conferenceId}/{webTemplateId}/update-navbar")]
+        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, Guid webTemplateId, [FromBody]NavbarDTO navbarDTO)
         {
             try
             {
-                var result = await _websiteAppService.UpdateNavbarByConferenceId(conferenceId, navbarDTO);
+                var result = await _websiteAppService.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
                 return Ok(result);
             } catch (Exception ex)
             {
