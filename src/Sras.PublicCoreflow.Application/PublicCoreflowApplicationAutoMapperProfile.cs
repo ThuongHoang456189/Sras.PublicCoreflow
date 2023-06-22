@@ -37,5 +37,8 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(sp => sp.Reviewed == null ? 0 : sp.Reviewed))
             .ForMember(sd => sd.AverageScore,
             opt => opt.MapFrom(sp => sp.AverageScore == null ? 0 : sp.AverageScore));
+
+        CreateMap<IdentityRole, IdentityRoleDto>()
+            .MapExtraProperties();
     }
 }
