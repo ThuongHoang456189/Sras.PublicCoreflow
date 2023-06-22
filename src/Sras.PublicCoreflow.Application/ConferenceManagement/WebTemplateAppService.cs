@@ -4,6 +4,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -43,9 +44,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 // Assume that the file extension is exactly matched its file name extension
                 if (file != null && file.ContentLength > 0)
-                    {
-                        await CreateTemplateFilesAsync(filePath, file, true);
-                    }
+                {
+                    await CreateTemplateFilesAsync(filePath, file, true);
+                }
 
                 response.IsSuccess = true;
                 response.Message = "Create webTemplate files successfully";
@@ -64,7 +65,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file)
+        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file, string name, string description)
         {
             var webTemplateId = _guidGenerator.Create();
             var filePath = webTemplateId + "/" + file.FileName;
@@ -72,18 +73,46 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             try
             {
                 response = await CreateWebTemplateFiles(filePath, file);
-                _websiteRepository.CreateTemplate(webTemplateId, filePath);
+                _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
             } catch (Exception ex)
             {
-                return new ResponseDto() { IsSuccess = false, Message = "Error in Upload and save file"};
+                return new ResponseDto() { IsSuccess = false, Message = "Error in Upload and save file : " + ex.Message };
             }
 
             return response;
         }
 
-        public async Task<IEnumerable<object>> GetListWebTemplateName()
+        public async Task<IEnumerable<object>> GetListWebTemplateName(bool hasContent)
         {
-            return await _websiteRepository.GetListWebTemplateName();
+            var listTemplate = await _websiteRepository.GetListWebTemplateName();
+            if (hasContent)
+            {
+                return listTemplate.ToList().Select(async item =>
+                {
+                    var bylesFile = await GetSubmissionFiles(item.FilePath);
+                    var stringFile = Encoding.Default.GetString(bylesFile);
+                    return new
+                    {
+                        id = item.Id,
+                        name = item.Name,
+                        content = stringFile
+                    };
+                });
+            } else
+            {
+                return listTemplate.ToList().Select(item => new
+                {
+                    id = item.Id,
+                    name = item.Name,
+                    content = ""
+                });
+            }
+        }
+
+        public async Task<IEnumerable<byte[]>> downloadAllTemplates()
+        {
+            var listTemplate = await _websiteRepository.GetListWebTemplateName();
+            return listTemplate.ToList().Select(item => GetSubmissionFiles(item.FilePath).Result);
         }
 
     }

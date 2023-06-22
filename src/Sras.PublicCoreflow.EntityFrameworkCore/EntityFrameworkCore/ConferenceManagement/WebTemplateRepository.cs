@@ -24,20 +24,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             _guidGenerator = guidGenerator;
         }
 
-        public async Task<IEnumerable<object>> GetListWebTemplateName()
+        public async Task<IEnumerable<TemplateResponseDTO>> GetListWebTemplateName()
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.WebTemplates.ToList().Select(w =>
-            new {
-                id = w.Id,
-                name = w.RootFilePath.Split('/').Last()
+            new TemplateResponseDTO() {
+                Id = w.Id,
+                Name = w.RootFilePath.Split('/').Last(),
+                FilePath = w.RootFilePath
             });
         }
 
-        public async void CreateTemplate(Guid webTemplateId, string rootFilePath)
+        public async void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
         {
             var dbContext = await GetDbContextAsync();
-            WebTemplate webTemplate = new WebTemplate(webTemplateId, rootFilePath);
+            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, rootFilePath);
             dbContext.WebTemplates.Add(webTemplate);
             dbContext.SaveChanges();
         }

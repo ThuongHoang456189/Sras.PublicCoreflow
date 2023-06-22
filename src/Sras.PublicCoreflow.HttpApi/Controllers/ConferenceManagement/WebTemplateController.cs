@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -40,12 +42,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         //    }
         //}
 
-        [HttpGet]
-        public async Task<ActionResult<object>> GetNavbarOfWebsite()
+        [HttpGet("{hasContent}")]
+        public async Task<ActionResult<object>> GetNavbarOfWebsite(bool hasContent)
         {
             try
             {
-                var result = await _webTemplateAppService.GetListWebTemplateName();
+                var result = await _webTemplateAppService.GetListWebTemplateName(hasContent);
                 return Ok(result);
             } catch (Exception ex)
             {
@@ -54,12 +56,20 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("web-template-files")]
-        public async Task<ActionResult<ResponseDto>> CreateWebTemplate([FromForm] List<RemoteStreamContent> file)
+        public async Task<ActionResult<ResponseDto>> CreateWebTemplate([FromForm] List<RemoteStreamContent> file, string name, string description)
         {
-            var result = await _webTemplateAppService.CreateTemplate(file.First());
+            var result = await _webTemplateAppService.CreateTemplate(file.First(), name, description);
             return Ok(result);
         }
 
+        [HttpGet("download-all-templates")]
+        public ActionResult downloadAllTemplates()
+        {
+            var filedata = _webTemplateAppService.downloadAllTemplates();
+            var filename = "webTemplate";
+
+            return File(filedata.Result.First(), MediaTypeNames.Text.Plain, "WebTemplate.html");
+        }
 
     }
 }
