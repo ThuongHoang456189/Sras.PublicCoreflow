@@ -3,10 +3,12 @@ using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -50,6 +52,13 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("web-template-files")]
+        public ActionResult<ResponseDto> CreateWebTemplate([FromForm] List<RemoteStreamContent> file)
+        {
+            return Ok(_webTemplateAppService.CreateTemplate(file.First()));
+        }
+
 
     }
 }

@@ -34,5 +34,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             });
         }
 
+        public async Task<bool> CreateTemplate(Guid webTemplateId, string rootFilePath)
+        {
+            var dbContext = await GetDbContextAsync();
+            WebTemplate webTemplate = new WebTemplate(webTemplateId, rootFilePath);
+            dbContext.WebTemplates.Add(webTemplate);
+            dbContext.SaveChanges();
+
+            if (dbContext.WebTemplates.Any(w => w.Id == webTemplateId))
+            {
+                return true;
+            } else
+            {
+                throw new Exception("cannnot save to db");
+            }
+        }
+
     }
 }
