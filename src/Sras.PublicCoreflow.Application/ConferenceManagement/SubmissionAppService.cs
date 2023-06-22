@@ -647,14 +647,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return response;
         }
-
-        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
-        {
-            var result = await _submissionRepository.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
-
-            var items = ObjectMapper.Map<List<SubmissionAggregationSP>, List<SubmissionAggregationDto>>(result);
-
-            return new PagedResultDto<SubmissionAggregationDto>(result != null && result.Count > 0 && result[0] != null && result[0].TotalCount != null ? (long) result[0].TotalCount.Value : 0, items);
-        }
     }
 }
