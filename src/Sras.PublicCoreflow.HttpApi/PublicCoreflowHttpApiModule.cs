@@ -1,5 +1,4 @@
 ﻿using Localization.Resources.AbpUi;
-using Microsoft.AspNetCore.Identity;
 using Sras.PublicCoreflow.Localization;
 using Volo.Abp.Account;
 using Volo.Abp.FeatureManagement;
