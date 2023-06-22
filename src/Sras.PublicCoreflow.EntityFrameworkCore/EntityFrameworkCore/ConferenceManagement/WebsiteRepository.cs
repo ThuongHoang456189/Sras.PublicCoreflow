@@ -61,7 +61,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             var webtemplateId = _guidGenerator.Create();
-            await dbContext.WebTemplates.AddAsync(new WebTemplate(webtemplateId, rootFilePath));
+
+            // Modified this
+            // await dbContext.WebTemplates.AddAsync(new WebTemplate(webtemplateId, rootFilePath));
             await dbContext.SaveChangesAsync();
             return await dbContext.WebTemplates.FindAsync(webtemplateId);
         }

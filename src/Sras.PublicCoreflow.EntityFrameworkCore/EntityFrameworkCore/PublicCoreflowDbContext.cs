@@ -467,6 +467,12 @@ public class PublicCoreflowDbContext :
             b.ToTable("WebTemplates", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
+            b.Property(x => x.Name)
+            .HasMaxLength(128);
+
+            b.Property(x => x.Description)
+            .HasMaxLength(1024);
+
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
         });
