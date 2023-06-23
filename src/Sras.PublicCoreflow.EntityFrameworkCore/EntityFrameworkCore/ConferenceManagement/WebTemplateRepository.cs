@@ -65,5 +65,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
+        public async Task<IEnumerable<string>> GetConferenceUsedByTemplateId(Guid id)
+        {
+            var dbContext = await GetDbContextAsync();
+            var conference = dbContext.Conferences;
+            var conNames = dbContext.Websites.Where(w => w.WebTemplateId == id).Select(w => conference.Where(c => c.Id == w.Id).First().FullName).ToList();
+            return conNames;
+        }
+
     }
 }
