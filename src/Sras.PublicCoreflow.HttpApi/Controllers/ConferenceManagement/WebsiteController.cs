@@ -25,19 +25,6 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _websiteAppService = websiteAppService;
         }
 
-        [HttpPost("web-template")]
-        public async Task<object> CreateWebTemplate([FromBody]string rootFilePath)
-        {
-            try
-            {
-                var result = await _websiteAppService.CreateWebtemplate(rootFilePath);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
         [HttpPost("{conferenceId}/{webTemplateId}")]
         public async Task<object> CreateWebsite(Guid webTemplateId, Guid conferenceId)

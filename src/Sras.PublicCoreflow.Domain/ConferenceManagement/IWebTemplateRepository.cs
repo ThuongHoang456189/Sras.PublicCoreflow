@@ -11,5 +11,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath);
         Task<IEnumerable<TemplateResponseDTO>> GetListWebTemplateName();
+        TemplateResponseDTO GetTemplateById(Guid id);
     }
 }

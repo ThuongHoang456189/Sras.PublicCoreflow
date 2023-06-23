@@ -37,12 +37,32 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             });
         }
 
-        public async void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
+        public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
         {
-            var dbContext = await GetDbContextAsync();
+            var dbContext = GetDbContextAsync().Result;
             WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, rootFilePath);
             dbContext.WebTemplates.Add(webTemplate);
             dbContext.SaveChanges();
+        }
+
+        public TemplateResponseDTO GetTemplateById(Guid id)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            if (dbContext.WebTemplates.Any(w => w.Id == id))
+            {
+                var result = dbContext.WebTemplates.Find(id);
+                return new TemplateResponseDTO()
+                {
+                    Id = id,
+                    Name = result.Name,
+                    FileName = result.RootFilePath.Split("/").Last(),
+                    FilePath = "",
+                    Description = result.Description
+                };
+            } else
+            {
+                throw new Exception("TemplateId not eixsting");
+            }
         }
 
     }

@@ -83,7 +83,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                     stream.Position = 0;
                     var remoteStreamContent = new RemoteStreamContent(stream);
 
-                    var result = await _webTemplateAppService.CreateTemplate(remoteStreamContent, name.Trim(), description.Trim(), fileName);
+                    var result = _webTemplateAppService.CreateTemplate(remoteStreamContent, name.Trim(), description.Trim(), fileName);
                     return Ok(result);
                 }
             }

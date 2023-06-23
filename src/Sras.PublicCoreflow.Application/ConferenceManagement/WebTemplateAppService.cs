@@ -29,12 +29,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _webTemplateBlobContainer = webTemplateBlobContainer;
         }
 
-        private async Task CreateTemplateFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
+        private void CreateTemplateFilesAsync(string blobName, IRemoteStreamContent streamContent, bool overrideExisting = true)
         {
-            await _webTemplateBlobContainer.SaveAsync(blobName, streamContent.GetStream(), overrideExisting);
+             _webTemplateBlobContainer.SaveAsync(blobName, streamContent.GetStream(), overrideExisting);
         }
 
-        public async Task<ResponseDto> CreateWebTemplateFiles(string filePath, RemoteStreamContent file)
+        public ResponseDto CreateWebTemplateFiles(string filePath, RemoteStreamContent file)
         {
             ResponseDto response = new();
 
@@ -45,7 +45,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 // Assume that the file extension is exactly matched its file name extension
                 if (file != null && file.ContentLength > 0)
                 {
-                    await CreateTemplateFilesAsync(filePath, file, true);
+                    CreateTemplateFilesAsync(filePath, file, true);
                 }
 
                 response.IsSuccess = true;
@@ -65,21 +65,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
+        public TemplateResponseDTO CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
         {
             var webTemplateId = _guidGenerator.Create();
             var filePath = webTemplateId + "/" + fileName;
-            var response = new ResponseDto();
             try
             {
-                response = await CreateWebTemplateFiles(filePath, file);
+                CreateWebTemplateFiles(filePath, file);
                 _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
+                return _websiteRepository.GetTemplateById(webTemplateId);
             } catch (Exception ex)
             {
-                return new ResponseDto() { IsSuccess = false, Message = "Error in Upload and save file : " + ex.Message };
+                throw new Exception("Create Template error: " + ex.Message);
             }
-
-            return response;
         }
 
         public async Task<IEnumerable<object>> GetListWebTemplateName(bool hasContent)
