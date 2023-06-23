@@ -3,10 +3,12 @@ using Sras.PublicCoreflow.BlobContainer;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Content;
@@ -128,6 +130,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 file = GetTemplateFiles(filePath).Result,
                 fileName = fileName
             };
+        }
+
+        public async Task<IEnumerable<object>> GetListWebTemplateFileInfo()
+        {
+            var result = await _websiteRepository.GetListWebTemplateName();
+            return result.ToList().Select(wt => new
+            {
+                id = wt.Id,
+                name = wt.Name,
+                fileName = wt.FileName,
+                description = wt.Description,
+                size = (float)Math.Round(GetTemplateFiles(wt.FilePath).Result.Length / 1024.0, 2)
+            });
         }
 
     }

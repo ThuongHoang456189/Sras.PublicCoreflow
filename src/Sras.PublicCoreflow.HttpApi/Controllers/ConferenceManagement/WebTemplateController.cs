@@ -147,5 +147,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("templateFileInfos")]
+        public async Task<ActionResult<IEnumerable<object>>> GetListWebTemplateFileInfo()
+        {
+            try
+            {
+                var result = await _webTemplateAppService.GetListWebTemplateFileInfo();
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

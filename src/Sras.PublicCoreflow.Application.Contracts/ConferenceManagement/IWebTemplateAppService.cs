@@ -14,5 +14,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<IEnumerable<object>> GetListWebTemplateName(bool hasContent);
         Task<IEnumerable<byte[]>> downloadAllTemplates();
         Task<FileDTO> downloadOneTemplate(Guid templateId);
+        Task<IEnumerable<object>> GetListWebTemplateFileInfo();
     }
 }
