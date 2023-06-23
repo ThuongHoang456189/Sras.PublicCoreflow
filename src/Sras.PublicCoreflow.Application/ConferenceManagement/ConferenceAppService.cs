@@ -420,5 +420,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _conferenceRepository.GetConferenceAccountByAccIdConfId(accId, conferenceId);
         }
 
+        public async Task<IEnumerable<object>> GetConferencesWithNavbarStatus()
+        {
+            return await _conferenceRepository.GetConferencesWithNavbarStatus();
+        }
     }
 }

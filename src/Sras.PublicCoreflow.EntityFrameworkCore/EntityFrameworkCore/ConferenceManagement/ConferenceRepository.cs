@@ -11,6 +11,8 @@ using Volo.Abp.Identity;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Metrics;
+using Sras.PublicCoreflow.Dto;
+using System.Text.Json;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -220,6 +222,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 endDate = c.EndDate,
                 logo = c.Logo,
             };
+        }
+
+        public async Task<IEnumerable<object>> GetConferencesWithNavbarStatus()
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Conferences.ToList().Select(c => new
+                {
+                    id = c.Id,
+                    fullName = c.FullName,
+                    city = c.City,
+                    country = c.Country,
+                    startDate = c.StartDate,
+                    websiteLink = c.WebsiteLink,
+                    isNavbar = dbContext.Websites.Any(w => w.Id == c.Id) && dbContext.Websites.Where(w => w.Id == c.Id).ToList().Any(w => JsonSerializer.Deserialize<NavbarDTO>(w.NavBar).navbar.Count() > 0)
+                }
+            );
         }
 
         public async Task<object> GetConferenceAccountByAccIdConfId(Guid accId,  Guid conferenceId)
