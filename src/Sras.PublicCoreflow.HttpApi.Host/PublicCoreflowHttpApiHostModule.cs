@@ -19,6 +19,11 @@ using Volo.Abp.Caching;
 using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.Identity.AspNetCore;
+using Microsoft.AspNetCore.Identity;
+using Volo.Abp.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Sras.PublicCoreflow;
 
@@ -28,10 +33,22 @@ namespace Sras.PublicCoreflow;
     typeof(PublicCoreflowApplicationModule),
     typeof(PublicCoreflowEntityFrameworkCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)
+    typeof(AbpSwashbuckleModule),
+    typeof(AbpIdentityAspNetCoreModule)
 )]
 public class PublicCoreflowHttpApiHostModule : AbpModule
 {
+    public override void PreConfigureServices(ServiceConfigurationContext context)
+    {
+        PreConfigure<IdentityBuilder>(builder =>
+        {
+            builder
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<LinkUserTokenProvider>(LinkUserTokenProviderConsts.LinkUserTokenProviderName)
+                .AddSignInManager<AbpSignInManager>();
+        });
+    }
+
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
@@ -87,26 +104,43 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
         context.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = configuration["AuthServer:Authority"];
-                options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
-                options.Audience = "PublicCoreflow";
+                //options.Authority = configuration["AuthServer:Authority"];
+                //options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
+                //options.Audience = "PublicCoreflow";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // self-provided token, change true if you have provider
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    //ValidateLifetime = true,
+                    //ValidIssuer = configuration["Jwt:Issuer"],
+                    //ValidAudience = configuration["Jwt:Audience"],
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? string.Empty))
+                };
             });
     }
 
     private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
     {
-        context.Services.AddAbpSwaggerGenWithOAuth(
-            configuration["AuthServer:Authority"],
-            new Dictionary<string, string>
-            {
-                    {"PublicCoreflow", "PublicCoreflow API"}
-            },
-            options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "PublicCoreflow API", Version = "v1" });
-                options.DocInclusionPredicate((docName, description) => true);
-                options.CustomSchemaIds(type => type.FullName);
-            });
+        context.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "PublicCoreflow API", Version = "v1" });
+            options.DocInclusionPredicate((docName, description) => true);
+            options.CustomSchemaIds(type => type.FullName);
+        });
+        //context.Services.AddAbpSwaggerGenWithOAuth(
+        //    configuration["AuthServer:Authority"],
+        //    new Dictionary<string, string>
+        //    {
+        //            {"PublicCoreflow", "PublicCoreflow API"}
+        //    },
+        //    options =>
+        //    {
+        //        options.SwaggerDoc("v1", new OpenApiInfo { Title = "PublicCoreflow API", Version = "v1" });
+        //        options.DocInclusionPredicate((docName, description) => true);
+        //        options.CustomSchemaIds(type => type.FullName);
+        //    });
     }
 
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
@@ -153,9 +187,9 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "PublicCoreflow API");
 
-            var configuration = context.GetConfiguration();
-            options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-            options.OAuthScopes("PublicCoreflow");
+            //var configuration = context.GetConfiguration();
+            //options.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+            //options.OAuthScopes("PublicCoreflow");
         });
 
         app.UseAuditing();
