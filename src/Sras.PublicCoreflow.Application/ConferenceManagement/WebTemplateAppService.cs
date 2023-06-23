@@ -60,15 +60,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return response;
         }
-        public async Task<byte[]> GetSubmissionFiles(string rootFilePath)
+        public async Task<byte[]> GetTemplateFiles(string rootFilePath)
         {
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file, string name, string description)
+        public async Task<ResponseDto> CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
         {
             var webTemplateId = _guidGenerator.Create();
-            var filePath = webTemplateId + "/" + file.FileName;
+            var filePath = webTemplateId + "/" + fileName;
             var response = new ResponseDto();
             try
             {
@@ -89,7 +89,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 return listTemplate.ToList().Select(async item =>
                 {
-                    var bylesFile = await GetSubmissionFiles(item.FilePath);
+                    var bylesFile = await GetTemplateFiles(item.FilePath);
                     var stringFile = Encoding.Default.GetString(bylesFile);
                     return new
                     {
@@ -112,7 +112,20 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<IEnumerable<byte[]>> downloadAllTemplates()
         {
             var listTemplate = await _websiteRepository.GetListWebTemplateName();
-            return listTemplate.ToList().Select(item => GetSubmissionFiles(item.FilePath).Result);
+            return listTemplate.ToList().Select(item => GetTemplateFiles(item.FilePath).Result);
+        }
+
+        public async Task<FileDTO> downloadOneTemplate(Guid templateId)
+        {
+            var listTemplate = await _websiteRepository.GetListWebTemplateName();
+            var file = listTemplate.ToList().Where(t => t.Id == templateId).First();
+            var filePath = file.FilePath;
+            var fileName = file.FilePath.Split("/").Last();
+            return new FileDTO()
+            {
+                file = GetTemplateFiles(filePath).Result,
+                fileName = fileName
+            };
         }
 
     }

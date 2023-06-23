@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
@@ -59,11 +60,37 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+
+        //public async Task<ActionResult<ResponseDto>> CreateWebTemplate(string name, string description, List<RemoteStreamContent> file)
+        //{
+        //    var result = await _webTemplateAppService.CreateTemplate(file.First(), name, description);
+        //    return Ok(result);
+        //}
         [HttpPost("web-template-files")]
-        public async Task<ActionResult<ResponseDto>> CreateWebTemplate([FromForm] List<RemoteStreamContent> file, string name, string description)
+        public async Task<ActionResult<ResponseDto>> CreateWebTemplate(string name, string description, IFormFile file)
         {
-            var result = await _webTemplateAppService.CreateTemplate(file.First(), name, description);
-            return Ok(result);
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file is selected.");
+            }
+            var fileName = file.FileName;
+
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    stream.Position = 0;
+                    var remoteStreamContent = new RemoteStreamContent(stream);
+
+                    var result = await _webTemplateAppService.CreateTemplate(remoteStreamContent, name, description, fileName);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error in uploading and creating the web template: " + ex.Message);
+            }
         }
 
         [HttpGet("download-all-templates")]
@@ -102,5 +129,23 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet("{templateId}/download-one-template")]
+        public async Task<ActionResult<byte[]>> downloadOneTemplate(Guid templateId)
+        {
+            try
+            {
+                var fileDTO = await _webTemplateAppService.downloadOneTemplate(templateId);
+                var stream = new MemoryStream(fileDTO.file);
+                stream.Position = 0;
+
+                return new FileStreamResult(stream, "application/octet-stream")
+                {
+                    FileDownloadName = fileDTO.fileName
+                };
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
