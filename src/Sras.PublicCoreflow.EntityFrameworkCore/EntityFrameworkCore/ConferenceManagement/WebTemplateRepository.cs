@@ -30,8 +30,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return dbContext.WebTemplates.ToList().Select(w =>
             new TemplateResponseDTO() {
                 Id = w.Id,
-                Name = w.RootFilePath.Split('/').Last(),
-                FilePath = w.RootFilePath
+                FileName = w.RootFilePath.Split('/').Last(),
+                FilePath = w.RootFilePath,
+                Name = w.Name,
+                Description = w.Description
             });
         }
 

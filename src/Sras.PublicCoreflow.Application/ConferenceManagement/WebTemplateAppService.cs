@@ -95,6 +95,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     {
                         id = item.Id,
                         name = item.Name,
+                        fileName = item.FileName,
+                        description = item.Description,
                         content = stringFile
                     };
                 });
@@ -104,6 +106,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 {
                     id = item.Id,
                     name = item.Name,
+                    fileName = item.FileName,
+                    description = item.Description,
                     content = ""
                 });
             }
