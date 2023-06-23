@@ -109,7 +109,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     name = item.Name,
                     fileName = item.FileName,
                     description = item.Description,
-                    conferenceUsed = _websiteRepository.GetConferenceUsedByTemplateId(item.Id).Result,
+                    conferenceUsed = new List<string>() { },
                     content = ""
                 });
             }
