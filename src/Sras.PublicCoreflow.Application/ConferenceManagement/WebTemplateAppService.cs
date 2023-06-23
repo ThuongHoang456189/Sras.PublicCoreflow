@@ -67,7 +67,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public TemplateResponseDTO CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
+        public object CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
         {
             var webTemplateId = _guidGenerator.Create();
             var filePath = webTemplateId + "/" + fileName;
@@ -75,7 +75,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 CreateWebTemplateFiles(filePath, file);
                 _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
-                return _websiteRepository.GetTemplateById(webTemplateId);
+                var result = _websiteRepository.GetTemplateById(webTemplateId);
+                return new
+                {
+                    id = result.Id,
+                    name = result.Name,
+                    fileName = result.FilePath.Split("/").Last(),
+                    content = "",
+                    description = result.Description,
+                    size = (float)Math.Round(GetTemplateFiles(result.FilePath).Result.Length / 1024.0, 2)
+                };
             } catch (Exception ex)
             {
                 throw new Exception("Create Template error: " + ex.Message);

@@ -9,7 +9,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IWebTemplateAppService
     {
-        TemplateResponseDTO CreateTemplate(RemoteStreamContent file, string name, string description, string fileName);
+        object CreateTemplate(RemoteStreamContent file, string name, string description, string fileName);
         ResponseDto CreateWebTemplateFiles(string filePath, RemoteStreamContent file);
         Task<IEnumerable<object>> GetListWebTemplateName(bool hasContent);
         Task<IEnumerable<byte[]>> downloadAllTemplates();

@@ -56,7 +56,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     Id = id,
                     Name = result.Name,
                     FileName = result.RootFilePath.Split("/").Last(),
-                    FilePath = "",
+                    FilePath = result.RootFilePath,
                     Description = result.Description
                 };
             } else

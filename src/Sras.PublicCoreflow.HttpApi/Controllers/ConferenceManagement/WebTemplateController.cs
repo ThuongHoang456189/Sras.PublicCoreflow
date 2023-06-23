@@ -67,7 +67,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         //    return Ok(result);
         //}
         [HttpPost("web-template-files")]
-        public async Task<ActionResult<ResponseDto>> CreateWebTemplate(string name, string description, IFormFile file)
+        public async Task<ActionResult<object>> CreateWebTemplate(string name, string description, IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
