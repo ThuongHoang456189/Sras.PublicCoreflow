@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -795,6 +797,65 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             result.RegistrablePapers = registrablePapers;
 
             return result;
+        }
+
+        public async Task<List<SubmissionAggregationSP>> GetListSubmissionAggregationSP(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount
+        )
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.VarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText.IsNullOrWhiteSpace() || inclusionText == null ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@StatusId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = statusId == null ? DBNull.Value : statusId
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var submissionList = await dbContext.Set<SubmissionAggregationSP>().FromSqlRaw(@"
+                EXECUTE [dbo].GetSubmissionAggregation @InclusionText, @ConferenceId, @TrackId, @StatusId, @SkipCount, @MaxResultCount
+                ", sqlParameters.ToArray()).ToListAsync();
+
+            return submissionList;
         }
 
         public override async Task<IQueryable<Submission>> WithDetailsAsync()

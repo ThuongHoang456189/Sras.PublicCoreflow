@@ -1,4 +1,5 @@
-﻿using Sras.PublicCoreflow.BlobContainer;
+﻿using Ionic.Zip;
+using Sras.PublicCoreflow.BlobContainer;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         private const string AwaitingDecision = "Awaiting Decision";
         private const string Accept = "Accept";
+        private const string BlobRoot = "host";
+        private const string SubmissionBlobRoot = "sras-submissions";
 
         public SubmissionAppService(
             IRepository<Track, Guid> trackRepository, 
@@ -646,6 +649,50 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             return response;
+        }
+
+        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
+        {
+            var result = await _submissionRepository.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
+
+            var items = ObjectMapper.Map<List<SubmissionAggregationSP>, List<SubmissionAggregationDto>>(result);
+
+            return new PagedResultDto<SubmissionAggregationDto>(result != null && result.Count > 0 && result[0] != null && result[0].TotalCount != null ? (long)result[0].TotalCount.Value : 0, items);
+        }
+
+        //public async Task<byte[]> GetSubmissionFiles(Guid id)
+        //{
+        //    return await _submissionBlobContainer.GetAllBytesOrNullAsync(id.ToString()+"/green-bird-pink.png");
+        //}
+
+        public async Task<Stream> DownloadSubmissionFiles(Guid id)
+        {
+            var storePath = string.Join("/", BlobRoot, SubmissionBlobRoot, id.ToString() + ".zip");
+
+            using (ZipFile zip = new())
+            {
+                // Get all filepath from folder
+                var submissionPath = string.Join("/", BlobRoot, SubmissionBlobRoot, id.ToString());
+
+                string[] files = Directory.GetFiles(submissionPath);
+                int i = 0;
+                foreach (string file in files)
+                {
+                    i++;
+                    zip.AddFile(file, "");
+                }
+
+                zip.CompressionMethod = CompressionMethod.BZip2;
+                zip.CompressionLevel = Ionic.Zlib.CompressionLevel.BestCompression;
+
+                zip.Save(storePath);
+            }
+
+            var result = await _submissionBlobContainer.GetAsync(id.ToString() + ".zip");
+
+            File.Delete(storePath);
+
+            return result;
         }
     }
 }

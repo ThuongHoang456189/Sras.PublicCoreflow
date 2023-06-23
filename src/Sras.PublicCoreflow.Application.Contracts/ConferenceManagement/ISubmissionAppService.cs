@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Volo.Abp.Content;
 using Sras.PublicCoreflow.Dto;
 using Volo.Abp.Application.Dtos;
+using System.IO;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -23,5 +24,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);
         Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested);
+        Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount
+        );
+
+        //Task<byte[]> GetSubmissionFiles(Guid id);
+        Task<Stream> DownloadSubmissionFiles(Guid id);
     }
 }

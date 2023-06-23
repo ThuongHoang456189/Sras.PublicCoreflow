@@ -15,11 +15,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
     <PackageReference Include="Volo.Abp.Account.HttpApi" Version="7.2.2" />
     <PackageReference Include="Volo.Abp.Identity.HttpApi" Version="7.2.2" />
     <PackageReference Include="Volo.Abp.PermissionManagement.HttpApi" Version="7.2.2" />
     <PackageReference Include="Volo.Abp.FeatureManagement.HttpApi" Version="7.2.2" />
     <PackageReference Include="Volo.Abp.SettingManagement.HttpApi" Version="7.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="F:\FU_CapstoneProject\SourceCode\Labs\OpenIddictAbpReact\Attempt15\src\Sras.PublicCoreflow.HttpApi\Controllers\ConferenceManagement\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="F:\FU_CapstoneProject\SourceCode\Labs\OpenIddictAbpReact\Attempt15\src\Sras.PublicCoreflow.HttpApi\Controllers\ConferenceManagement\.editorconfig" />
   </ItemGroup>
 
 </Project>
