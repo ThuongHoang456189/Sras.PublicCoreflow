@@ -87,9 +87,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var listTemplate = await _websiteRepository.GetListWebTemplateName();
             if (hasContent)
             {
-                return listTemplate.ToList().Select(async item =>
+                return listTemplate.ToList().Select( item =>
                 {
-                    var bylesFile = await GetTemplateFiles(item.FilePath);
+                    var bylesFile =  GetTemplateFiles(item.FilePath).Result;
                     var stringFile = Encoding.Default.GetString(bylesFile);
                     return new
                     {
