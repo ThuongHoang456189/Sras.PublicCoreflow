@@ -39,6 +39,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return Ok(_submissionAppService.CreateSubmissionFiles(id, files));
         }
 
+        [HttpGet("{id}/submission-files")]
+        public async Task<IActionResult> GetSubmissionFilesAsync(Guid id)
+        {
+            return File(await _submissionAppService.DownloadSubmissionFiles(id), "application/zip", id.ToString() + ".zip");
+        }
+
 
         [HttpPost("get-number-submissions-and-email-by-status")]
         public async Task<ActionResult<object>> GetNumberOfSubmissionAndEmail([FromBody] SubmissionWithEmailRequest request)
@@ -116,6 +122,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<IActionResult> RequestCameraReady(Guid id, bool isCameraReadyRequested)
         {
             return Ok(await _submissionAppService.RequestCameraReady(id, isCameraReadyRequested));
+        }
+
+        [HttpGet("sp-aggregation")]
+        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
+        {
+            return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
         }
     }
 }
