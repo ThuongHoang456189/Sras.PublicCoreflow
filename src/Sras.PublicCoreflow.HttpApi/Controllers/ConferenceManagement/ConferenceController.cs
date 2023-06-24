@@ -100,5 +100,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _conferenceService.GetConferenceAccountByAccIdConfId(accId, conferenceId);
         }
 
+        [HttpGet("ConferencesWithNavbarStatus")]
+        public async Task<ActionResult<IEnumerable<object>>> GetConferencesWithNavbarStatus()
+        {
+            try
+            {
+                var result = await _conferenceService.GetConferencesWithNavbarStatus();
+                return Ok(result);
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

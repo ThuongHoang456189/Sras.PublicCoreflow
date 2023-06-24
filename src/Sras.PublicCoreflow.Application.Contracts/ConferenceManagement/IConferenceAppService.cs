@@ -24,5 +24,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<PriceTable?> GetPriceTable(Guid id);
         Task<object> GetConferenceDetail(Guid conferenceId);
         Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId);
+        Task<IEnumerable<object>> GetConferencesWithNavbarStatus();
     }
 }

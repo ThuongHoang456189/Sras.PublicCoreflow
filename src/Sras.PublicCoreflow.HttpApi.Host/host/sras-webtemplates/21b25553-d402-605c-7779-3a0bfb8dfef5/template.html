@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conferences</title>
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.45.1/dist/suneditor.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/suneditor@2.45.1/dist/css/suneditor.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      ul, li {
+        list-style: none;
+        list-style-image: none;
+      }
+      .body {
+        background-image: url("https://icc2023.ieee-icc.org/sites/icc2023.ieee-icc.org/files/conferences2_wallpaper/ccncgradient.jpg");
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .logo{
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        image-rendering: -webkit-optimize-contrast;
+        background-image: none;
+      }
+      #header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #fefefe;
+        padding: 30px;
+      }
+      .header__left {
+        display: flex;
+        align-items: center;
+      }
+      .header__left-logo, .header__right-logo {
+        width: 200px;
+        height: 100px
+      }
+      .header__left-info {
+        margin-left: 24px;
+        font-size: 24px;
+      }
+      .date {
+        margin-bottom: 8px;
+      }
+      .nav {
+        display: 'flex';
+      }
+      .nav-list{
+        display: flex;
+      }
+      .nav-list__item {
+        padding: 12px 24px;
+        position: relative;
+        cursor: pointer;
+        background-color: #005f98;
+        color:#fefefe;
+        text-transform: capitalize;
+        font-size: 24px;
+        border-right: 1px solid #fefefe;
+      }
+      .nav-list__item:hover {
+        background-color: #00aeef;
+      }
+      .hide-items {
+        display: none;
+        position: absolute;
+        z-index: 2;
+        background-color: #005f98;
+        top: 100%;
+        left: 0;
+      }
+      .nav-list__item:hover .hide-items {
+        display: block !important;
+      }
+      .hide-items-dropdown {
+        min-width: 250px;
+        padding: 10px 15px;
+        text-transform: capitalize;
+        background-color: #005f98;
+        font-size: 24px;
+      }
+      .hide-items-dropdown:hover {
+        background-color: #00aeef;
+      }
+      .nav-list__item a, .hide-items-dropdown a {
+        text-decoration: none;
+        color: #fefefe;
+      }
+    </style>
+  </head>
+  <!-- class="sun-editor-editable" -->
+  <body class="body">
+   <div class="container">
+    <header id="header">
+      <div class="header__left">
+        <div class="header__left-logo">
+          <img class="logo" src="https://icc2023.ieee-icc.org/sites/all/themes/custom/conferences2/images/ieee-comsoc-new@2x.png" alt="logo">
+        </div>
+        <div class="header__left-info">
+          <p class="date">28 May – 01 June 2023 // Rome, Italy</p>
+          <p class="name-conference">Sustainable Communications for Renaissance</p>
+        </div>
+      </div>
+      <div class="header__right">
+        <div class="header__right-logo">
+          <img class="logo" src="https://icc2023.ieee-icc.org/sites/all/themes/custom/conferences2/images/ieee-comsoc-new@2x.png" alt="logo" >
+        </div>
+      </div>
+    </header>
+    <navbar id="nav">
+      <ul class="nav-list">
+        <li class="nav-list__item">
+          <a href="#">Home</a>
+        </li>
+        <li class="nav-list__item">
+          <a href="#">About</a>
+          <ul class="hide-items">
+            <li class="hide-items-dropdown">
+              <a href="">About IEEE ICC 2023</a>
+            </li>
+            <li class="hide-items-dropdown">
+              <a href="#">About IEEE ICC 2023</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </navbar>
+    <div id="container" class="sun-editor-editable">
+      <h1 style="text-align: center">
+        <span style="color: rgb(152, 0, 0)">TEXT EDITOR LOZ</span>
+      </h1>
+      <div>asdapHErasdwadadasdasd</div>
+      <div>as</div>
+      <div>da</div>
+      <div>sda</div>
+      <div>sda</div>
+      <div>sd</div>
+      <div>asd</div>
+      <div>ada</div>
+      <div><br /></div>
+      <table class="se-table-size-auto">
+        <thead>
+          <tr>
+            <th><div>Te</div></th>
+            <th><div>st</div></th>
+            <th><div>adwda</div></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div>Test</div></td>
+            <td><div>aded</div></td>
+            <td><div>adsad</div></td>
+          </tr>
+          <tr>
+            <td><div>asdas</div></td>
+            <td><div>dasdasda</div></td>
+            <td><div>sdasasdasda</div></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="__se__p-bordered">asdasdasdasd</div>
+      <div class="__se__p-spaced">asdadasdasdadsasd<br /></div>
+      <div class="__se__p-spaced"><br /></div>
+      <div class="__se__p-spaced">
+        aasdasdasd<u>asdasdasdasdasda</u><em><u>sdasdasdasdadsasdasd</u></em
+        >asdasdasd<span style="background-color: rgb(255, 94, 0)"
+          >asdasdasdasdasdasd</span
+        >asdasdasdasdasd<span style="color: rgb(229, 216, 92)"
+          >asdasdasdasdasd</span
+        >
+      </div>
+      <blockquote>
+        <div class="__se__p-spaced">asdasdasdasdasdasdasdads</div>
+      </blockquote>
+      <div class="__se__p-spaced"><br /></div>
+      <div class="se-component se-image-container __se__float-right">
+        <figure>
+          <img
+            src="https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D&amp;w=1000&amp;q=80"
+            alt=""
+            data-rotate=""
+            data-proportion="true"
+            data-size="587px,392px"
+            data-align="right"
+            data-file-name="photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8fDA%3D&amp;w=1000&amp;q=80"
+            data-file-size="0"
+            data-origin=","
+            style="width: 587px; height: 392px"
+          />
+        </figure>
+      </div>
+      <div>asdasdasdasd</div>
+      <div><br /></div>
+      <div>a</div>
+      <div>sd</div>
+      <div>as</div>
+      <div>das</div>
+      <div>da</div>
+      <div>sd</div>
+      <div>d</div>
+      <div class="__se__p-spaced"><br /></div>
+      <div class="__se__p-spaced">
+        asasdddddddddddddddddddddddddddddddddddddddddd
+      </div>
+      <div class="__se__p-bordered">asd</div>
+      <div class="__se__p-bordered">asdas</div>
+      <div class="__se__p-bordered">das</div>
+      <div>dad</div>
+      <div><br /></div>
+      <div>asdasdasd</div>
+      <table>
+        <thead>
+          <tr>
+            <th><div>asdasd</div></th>
+            <th><div>asd</div></th>
+            <th><div>asdas</div></th>
+            <th><div>asdd</div></th>
+            <th><div>asdas</div></th>
+            <th><div>asdd</div></th>
+            <th><div>sdasda</div></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div>asdasd</div></td>
+            <td><div>asdasdasd</div></td>
+            <td><div>asdasd</div></td>
+            <td><div>asda</div></td>
+            <td><div>dasd</div></td>
+            <td><div>asdasdsda</div></td>
+            <td><div>dsasdasd</div></td>
+          </tr>
+          <tr>
+            <td><div>dsda</div></td>
+            <td><div>dasasd</div></td>
+            <td><div>asdas</div></td>
+            <td><div>asdasd</div></td>
+            <td><div>sa</div></td>
+            <td><div>aas</div></td>
+            <td><div>asdasd</div></td>
+          </tr>
+          <tr>
+            <td><div>as</div></td>
+            <td><div>dasd</div></td>
+            <td><div>sda</div></td>
+            <td><div>dasd</div></td>
+            <td><div>as</div></td>
+            <td><div>dasd</div></td>
+            <td><div>asdasd</div></td>
+          </tr>
+        </tbody>
+      </table>
+      <div>asd</div>
+    </div>
+  </body>
+   </div>
+</html>

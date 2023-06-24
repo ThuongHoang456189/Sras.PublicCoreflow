@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -24,19 +25,6 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _websiteAppService = websiteAppService;
         }
 
-        [HttpPost("web-template")]
-        public async Task<object> CreateWebTemplate([FromBody]string rootFilePath)
-        {
-            try
-            {
-                var result = await _websiteAppService.CreateWebtemplate(rootFilePath);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
         [HttpPost("{conferenceId}/{webTemplateId}")]
         public async Task<object> CreateWebsite(Guid webTemplateId, Guid conferenceId)
@@ -52,7 +40,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("{conferenceId}")]
+        [HttpGet("get-navbar/{conferenceId}")]
         public async Task<ActionResult<object>> GetNavbarOfWebsite(Guid conferenceId)
         {
             try
@@ -65,12 +53,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpPut("{conferenceId}/navbar")]
-        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, [FromBody]NavbarDTO navbarDTO)
+        [HttpPut("{conferenceId}/{webTemplateId}/update-navbar")]
+        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, Guid webTemplateId, [FromBody]NavbarDTO navbarDTO)
         {
             try
             {
-                var result = await _websiteAppService.UpdateNavbarByConferenceId(conferenceId, navbarDTO);
+                var result = await _websiteAppService.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
                 return Ok(result);
             } catch (Exception ex)
             {

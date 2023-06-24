@@ -92,17 +92,28 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }).First();
         }
 
-        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, NavbarDTO navbarDTO)
+        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO)
         {
+            
             var dbContext = await GetDbContextAsync();
             if (!dbContext.Conferences.Any(w => w.Id == conferenceId)) throw new Exception("ConferenceId is not existing");
-            if (!dbContext.Websites.Any(w => w.Id == conferenceId)) throw new Exception("Website of conferenceId is not existing");
             var navbarString = JsonSerializer.Serialize<NavbarDTO>(navbarDTO);
-            var oldWebsite = dbContext.Websites.FindAsync(conferenceId).Result;
-            oldWebsite.NavBar = navbarString;
+            if (dbContext.Websites.Any(w => w.Id == conferenceId))
+            {
+                var oldWebsite = dbContext.Websites.FindAsync(conferenceId).Result;
+                oldWebsite.NavBar = navbarString;
+            } else
+            {
+                var newWebsite = new Website(conferenceId, navbarString, null, null, null, webTemplateId);
+                if (!dbContext.WebTemplates.Any(wt => wt.Id == webTemplateId)) throw new Exception("WebTemplateId is not existing");
+                var template = await dbContext.WebTemplates.FindAsync(webTemplateId);
+                newWebsite.WebTemplate = template;
+                await dbContext.Websites.AddAsync(newWebsite);
+                template.Websites.Add(newWebsite);
+            }
 
             await dbContext.SaveChangesAsync();
-            var result = dbContext.Websites.Where(w => w.Id == conferenceId).First(); 
+            var result = dbContext.Websites.Where(w => w.Id == conferenceId).First();
             return new
             {
                 Id = result.Id,

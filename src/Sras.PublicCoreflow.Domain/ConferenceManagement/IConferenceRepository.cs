@@ -46,5 +46,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<IEnumerable<object>> GetNumberOfSubmissionByConferenceId(Guid conferenceId);
         Task<object> GetConferenceDetail(Guid conferenceId);
         Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId);
+        Task<IEnumerable<object>> GetConferencesWithNavbarStatus();
     }
 }
