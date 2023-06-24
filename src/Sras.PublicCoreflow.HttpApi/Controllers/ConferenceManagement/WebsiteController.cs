@@ -54,7 +54,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPut("{conferenceId}/{webTemplateId}/update-navbar")]
-        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, Guid webTemplateId, [FromBody]NavbarDTO navbarDTO)
+        public async Task<ActionResult<object>> UpdateNavbarOfWebsite(Guid conferenceId, Guid webTemplateId, [FromBody] NavbarDTO navbarDTO)
         {
             try
             {
@@ -64,6 +64,41 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("add-content-of-website/{conferenceId}/{fileName}")]
+        public async Task<ActionResult<object>> AddContentOfWebsite(Guid conferenceId, string fileName, [FromBody] ContentBodyRequest content)
+        {
+            try
+            {
+                _websiteAppService.UploadContentOfWebsite(conferenceId, fileName, content.temp, content.finalRuslt);
+                return Ok(new ResponseDto()
+                {
+                    IsSuccess = true
+                });
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-content-temp-file/{conferenceId}/{fileName}")]
+        public async Task<object> GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        {
+            try
+            {
+                var result = _websiteAppService.GetContentTempOfWebsite(conferenceId, fileName);
+                return Ok(result);
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<object>> GetAllWebsite()
+        {
+            return await _websiteAppService.GetAllWebsite();
         }
 
     }

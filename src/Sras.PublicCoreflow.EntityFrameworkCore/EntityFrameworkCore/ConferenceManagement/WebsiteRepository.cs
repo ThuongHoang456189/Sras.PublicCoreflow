@@ -19,6 +19,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
     public class WebsiteRepository : EfCoreRepository<PublicCoreflowDbContext, Website, Guid>, IWebsiteRepository
     {
         private readonly IGuidGenerator _guidGenerator;
+        private readonly string TEMP_FOLDER_NAME = "temp";
+        private readonly string FINAL_FOLDER_NAME = "final";
+
         public WebsiteRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
             _guidGenerator = guidGenerator;
@@ -119,6 +122,43 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 Id = result.Id,
                 navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar).navbar
             };
+        }
+
+        public async void AddContentToWebsite(Guid webId, string fileName)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (!dbContext.Websites.Any(w => w.Id == webId)) throw new Exception("websiteId is not existing");
+            var website = dbContext.Websites.FindAsync(webId).Result;
+            // add fileName in pages
+            if (website.Pages == null)
+            {
+                website.Pages = fileName;
+            } else
+            {
+                if (!website.Pages.Split(';').Contains(fileName)) website.Pages = website.Pages + ";" + fileName;
+            }
+            // check if tempPath null, add tempPath is "{webId}/temp"
+            if (website.TempFilePath == null)
+            {
+                website.TempFilePath = webId + "/" + TEMP_FOLDER_NAME;
+            }
+            // check if finalPath null, add finalPath is "{webId}/final"
+            if (website.RootFilePath == null)
+            {
+                website.RootFilePath = webId + "/" + FINAL_FOLDER_NAME;
+            }
+            
+            dbContext.SaveChanges();
+            if (!dbContext.Websites.Find(webId).Pages.Contains(fileName))
+            {
+                throw new Exception("Save content path to DB fail");
+            }
+        }
+
+        public async Task<IEnumerable<object>> GetAllWebsite()
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Websites.ToList();
         }
 
     }
