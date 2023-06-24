@@ -1,7 +1,9 @@
 ﻿using Sras.PublicCoreflow.BlobContainer;
 using Sras.PublicCoreflow.Dto;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -91,8 +93,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
         }
 
-
-
         public async void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal)
         {
             // craete html file with content inside
@@ -132,6 +132,26 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             // add file info to DB
             _websiteRepository.AddContentToWebsite(conferenceId, fileName);
 
+        }
+
+        public byte[] GetTemplateFiles(string rootFilePath)
+        {
+            return _webBlobContainer.GetAllBytesOrNullAsync(rootFilePath).Result;
+        }
+        public object GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        {
+            byte[] file = GetTemplateFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName);
+            var content = Encoding.Default.GetString(file);
+            return new
+            {
+                websiteId = conferenceId,
+                content
+            };
+        }
+
+        public async Task<IEnumerable<object>> GetAllWebsite()
+        {
+            return await _websiteRepository.GetAllWebsite();
         }
 
     }

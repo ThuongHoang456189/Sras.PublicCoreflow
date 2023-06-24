@@ -135,7 +135,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 website.Pages = fileName;
             } else
             {
-                website.Pages = website.Pages + ";" + fileName;
+                if (!website.Pages.Split(';').Contains(fileName)) website.Pages = website.Pages + ";" + fileName;
             }
             // check if tempPath null, add tempPath is "{webId}/temp"
             if (website.TempFilePath == null)
@@ -153,6 +153,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 throw new Exception("Save content path to DB fail");
             }
+        }
+
+        public async Task<IEnumerable<object>> GetAllWebsite()
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Websites.ToList();
         }
 
     }

@@ -82,5 +82,24 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet("get-content-temp-file/{conferenceId}/{fileName}")]
+        public async Task<object> GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        {
+            try
+            {
+                var result = _websiteAppService.GetContentTempOfWebsite(conferenceId, fileName);
+                return Ok(result);
+            } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<object>> GetAllWebsite()
+        {
+            return await _websiteAppService.GetAllWebsite();
+        }
+
     }
 }
