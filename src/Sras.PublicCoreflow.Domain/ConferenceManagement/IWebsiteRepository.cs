@@ -9,6 +9,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IWebsiteRepository
     {
+        void AddContentToWebsite(Guid webId, string fileName);
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
         Task<object> CreateWebtemplate(string rootFilePath);
         Task<object> getNavbarByConferenceId(Guid conferenceId);

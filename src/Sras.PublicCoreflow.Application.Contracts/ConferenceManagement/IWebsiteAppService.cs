@@ -9,8 +9,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public interface IWebsiteAppService
     {
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
-        Task<object> CreateWebtemplate(string rootFilePath);
         Task<object> getNavbarByConferenceId(Guid conferenceId);
         Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO);
+        void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal);
     }
 }
