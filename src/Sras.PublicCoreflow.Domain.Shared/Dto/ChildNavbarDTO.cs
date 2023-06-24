@@ -2,8 +2,8 @@
 {
     public class ChildNavbarDTO
     {
-        public string labelCon { get; set; }
-        public string idCon { get; set; }
+        public string childLabel { get; set; }
+        public string childId { get; set; }
         public string href { get; set; }
     }
 }

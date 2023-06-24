@@ -24,14 +24,53 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             _guidGenerator = guidGenerator;
         }
 
-        public async Task<IEnumerable<object>> GetListWebTemplateName()
+        public async Task<IEnumerable<TemplateResponseDTO>> GetListWebTemplateName()
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.WebTemplates.ToList().Select(w =>
-            new {
-                id = w.Id,
-                name = w.RootFilePath.Split('/').Last()
+            new TemplateResponseDTO() {
+                Id = w.Id,
+                FileName = w.RootFilePath.Split('/').Last(),
+                FilePath = w.RootFilePath,
+                Name = w.Name,
+                Description = w.Description
             });
+        }
+
+        public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, rootFilePath);
+            dbContext.WebTemplates.Add(webTemplate);
+            dbContext.SaveChanges();
+        }
+
+        public TemplateResponseDTO GetTemplateById(Guid id)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            if (dbContext.WebTemplates.Any(w => w.Id == id))
+            {
+                var result = dbContext.WebTemplates.Find(id);
+                return new TemplateResponseDTO()
+                {
+                    Id = id,
+                    Name = result.Name,
+                    FileName = result.RootFilePath.Split("/").Last(),
+                    FilePath = result.RootFilePath,
+                    Description = result.Description
+                };
+            } else
+            {
+                throw new Exception("TemplateId not eixsting");
+            }
+        }
+
+        public async Task<IEnumerable<string>> GetConferenceUsedByTemplateId(Guid id)
+        {
+            var dbContext = await GetDbContextAsync();
+            var conference = dbContext.Conferences;
+            var conNames = dbContext.Websites.Where(w => w.WebTemplateId == id).Select(w => conference.Where(c => c.Id == w.Id).First().FullName).ToList();
+            return conNames;
         }
 
     }

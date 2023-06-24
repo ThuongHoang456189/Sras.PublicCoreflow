@@ -38,9 +38,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.CreateWebsite(webtemplateId, conferenceId);
         }
 
-        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, NavbarDTO navbarDTO)
+        public async Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO)
         {
-            return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, navbarDTO);
+            return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
         }
 
     }
