@@ -166,6 +166,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = await GetDbContextAsync();
             if (dbContext.Websites.Any(w => w.Id == webId))
             {
+                if (dbContext.Websites.FindAsync(webId).Result.Pages == null) return Enumerable.Empty<string>();
                 return dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList();
             } else
             {

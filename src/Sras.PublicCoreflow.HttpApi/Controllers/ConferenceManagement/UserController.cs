@@ -71,6 +71,24 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return GetAbpLoginResult(await _signInManager.CheckPasswordSignInAsync(identityUser, login.Password, true));
         }
 
+        [HttpPost]
+        [Route("register-account")]
+        public virtual async Task<AbpLoginResult> RegisterAccount(UserLoginInfo login)
+        {
+            ValidateLoginInfo(login);
+
+            await ReplaceEmailToUsernameOfInputIfNeeds(login);
+
+            var identityUser = await _userManager.FindByNameAsync(login.UserNameOrEmailAddress);
+
+            if (identityUser == null)
+            {
+                return new AbpLoginResult(LoginResultType.InvalidUserNameOrPassword);
+            }
+
+            return GetAbpLoginResult(await _signInManager.CheckPasswordSignInAsync(identityUser, login.Password, true));
+        }
+
         [HttpPost("login")]
         public async Task<object> Login(UserLoginInfo login)
         {

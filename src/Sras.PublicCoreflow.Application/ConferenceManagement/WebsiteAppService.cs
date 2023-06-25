@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -142,7 +143,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId)
         {
             var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
-
+            if (websiteNames.Count() == 0) { 
+                return Enumerable.Empty<object>();
+            }
             return websiteNames.Select(w =>
             {
                 byte[] file = GetWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + w);
