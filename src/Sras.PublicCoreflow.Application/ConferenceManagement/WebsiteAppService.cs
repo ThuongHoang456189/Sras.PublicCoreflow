@@ -3,6 +3,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -138,15 +139,20 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return _webBlobContainer.GetAllBytesOrNullAsync(rootFilePath).Result;
         }
-        public object GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        public async Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId)
         {
-            byte[] file = GetTemplateFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName);
-            var content = Encoding.Default.GetString(file);
-            return new
+            var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+
+            return websiteNames.Select(w =>
             {
-                websiteId = conferenceId,
-                content
-            };
+                byte[] file = GetTemplateFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + w);
+                var content = Encoding.Default.GetString(file);
+                return new
+                {
+                    fileName = w,
+                    content
+                };
+            });
         }
 
         public async Task<IEnumerable<object>> GetAllWebsite()

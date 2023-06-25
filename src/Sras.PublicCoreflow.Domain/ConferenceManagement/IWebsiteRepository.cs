@@ -12,6 +12,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         void AddContentToWebsite(Guid webId, string fileName);
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
         Task<object> CreateWebtemplate(string rootFilePath);
+        Task<IEnumerable<string>> GetAllPageNameOfWebsite(Guid webId);
         Task<IEnumerable<object>> GetAllWebsite();
         Task<object> getNavbarByConferenceId(Guid conferenceId);
         Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO);

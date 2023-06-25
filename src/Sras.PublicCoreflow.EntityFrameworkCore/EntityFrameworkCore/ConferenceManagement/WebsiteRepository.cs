@@ -160,6 +160,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = await GetDbContextAsync();
             return dbContext.Websites.ToList();
         }
+  
+        public async Task<IEnumerable<string>> GetAllPageNameOfWebsite(Guid webId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.Websites.Any(w => w.Id == webId))
+            {
+                return dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList();
+            } else
+            {
+                throw new Exception("WebId is not existing");
+            }
+        }
 
     }
 }

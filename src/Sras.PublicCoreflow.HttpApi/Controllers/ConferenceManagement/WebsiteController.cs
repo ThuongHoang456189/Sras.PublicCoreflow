@@ -82,12 +82,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("get-content-temp-file/{conferenceId}/{fileName}")]
-        public async Task<object> GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        [HttpGet("get-content-temp-file/{conferenceId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetContentTempOfWebsite(Guid conferenceId)
         {
             try
             {
-                var result = _websiteAppService.GetContentTempOfWebsite(conferenceId, fileName);
+                var result = await _websiteAppService.GetContentTempOfWebsite(conferenceId);
                 return Ok(result);
             } catch(Exception ex)
             {

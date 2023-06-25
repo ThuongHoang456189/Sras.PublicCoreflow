@@ -10,7 +10,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
         Task<IEnumerable<object>> GetAllWebsite();
-        object GetContentTempOfWebsite(Guid conferenceId, string fileName);
+        Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId);
         Task<object> getNavbarByConferenceId(Guid conferenceId);
         byte[] GetTemplateFiles(string rootFilePath);
         Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO);
