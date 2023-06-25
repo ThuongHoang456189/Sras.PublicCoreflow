@@ -3,6 +3,9 @@ using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -109,12 +112,34 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-
-
         [HttpGet]
         public async Task<IEnumerable<object>> GetAllWebsite()
         {
             return await _websiteAppService.GetAllWebsite();
+        }
+
+        [HttpGet("download-all-final-file/{conferenceId}")]
+        public async Task<ActionResult> downloadAllFinalFiles(Guid conferenceId)
+        {
+            IEnumerable<byte[]> listBytes = await _websiteAppService.DownloadAllFinalFile(conferenceId);
+            using (var ms = new MemoryStream())
+            {
+                using (var archive =
+                new System.IO.Compression.ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+
+                    var zipEntry = (ZipArchiveEntry)null;
+                    foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
+                    {
+                        zipEntry = archive.CreateEntry("template" + index + ".html", CompressionLevel.Fastest);
+                        using (var zipStream = zipEntry.Open())
+                        {
+                            zipStream.Write(item, 0, item.Length);
+                        }
+                    }
+                }
+                return File(ms.ToArray(), "application/zip", "Final-Content-Website-" + conferenceId +".zip");
+            }
         }
 
     }

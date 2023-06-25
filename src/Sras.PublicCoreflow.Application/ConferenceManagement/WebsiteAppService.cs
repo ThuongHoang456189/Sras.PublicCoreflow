@@ -135,7 +135,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         }
 
-        public byte[] GetTemplateFiles(string rootFilePath)
+        public byte[] GetWebsiteFiles(string rootFilePath)
         {
             return _webBlobContainer.GetAllBytesOrNullAsync(rootFilePath).Result;
         }
@@ -145,7 +145,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return websiteNames.Select(w =>
             {
-                byte[] file = GetTemplateFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + w);
+                byte[] file = GetWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + w);
                 var content = Encoding.Default.GetString(file);
                 return new
                 {
@@ -161,7 +161,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return websiteNames.Select(w =>
             {
-                byte[] file = GetTemplateFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + w);
+                byte[] file = GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + w);
                 var content = Encoding.Default.GetString(file);
                 return new
                 {
@@ -176,5 +176,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.GetAllWebsite();
         }
 
+        public async Task<IEnumerable<byte[]>> DownloadAllFinalFile(Guid conferenceId)
+        {
+            var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+            return listWebsiteFileNames.ToList().Select(name => GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + name));
+        }
     }
 }
