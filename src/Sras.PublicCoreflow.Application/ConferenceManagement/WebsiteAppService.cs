@@ -155,6 +155,22 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
+        public async Task<IEnumerable<object>> GetContentFinalOfWebsite(Guid conferenceId)
+        {
+            var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+
+            return websiteNames.Select(w =>
+            {
+                byte[] file = GetTemplateFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + w);
+                var content = Encoding.Default.GetString(file);
+                return new
+                {
+                    fileName = w,
+                    content
+                };
+            });
+        }
+
         public async Task<IEnumerable<object>> GetAllWebsite()
         {
             return await _websiteRepository.GetAllWebsite();

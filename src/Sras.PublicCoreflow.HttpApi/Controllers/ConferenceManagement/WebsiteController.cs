@@ -95,6 +95,22 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet("get-content-final-file/{conferenceId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetContentFinalOfWebsite(Guid conferenceId)
+        {
+            try
+            {
+                var result = await _websiteAppService.GetContentFinalOfWebsite(conferenceId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
         [HttpGet]
         public async Task<IEnumerable<object>> GetAllWebsite()
         {
