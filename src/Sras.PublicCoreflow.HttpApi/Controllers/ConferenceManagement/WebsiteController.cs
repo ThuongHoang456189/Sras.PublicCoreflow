@@ -121,7 +121,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         [HttpGet("download-all-final-file/{conferenceId}")]
         public async Task<ActionResult> downloadAllFinalFiles(Guid conferenceId)
         {
-            IEnumerable<byte[]> listBytes = await _websiteAppService.DownloadAllFinalFile(conferenceId);
+            IEnumerable<FileNameAndByteDTO> listBytes = await _websiteAppService.DownloadAllFinalFile(conferenceId);
             using (var ms = new MemoryStream())
             {
                 using (var archive =
@@ -131,15 +131,34 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                     var zipEntry = (ZipArchiveEntry)null;
                     foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
                     {
-                        zipEntry = archive.CreateEntry("template" + index + ".html", CompressionLevel.Fastest);
+                        zipEntry = archive.CreateEntry(item.fileName , CompressionLevel.Fastest);
                         using (var zipStream = zipEntry.Open())
                         {
-                            zipStream.Write(item, 0, item.Length);
+                            zipStream.Write(item.bytes, 0, item.bytes.Length);
                         }
                     }
                 }
                 return File(ms.ToArray(), "application/zip", "Final-Content-Website-" + conferenceId +".zip");
             }
+        }
+
+        [HttpGet("delete-final-file/{conferenceId}")]
+        public async Task<ActionResult<bool>> deleteContentFile(Guid conferenceId, string idParent, string idChild)
+        {
+            try
+            {
+                var result = await _websiteAppService.DeleteNavbarAndHrefFile(conferenceId, idParent, idChild);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("Update-pages-website")]
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            return await _websiteAppService.UpdatePageFile(webId, newPages);
         }
 
     }

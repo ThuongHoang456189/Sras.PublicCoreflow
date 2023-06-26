@@ -174,5 +174,33 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
+        public async Task<bool> DeleteFileNameInPages(Guid webId, string fileName)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.Websites.Any(w => w.Id == webId))
+            {
+                dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList().Remove(fileName);
+                dbContext.SaveChanges();
+                return !dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList().Any(name => name == fileName);
+            }
+            else
+            {
+                throw new Exception("WebId is not existing");
+            }
+        }
+
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            var dbContext = await GetDbContextAsync();
+            dbContext.Websites.Where(w => w.Id == webId).First().Pages = newPages;
+            dbContext.SaveChanges();
+            var newWebPage = dbContext.Websites.Where(w => w.Id == webId).First();
+            return new
+            {
+                webId = newWebPage.Id,
+                newPages = newWebPage.Pages,
+            };
+        }
+
     }
 }

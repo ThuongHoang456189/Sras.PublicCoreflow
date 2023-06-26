@@ -140,6 +140,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return _webBlobContainer.GetAllBytesOrNullAsync(rootFilePath).Result;
         }
+
+        public bool DeleteContentFiles(string rootFilePath)
+        {
+            return _webBlobContainer.DeleteAsync(rootFilePath).Result;
+        }
         public async Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId)
         {
             var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
@@ -179,10 +184,36 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.GetAllWebsite();
         }
 
-        public async Task<IEnumerable<byte[]>> DownloadAllFinalFile(Guid conferenceId)
+        public async Task<IEnumerable<FileNameAndByteDTO>> DownloadAllFinalFile(Guid conferenceId)
         {
             var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
-            return listWebsiteFileNames.ToList().Select(name => GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + name));
+            return listWebsiteFileNames.ToList().Select(name => 
+            new FileNameAndByteDTO() { 
+                bytes = GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + name),
+                fileName = name
+            });
+        }
+
+        public async Task<bool> DeleteNavbarAndHrefFile(Guid conferenceId, string idParent, string idChild)
+        {
+            if (idChild != null)
+            {
+                var deleteInDb = await _websiteRepository.DeleteFileNameInPages(conferenceId, idParent + "@" + idChild);
+                return DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && deleteInDb;
+            } else
+            {
+                var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+                var deleteInDb = await _websiteRepository.DeleteFileNameInPages(conferenceId, idParent + "@" + idChild);
+                return listWebsiteFileNames.ToList()
+                    .Where(name => name.Contains(idParent)).ToList()
+                    .Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na))
+                    .Any(statusDelete => !statusDelete) && deleteInDb;
+            }
+        }
+
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            return await UpdatePageFile(webId, newPages);
         }
     }
 }
