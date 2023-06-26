@@ -198,22 +198,36 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             if (idChild != null)
             {
-                var deleteInDb = await _websiteRepository.DeleteFileNameInPages(conferenceId, idParent + "@" + idChild);
-                return DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && deleteInDb;
+                var deleteInDb = _websiteRepository.DeleteFileNameInPages(conferenceId, new List<string>() { idParent + "@" + idChild + ".html" });
+                return DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && 
+                    DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && 
+                    deleteInDb;
             } else
             {
                 var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
-                var deleteInDb = await _websiteRepository.DeleteFileNameInPages(conferenceId, idParent + "@" + idChild);
-                return listWebsiteFileNames.ToList()
-                    .Where(name => name.Contains(idParent)).ToList()
-                    .Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na))
-                    .Any(statusDelete => !statusDelete) && deleteInDb;
+                var needToRemove = listWebsiteFileNames.ToList()
+                    .Where(name => name.StartsWith(idParent)).ToList();
+                var deleteInDb = _websiteRepository.DeleteFileNameInPages(conferenceId, needToRemove);
+                //return listWebsiteFileNames.ToList()
+                //    .Where(name => name.Contains(idParent)).ToList()
+                //    .Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na) && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + na))
+                //    .Any(statusDelete => statusDelete == false) && deleteInDb;
+
+                
+                //var removeFile = needToRemove.Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na) && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + na));
+                var isSuccess = true;
+                foreach ( var item in needToRemove )
+                {
+                    isSuccess = isSuccess && DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + item);
+                    isSuccess = isSuccess && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + item);
+                }
+                return isSuccess && deleteInDb;
             }
         }
 
         public async Task<object> UpdatePageFile(Guid webId, string newPages)
         {
-            return await UpdatePageFile(webId, newPages);
+            return await _websiteRepository.UpdatePageFile(webId, newPages);
         }
     }
 }

@@ -130,7 +130,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             if (!dbContext.Websites.Any(w => w.Id == webId)) throw new Exception("websiteId is not existing");
             var website = dbContext.Websites.FindAsync(webId).Result;
             // add fileName in pages
-            if (website.Pages == null)
+            if (string.IsNullOrEmpty(website.Pages))
             {
                 website.Pages = fileName;
             } else
@@ -174,14 +174,20 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
-        public async Task<bool> DeleteFileNameInPages(Guid webId, string fileName)
+        public bool DeleteFileNameInPages(Guid webId, List<string> needToRemove)
         {
-            var dbContext = await GetDbContextAsync();
+            var dbContext = GetDbContextAsync().Result;
             if (dbContext.Websites.Any(w => w.Id == webId))
             {
-                dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList().Remove(fileName);
+                var listString = dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList();
+                listString.RemoveAll(needToRemove);
+                dbContext.Websites.FindAsync(webId).Result.Pages = string.Join(";", listString);
                 dbContext.SaveChanges();
-                return !dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList().Any(name => name == fileName);
+                if(dbContext.Websites.Where(w => w.Id == webId).First().Pages.Split(";").ToList().Any(name => needToRemove.Contains(name)))
+                {
+                    return false;
+                }
+                return true;
             }
             else
             {

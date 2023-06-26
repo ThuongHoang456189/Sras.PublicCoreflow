@@ -143,7 +143,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("delete-final-file/{conferenceId}")]
-        public async Task<ActionResult<bool>> deleteContentFile(Guid conferenceId, string idParent, string idChild)
+        public async Task<ActionResult<bool>> deleteContentFile(Guid conferenceId, string idParent, string? idChild)
         {
             try
             {
