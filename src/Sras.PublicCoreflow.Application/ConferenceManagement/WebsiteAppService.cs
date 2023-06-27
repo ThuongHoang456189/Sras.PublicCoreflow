@@ -104,6 +104,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //SaveContentWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName, tempFile);
             //// create file in final folder {conferenceId}/final/{fileName}.html
             //SaveContentWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, finalFile);
+            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+
             using (var stream = new MemoryStream())
             {
                 using (StreamWriter writer = new StreamWriter(stream))
@@ -132,7 +134,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             // add file info to DB
-            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+            
 
         }
 
@@ -228,6 +230,22 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<object> UpdatePageFile(Guid webId, string newPages)
         {
             return await _websiteRepository.UpdatePageFile(webId, newPages);
+        }
+
+        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
+        {
+            var listWebsiteFileNames = fileNameContentRequests.ToList();
+
+            foreach(var file in listWebsiteFileNames )
+            {
+                UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
+            }
+            return listWebsiteFileNames.ToList().Select(file =>
+            new FileNameAndByteDTO()
+            {
+                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + file.fileName),
+                fileName = file.fileName
+            });
         }
     }
 }

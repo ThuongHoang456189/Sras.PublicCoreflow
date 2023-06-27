@@ -161,5 +161,29 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _websiteAppService.UpdatePageFile(webId, newPages);
         }
 
+        [HttpPost("export-final-website/{webId}")]
+        public async Task<object> ExportFinalFileOfWebsiteCreating(Guid webId, [FromBody] FileNameContentRequest[] fileNameContentRequests)
+        {
+            IEnumerable<FileNameAndByteDTO> listBytes = _websiteAppService.ExportFinalFileOfWebsiteCreating(webId, fileNameContentRequests);
+            using (var ms = new MemoryStream())
+            {
+                using (var archive =
+                new System.IO.Compression.ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+
+                    var zipEntry = (ZipArchiveEntry)null;
+                    foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
+                    {
+                        zipEntry = archive.CreateEntry(item.fileName, CompressionLevel.Fastest);
+                        using (var zipStream = zipEntry.Open())
+                        {
+                            zipStream.Write(item.bytes, 0, item.bytes.Length);
+                        }
+                    }
+                }
+                return File(ms.ToArray(), "application/zip", "Final-Content-Website-" + webId + ".zip");
+            }
+        }
+
     }
 }

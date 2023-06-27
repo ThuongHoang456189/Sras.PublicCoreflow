@@ -11,6 +11,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
         Task<bool> DeleteNavbarAndHrefFile(Guid conferenceId, string idParent, string idChild);
         Task<IEnumerable<FileNameAndByteDTO>> DownloadAllFinalFile(Guid conferenceId);
+        IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests);
         Task<IEnumerable<object>> GetAllWebsite();
         Task<IEnumerable<object>> GetContentFinalOfWebsite(Guid conferenceId);
         Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId);
