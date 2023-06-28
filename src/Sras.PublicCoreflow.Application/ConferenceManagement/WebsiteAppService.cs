@@ -3,6 +3,8 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -102,6 +104,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //SaveContentWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName, tempFile);
             //// create file in final folder {conferenceId}/final/{fileName}.html
             //SaveContentWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, finalFile);
+            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+
             using (var stream = new MemoryStream())
             {
                 using (StreamWriter writer = new StreamWriter(stream))
@@ -130,23 +134,51 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             // add file info to DB
-            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+            
 
         }
 
-        public byte[] GetTemplateFiles(string rootFilePath)
+        public byte[] GetWebsiteFiles(string rootFilePath)
         {
             return _webBlobContainer.GetAllBytesOrNullAsync(rootFilePath).Result;
         }
-        public object GetContentTempOfWebsite(Guid conferenceId, string fileName)
+
+        public bool DeleteContentFiles(string rootFilePath)
         {
-            byte[] file = GetTemplateFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName);
-            var content = Encoding.Default.GetString(file);
-            return new
+            return _webBlobContainer.DeleteAsync(rootFilePath).Result;
+        }
+        public async Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId)
+        {
+            var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+            if (websiteNames.Count() == 0) { 
+                return Enumerable.Empty<object>();
+            }
+            return websiteNames.Select(w =>
             {
-                websiteId = conferenceId,
-                content
-            };
+                byte[] file = GetWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + w);
+                var content = Encoding.Default.GetString(file);
+                return new
+                {
+                    fileName = w,
+                    content
+                };
+            });
+        }
+
+        public async Task<IEnumerable<object>> GetContentFinalOfWebsite(Guid conferenceId)
+        {
+            var websiteNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+
+            return websiteNames.Select(w =>
+            {
+                byte[] file = GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + w);
+                var content = Encoding.Default.GetString(file);
+                return new
+                {
+                    fileName = w,
+                    content
+                };
+            });
         }
 
         public async Task<IEnumerable<object>> GetAllWebsite()
@@ -154,5 +186,66 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.GetAllWebsite();
         }
 
+        public async Task<IEnumerable<FileNameAndByteDTO>> DownloadAllFinalFile(Guid conferenceId)
+        {
+            var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+            return listWebsiteFileNames.ToList().Select(name => 
+            new FileNameAndByteDTO() { 
+                bytes = GetWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + name),
+                fileName = name
+            });
+        }
+
+        public async Task<bool> DeleteNavbarAndHrefFile(Guid conferenceId, string idParent, string idChild)
+        {
+            if (idChild != null)
+            {
+                var deleteInDb = _websiteRepository.DeleteFileNameInPages(conferenceId, new List<string>() { idParent + "@" + idChild + ".html" });
+                return DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && 
+                    DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + idParent + "@" + idChild + ".html") && 
+                    deleteInDb;
+            } else
+            {
+                var listWebsiteFileNames = await _websiteRepository.GetAllPageNameOfWebsite(conferenceId);
+                var needToRemove = listWebsiteFileNames.ToList()
+                    .Where(name => name.StartsWith(idParent)).ToList();
+                var deleteInDb = _websiteRepository.DeleteFileNameInPages(conferenceId, needToRemove);
+                //return listWebsiteFileNames.ToList()
+                //    .Where(name => name.Contains(idParent)).ToList()
+                //    .Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na) && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + na))
+                //    .Any(statusDelete => statusDelete == false) && deleteInDb;
+
+                
+                //var removeFile = needToRemove.Select(na => DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + na) && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + na));
+                var isSuccess = true;
+                foreach ( var item in needToRemove )
+                {
+                    isSuccess = isSuccess && DeleteContentFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + item);
+                    isSuccess = isSuccess && DeleteContentFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + item);
+                }
+                return isSuccess && deleteInDb;
+            }
+        }
+
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            return await _websiteRepository.UpdatePageFile(webId, newPages);
+        }
+
+        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
+        {
+            var listWebsiteFileNames = fileNameContentRequests.ToList();
+
+            foreach(var file in listWebsiteFileNames )
+            {
+                UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
+            }
+            return listWebsiteFileNames.ToList().Select(file =>
+            new FileNameAndByteDTO()
+            {
+                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + file.fileName),
+                fileName = file.fileName
+            });
+        }
     }
 }

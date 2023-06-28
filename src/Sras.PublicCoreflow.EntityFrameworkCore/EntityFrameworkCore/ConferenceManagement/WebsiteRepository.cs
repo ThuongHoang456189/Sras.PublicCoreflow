@@ -130,7 +130,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             if (!dbContext.Websites.Any(w => w.Id == webId)) throw new Exception("websiteId is not existing");
             var website = dbContext.Websites.FindAsync(webId).Result;
             // add fileName in pages
-            if (website.Pages == null)
+            if (string.IsNullOrEmpty(website.Pages))
             {
                 website.Pages = fileName;
             } else
@@ -159,6 +159,53 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.Websites.ToList();
+        }
+  
+        public async Task<IEnumerable<string>> GetAllPageNameOfWebsite(Guid webId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.Websites.Any(w => w.Id == webId))
+            {
+                if (dbContext.Websites.FindAsync(webId).Result.Pages == null) return Enumerable.Empty<string>();
+                return dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList();
+            } else
+            {
+                throw new Exception("WebId is not existing");
+            }
+        }
+
+        public bool DeleteFileNameInPages(Guid webId, List<string> needToRemove)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            if (dbContext.Websites.Any(w => w.Id == webId))
+            {
+                var listString = dbContext.Websites.FindAsync(webId).Result.Pages.Split(";").ToList();
+                listString.RemoveAll(needToRemove);
+                dbContext.Websites.FindAsync(webId).Result.Pages = string.Join(";", listString);
+                dbContext.SaveChanges();
+                if(dbContext.Websites.Where(w => w.Id == webId).First().Pages.Split(";").ToList().Any(name => needToRemove.Contains(name)))
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                throw new Exception("WebId is not existing");
+            }
+        }
+
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            var dbContext = await GetDbContextAsync();
+            dbContext.Websites.Where(w => w.Id == webId).First().Pages = newPages;
+            dbContext.SaveChanges();
+            var newWebPage = dbContext.Websites.Where(w => w.Id == webId).First();
+            return new
+            {
+                webId = newWebPage.Id,
+                newPages = newWebPage.Pages,
+            };
         }
 
     }

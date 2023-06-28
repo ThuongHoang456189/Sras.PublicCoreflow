@@ -3,6 +3,9 @@ using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -82,14 +85,28 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpGet("get-content-temp-file/{conferenceId}/{fileName}")]
-        public async Task<object> GetContentTempOfWebsite(Guid conferenceId, string fileName)
+        [HttpGet("get-content-temp-file/{conferenceId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetContentTempOfWebsite(Guid conferenceId)
         {
             try
             {
-                var result = _websiteAppService.GetContentTempOfWebsite(conferenceId, fileName);
+                var result = await _websiteAppService.GetContentTempOfWebsite(conferenceId);
                 return Ok(result);
             } catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("get-content-final-file/{conferenceId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetContentFinalOfWebsite(Guid conferenceId)
+        {
+            try
+            {
+                var result = await _websiteAppService.GetContentFinalOfWebsite(conferenceId);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -99,6 +116,73 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<IEnumerable<object>> GetAllWebsite()
         {
             return await _websiteAppService.GetAllWebsite();
+        }
+
+        [HttpGet("download-all-final-file/{conferenceId}")]
+        public async Task<ActionResult> downloadAllFinalFiles(Guid conferenceId)
+        {
+            IEnumerable<FileNameAndByteDTO> listBytes = await _websiteAppService.DownloadAllFinalFile(conferenceId);
+            using (var ms = new MemoryStream())
+            {
+                using (var archive =
+                new System.IO.Compression.ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+
+                    var zipEntry = (ZipArchiveEntry)null;
+                    foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
+                    {
+                        zipEntry = archive.CreateEntry(item.fileName , CompressionLevel.Fastest);
+                        using (var zipStream = zipEntry.Open())
+                        {
+                            zipStream.Write(item.bytes, 0, item.bytes.Length);
+                        }
+                    }
+                }
+                return File(ms.ToArray(), "application/zip", "Final-Content-Website-" + conferenceId +".zip");
+            }
+        }
+
+        [HttpGet("delete-final-file/{conferenceId}")]
+        public async Task<ActionResult<bool>> deleteContentFile(Guid conferenceId, string idParent, string? idChild)
+        {
+            try
+            {
+                var result = await _websiteAppService.DeleteNavbarAndHrefFile(conferenceId, idParent, idChild);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("Update-pages-website")]
+        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        {
+            return await _websiteAppService.UpdatePageFile(webId, newPages);
+        }
+
+        [HttpPost("export-final-website/{webId}")]
+        public async Task<object> ExportFinalFileOfWebsiteCreating(Guid webId, [FromBody] FileNameContentRequest[] fileNameContentRequests)
+        {
+            IEnumerable<FileNameAndByteDTO> listBytes = _websiteAppService.ExportFinalFileOfWebsiteCreating(webId, fileNameContentRequests);
+            using (var ms = new MemoryStream())
+            {
+                using (var archive =
+                new System.IO.Compression.ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+
+                    var zipEntry = (ZipArchiveEntry)null;
+                    foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
+                    {
+                        zipEntry = archive.CreateEntry(item.fileName, CompressionLevel.Fastest);
+                        using (var zipStream = zipEntry.Open())
+                        {
+                            zipStream.Write(item.bytes, 0, item.bytes.Length);
+                        }
+                    }
+                }
+                return File(ms.ToArray(), "application/zip", "Final-Content-Website-" + webId + ".zip");
+            }
         }
 
     }

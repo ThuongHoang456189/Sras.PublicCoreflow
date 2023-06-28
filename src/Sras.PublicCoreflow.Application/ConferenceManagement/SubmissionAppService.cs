@@ -660,7 +660,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return new PagedResultDto<SubmissionAggregationDto>(result != null && result.Count > 0 && result[0] != null && result[0].TotalCount != null ? (long)result[0].TotalCount.Value : 0, items);
         }
 
-        //public async Task<byte[]> GetTemplateFiles(Guid id)
+        //public async Task<byte[]> GetWebsiteFiles(Guid id)
         //{
         //    return await _submissionBlobContainer.GetAllBytesOrNullAsync(id.ToString()+"/green-bird-pink.png");
         //}
