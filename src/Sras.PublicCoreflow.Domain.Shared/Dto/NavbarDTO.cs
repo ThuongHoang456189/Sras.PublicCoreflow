@@ -7,6 +7,5 @@ namespace Sras.PublicCoreflow.Dto
     public class NavbarDTO
     {
         public List<ParentNavbarDTO> navbar { get; set; }
-
     }
 }

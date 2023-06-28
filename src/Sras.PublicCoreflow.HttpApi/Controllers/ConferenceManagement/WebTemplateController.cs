@@ -60,6 +60,34 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetTemplates()
+        {
+            try
+            {
+                var result = await _webTemplateAppService.GetListTemplate();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update-navbar-template")]
+        public async Task<ActionResult<object>> UpdateTemplate(Guid templateId, NavbarDTO navbarDTO)
+        {
+            try
+            {
+                var result = await _webTemplateAppService.UpdateTemplate(templateId, navbarDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         //public async Task<ActionResult<ResponseDto>> CreateWebTemplate(string name, string description, List<RemoteStreamContent> file)
         //{
@@ -149,7 +177,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("templateFileInfos")]
-        public async Task<ActionResult<IEnumerable<object>>> GetListWebTemplateFileInfo()
+        public async Task<ActionResult<object>> GetListWebTemplateFileInfo()
         {
             try
             {
