@@ -208,5 +208,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             };
         }
 
+        public string GetWebsitePage(Guid webId)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            if (dbContext.Websites.Any(w => w.Id == webId))
+                return dbContext.Websites.Where(w => w.Id == webId).First().Pages;
+            else throw new Exception("webId is not existing");
+        }
+
     }
 }

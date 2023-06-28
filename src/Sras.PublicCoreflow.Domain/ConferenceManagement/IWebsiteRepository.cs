@@ -16,6 +16,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<IEnumerable<string>> GetAllPageNameOfWebsite(Guid webId);
         Task<IEnumerable<object>> GetAllWebsite();
         Task<object> getNavbarByConferenceId(Guid conferenceId);
+        string GetWebsitePage(Guid webId);
         Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO);
         Task<object> UpdatePageFile(Guid webId, string newPages);
     }

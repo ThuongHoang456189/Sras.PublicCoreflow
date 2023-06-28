@@ -95,7 +95,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
         }
 
-        public async void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal)
+        public void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal)
         {
             // craete html file with content inside
             //RemoteStreamContent tempFile = GetRemoteStreamFileFromContent(contentTemp);
@@ -104,13 +104,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //SaveContentWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName, tempFile);
             //// create file in final folder {conferenceId}/final/{fileName}.html
             //SaveContentWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, finalFile);
-            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+            //_websiteRepository.AddContentToWebsite(conferenceId, fileName);
 
             using (var stream = new MemoryStream())
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    await writer.WriteAsync(contentTemp);
+                    writer.WriteAsync(contentTemp);
                     writer.Flush();
 
                     stream.Position = 0;
@@ -123,7 +123,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    await writer.WriteAsync(contentFinal);
+                    writer.WriteAsync(contentFinal);
                     writer.Flush();
 
                     stream.Position = 0;
@@ -132,9 +132,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     var result = _webBlobContainer.SaveAsync(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, remoteStreamContent.GetStream(), true);
                 }
             }
-
-            // add file info to DB
-            
 
         }
 
@@ -232,19 +229,28 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.UpdatePageFile(webId, newPages);
         }
 
-        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
+        public bool SaveFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
         {
             var listWebsiteFileNames = fileNameContentRequests.ToList();
-
-            foreach(var file in listWebsiteFileNames )
+            var listFilenames = listWebsiteFileNames.Select(file => file.fileName);
+            var oldPage = _websiteRepository.GetWebsitePage(webId);
+            if (oldPage.IsNullOrEmpty()) _websiteRepository.UpdatePageFile(webId, string.Join(";", listFilenames));
+            else _websiteRepository.UpdatePageFile(webId, oldPage + ";" + string.Join(";", listFilenames));
+            foreach (var file in listWebsiteFileNames )
             {
                 UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
             }
-            return listWebsiteFileNames.ToList().Select(file =>
+            return true;
+        }
+
+        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId)
+        {
+            IEnumerable<string> listNames = _websiteRepository.GetAllPageNameOfWebsite(webId).Result;
+            return listNames.ToList().Select(name =>
             new FileNameAndByteDTO()
             {
-                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + file.fileName),
-                fileName = file.fileName
+                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + name),
+                fileName = name
             });
         }
     }

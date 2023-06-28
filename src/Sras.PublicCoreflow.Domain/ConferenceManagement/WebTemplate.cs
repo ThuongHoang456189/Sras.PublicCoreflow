@@ -9,6 +9,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public string Name { get; set; }
         public string? Description { get; set; }
+        public string? NavBar { get; set; } // {home, conference: [conference-1, conference-2]}
         public string RootFilePath { get; set; }
 
         public ICollection<Website> Websites { get; set; }
