@@ -14,10 +14,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public ICollection<Website> Websites { get; set; }
 
-        public WebTemplate(Guid id, string name, string description, string rootFilePath) : base(id)
+        public WebTemplate(Guid id, string name, string? description, string? navBar, string rootFilePath) : base(id)
         {
             Name = name;
             Description = description;
+            NavBar = navBar;
 
             RootFilePath = rootFilePath;
 

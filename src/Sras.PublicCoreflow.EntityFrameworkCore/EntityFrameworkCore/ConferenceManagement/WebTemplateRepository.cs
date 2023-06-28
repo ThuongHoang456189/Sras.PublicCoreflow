@@ -40,7 +40,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
         {
             var dbContext = GetDbContextAsync().Result;
-            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, rootFilePath);
+
+            // Modified this
+            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, null, rootFilePath);
             dbContext.WebTemplates.Add(webTemplate);
             dbContext.SaveChanges();
         }
