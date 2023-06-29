@@ -106,14 +106,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<IEnumerable<object>> GetListWebTemplate()
         {
             var dbContext = await GetDbContextAsync();
-            var templates = dbContext.WebTemplates.ToList().Select(t => new
+            var templates = dbContext.WebTemplates.Include(w => w.Websites).ToList().Select(t => new
             {
                 id = t.Id,
                 name = t.Name,
+                conferenceHasUsed = t.Websites.ToList().Select(w => w.Id).ToList(),
+                description = t.Description,
                 navbars = JsonSerializer.Deserialize<NavbarDTO>(t.NavBar).navbar
             });
             
             return templates;
+        }
+
+        public async Task<Guid> getTemplateIdByWebId(string websiteId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Websites.Where(w => w.Id.ToString() == websiteId).First().WebTemplateId;
         }
     }
 }

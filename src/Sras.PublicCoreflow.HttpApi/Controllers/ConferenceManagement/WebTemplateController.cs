@@ -61,11 +61,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetTemplates()
+        public async Task<ActionResult<IEnumerable<object>>> GetTemplates(string? websiteId)
         {
             try
             {
-                var result = await _webTemplateAppService.GetListTemplate();
+                var result = await _webTemplateAppService.GetListTemplate(websiteId);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -161,13 +161,29 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
-        public async Task<object> GetListTemplate()
+        public async Task<object> GetListTemplate(string? websiteId)
         {
-            return new
+            var bylesFile = GetTemplateFiles("00676048-fe73-e4b9-7d38-3a0c152f40a6" + "/" + "original-template.html").Result;
+            var stringFile = Encoding.Default.GetString(bylesFile);
+            if (websiteId != null)
             {
-                selectedTemplate = (string)null,
-                templates = await _websiteRepository.GetListWebTemplate()
-            };
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = await _websiteRepository.getTemplateIdByWebId(websiteId),
+                    templates = await _websiteRepository.GetListWebTemplate()
+                };
+            }
+            else
+            {
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = (string)null,
+                    templates = await _websiteRepository.GetListWebTemplate()
+                };
+
+            }
         }
     }
 }
