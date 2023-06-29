@@ -38,6 +38,11 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             .ForMember(sd => sd.AverageScore,
             opt => opt.MapFrom(sp => sp.AverageScore == null ? 0 : sp.AverageScore));
 
+        CreateMap<ActivityDeadline, TrackPlanRecordInput>()
+            .ForMember(p => p.Status,
+            opt => opt.MapFrom(d => d.Status == ActivityDeadlineConsts.Enabled ? ActivityDeadlineConsts.EnabledStatus :
+            d.Status == ActivityDeadlineConsts.Completed ? ActivityDeadlineConsts.CompletedStatus : ActivityDeadlineConsts.DisabledStatus));
+
         CreateMap<IdentityRole, IdentityRoleDto>()
             .MapExtraProperties();
     }

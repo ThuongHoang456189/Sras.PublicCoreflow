@@ -159,15 +159,6 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.SubmissionInstruction)
             .HasMaxLength(TrackConsts.MaxSubmissionInstructionLength);
-
-            b.Property(x => x.DecisionChecklist)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
-
-            b.Property(x => x.PresentationSettings)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
-
-            b.Property(x => x.RevisionSettings)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
         });
 
         builder.Entity<ConferenceRole>(b =>
@@ -464,9 +455,6 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.CopyRightFilePath)
             .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
-
-            b.Property(x => x.Answers)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
         });
 
         builder.Entity<Registration>(b =>
@@ -495,9 +483,6 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.Description)
             .HasMaxLength(1024);
 
-            b.Property(x => x.NavBar)
-            .HasMaxLength(2048);
-
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
         });
@@ -506,12 +491,6 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Websites", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
-
-            b.Property(x => x.NavBar)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
-
-            b.Property(x => x.Pages)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
 
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);

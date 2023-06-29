@@ -68,9 +68,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/submission-settings")]
-        public async Task<string?> UpdateSubmissionSettingsAsync(Guid id, string? submissionSettings, string? submissionInstruction)
+        public async Task<string?> UpdateSubmissionSettingsAsync(Guid id, SettingsDto? submissionSettings, string? submissionInstruction)
         {
-            return await _trackAppService.UpdateSubmissionSettingsAsync(id, submissionSettings, submissionInstruction);
+            return await _trackAppService.UpdateSubmissionSettingsAsync(id, submissionSettings?.Settings, submissionInstruction);
         }
 
         [HttpGet("{id}/submission-settings")]
@@ -86,9 +86,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/conflict-settings")]
-        public async Task<string?> UpdateConflictSettingsAsync(Guid id, string? conflictSettings)
+        public async Task<string?> UpdateConflictSettingsAsync(Guid id, SettingsDto? conflictSettings)
         {
-            return await _trackAppService.UpdateConflictSettingsAsync(id, conflictSettings);
+            return await _trackAppService.UpdateConflictSettingsAsync(id, conflictSettings?.Settings);
         }
 
         [HttpGet("{id}/conflict-settings")]
@@ -98,9 +98,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/review-settings")]
-        public async Task<string?> UpdateReviewSettingsAsync(Guid id, string? reviewSettings)
+        public async Task<string?> UpdateReviewSettingsAsync(Guid id, SettingsDto? reviewSettings)
         {
-            return await _trackAppService.UpdateReviewSettingsAsync(id, reviewSettings);
+            return await _trackAppService.UpdateReviewSettingsAsync(id, reviewSettings?.Settings);
         }
 
         [HttpGet("{id}/review-settings")]
@@ -110,9 +110,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/revision-settings")]
-        public async Task<string?> UpdateRevisionSettingsAsync(Guid id, string? revisionSettings)
+        public async Task<string?> UpdateRevisionSettingsAsync(Guid id, SettingsDto? revisionSettings)
         {
-            return await _trackAppService.UpdateRevisionSettingsAsync(id, revisionSettings);
+            return await _trackAppService.UpdateRevisionSettingsAsync(id, revisionSettings?.Settings);
         }
 
         [HttpGet("{id}/revision-settings")]
@@ -122,9 +122,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/decision-checklist")]
-        public async Task<string?> UpdateDecisionChecklistAsync(Guid id, string? decisionChecklist)
+        public async Task<string?> UpdateDecisionChecklistAsync(Guid id, ChecklistDto? decisionChecklist)
         {
-            return await _trackAppService.UpdateDecisionChecklistAsync(id, decisionChecklist);
+            return await _trackAppService.UpdateDecisionChecklistAsync(id, decisionChecklist?.Checklist);
         }
 
         [HttpGet("{id}/decision-checklist")]
@@ -134,9 +134,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/camera-ready-submission-settings")]
-        public async Task<string?> UpdateCameraReadySubmissionSettingsAsync(Guid id, string? cameraReadySubmissionSettings)
+        public async Task<string?> UpdateCameraReadySubmissionSettingsAsync(Guid id, SettingsDto? cameraReadySubmissionSettings)
         {
-            return await _trackAppService.UpdateCameraReadySubmissionSettingsAsync(id, cameraReadySubmissionSettings);
+            return await _trackAppService.UpdateCameraReadySubmissionSettingsAsync(id, cameraReadySubmissionSettings?.Settings);
         }
 
         [HttpGet("{id}/camera-ready-submission-settings")]
@@ -146,9 +146,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("{id}/presentation-settings")]
-        public async Task<string?> UpdatePresentationSettingsAsync(Guid id, string? presentationSettings)
+        public async Task<string?> UpdatePresentationSettingsAsync(Guid id, SettingsDto? presentationSettings)
         {
-            return await _trackAppService.UpdatePresentationSettingsAsync(id, presentationSettings);
+            return await _trackAppService.UpdatePresentationSettingsAsync(id, presentationSettings?.Settings);
         }
 
         [HttpGet("{id}/presentation-settings")]
