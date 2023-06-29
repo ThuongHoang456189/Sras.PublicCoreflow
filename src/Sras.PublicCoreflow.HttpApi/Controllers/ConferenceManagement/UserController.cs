@@ -103,6 +103,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return new AbpLoginResult(LoginResultType.InvalidUserNameOrPassword);
             }
 
+            //if(!identityUser.EmailConfirmed)
+            //{
+            //    return new AbpLoginResult(LoginResultType.EmailNotConfirmed);
+            //}
+
             var result = GetAbpLoginResult(await _signInManager.CheckPasswordSignInAsync(identityUser, login.Password, true));
 
             if (result.Result != LoginResultType.Success)
@@ -145,10 +150,17 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                                     new Claim("token_id", Guid.NewGuid().ToString())
                                 };
 
-            roles.ForEach(x =>
+            if (roles == null || roles.Count == 0)
             {
-                claims.AddLast(new Claim(AbpClaimTypes.Role, x.Name));
-            });
+                claims.AddLast(new Claim(AbpClaimTypes.Role, "user"));
+            }
+            else
+            {
+                roles.ForEach(x =>
+                {
+                    claims.AddLast(new Claim(AbpClaimTypes.Role, x.Name));
+                });
+            }
 
             var tokenDescription = new SecurityTokenDescriptor
             {

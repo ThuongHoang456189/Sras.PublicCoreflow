@@ -84,6 +84,7 @@ public class PublicCoreflowDbContext :
     public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
     public DbSet<WebTemplate> WebTemplates { get; set; }
     public DbSet<Website> Websites { get; set; }
+    public DbSet<Guideline> Guidelines { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
@@ -158,6 +159,15 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.SubmissionInstruction)
             .HasMaxLength(TrackConsts.MaxSubmissionInstructionLength);
+
+            b.Property(x => x.DecisionChecklist)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
+
+            b.Property(x => x.PresentationSettings)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
+
+            b.Property(x => x.RevisionSettings)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
         });
 
         builder.Entity<ConferenceRole>(b =>
@@ -192,6 +202,9 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.Email)
             .HasMaxLength(OutsiderConsts.MaxEmailLength);
 
+            b.Property(x => x.NamePrefix)
+            .HasMaxLength(OutsiderConsts.MaxNamePrefixLength);
+
             b.Property(x => x.FirstName)
             .HasMaxLength(OutsiderConsts.MaxFirstNameLength);
 
@@ -213,8 +226,14 @@ public class PublicCoreflowDbContext :
             b.ToTable("ActivityDeadlines", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
+            b.Property(x => x.Phase)
+            .HasMaxLength(ActivityDeadlineConsts.MaxPhaseLength);
+
             b.Property(x => x.Name)
-            .HasMaxLength(64);
+            .HasMaxLength(ActivityDeadlineConsts.MaxNameLength);
+
+            b.Property(x => x.GuidelineGroup)
+            .HasMaxLength(ActivityDeadlineConsts.MaxGuidelineGroupLength);
         });
 
         builder.Entity<Author>(b =>
@@ -444,7 +463,10 @@ public class PublicCoreflowDbContext :
             .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
 
             b.Property(x => x.CopyRightFilePath)
-            .HasMaxLength (CameraReadyConsts.MaxFilePathLength);
+            .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
+
+            b.Property(x => x.Answers)
+            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
         });
 
         builder.Entity<Registration>(b =>
@@ -473,6 +495,9 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.Description)
             .HasMaxLength(1024);
 
+            b.Property(x => x.NavBar)
+            .HasMaxLength(2048);
+
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
         });
@@ -493,6 +518,24 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.TempFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+        });
+
+        builder.Entity<Guideline>(b =>
+        {
+            b.ToTable("Guidelines", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(GuidelineConsts.MaxNameLength);
+
+            b.Property(x => x.Description)
+            .HasMaxLength(GuidelineConsts.MaxDescriptionLength);
+
+            b.Property(x => x.GuidelineGroup)
+            .HasMaxLength(GuidelineConsts.MaxGuidelineGroupLength);
+
+            b.Property(x => x.Route)
+            .HasMaxLength(GuidelineConsts.MaxRouteLength);
         });
 
         builder.Entity<SubmissionAggregationSP>(b =>

@@ -122,38 +122,38 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
 
             // Clean track input
-            if(input.Tracks != null)
+            if (input.Tracks != null)
                 input.Tracks = input.Tracks.Distinct().ToList();
 
             if (input.IsSingleTrack)
             {
-                var newTrack = new Track(_guidGenerator.Create(), true, DefaultTrackName, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
+                var newTrack = new Track(_guidGenerator.Create(), true, DefaultTrackName, conferenceId, null, null, null, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
 
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.SupplementaryMaterial, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.ReviewSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.AuthorNotification, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.RevisionSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.CameraReadySubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.SupplementaryMaterial, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.ReviewSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.AuthorNotification, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.RevisionSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.CameraReadySubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
 
                 conference.AddTrack(newTrack);
             }
             else
             {
-                if(input.Tracks != null)
+                if (input.Tracks != null)
                 {
                     input.Tracks.ForEach(x =>
                     {
-                        var newTrack = new Track(_guidGenerator.Create(), false, x, conferenceId, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
+                        var newTrack = new Track(_guidGenerator.Create(), false, x, conferenceId, null, null, null, null, null, null, null, null, JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
 
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.SupplementaryMaterial, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.ReviewSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.AuthorNotification, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.RevisionSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
-                        newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.CameraReadySubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.PaperSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.EditSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.SupplementaryMaterial, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.ReviewSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.AuthorNotification, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.RevisionSubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
+                        //newTrack.ActivityDeadlines.Add(new ActivityDeadline(_guidGenerator.Create(), ActivityDeadlineConsts.CameraReadySubmission, ActivityDeadlineConsts.Disabled, null, newTrack.Id));
 
                         conference.AddTrack(newTrack);
                     });
@@ -178,7 +178,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToDeleteConference);
             //}
 
-            foreach(var ca in conference.ConferenceAccounts)
+            foreach (var ca in conference.ConferenceAccounts)
             {
                 ca.Incumbents.Clear();
             }
@@ -390,7 +390,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<PriceTable?> GetPriceTable(Guid id)
         {
             var conference = await _conferenceRepository.GetAsync(id);
-            if(conference == null)
+            if (conference == null)
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
             }

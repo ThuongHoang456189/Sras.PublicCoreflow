@@ -28,7 +28,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.WebTemplates.ToList().Select(w =>
-            new TemplateResponseDTO() {
+            new TemplateResponseDTO()
+            {
                 Id = w.Id,
                 FileName = w.RootFilePath.Split('/').Last(),
                 FilePath = w.RootFilePath,
@@ -40,7 +41,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
         {
             var dbContext = GetDbContextAsync().Result;
-            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, rootFilePath);
+
+            // Modified this
+            WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, null, rootFilePath);
             dbContext.WebTemplates.Add(webTemplate);
             dbContext.SaveChanges();
         }
@@ -59,7 +62,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     FilePath = result.RootFilePath,
                     Description = result.Description
                 };
-            } else
+            }
+            else
             {
                 throw new Exception("TemplateId not eixsting");
             }

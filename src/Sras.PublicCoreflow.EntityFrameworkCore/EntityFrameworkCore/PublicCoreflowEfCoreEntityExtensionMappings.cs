@@ -70,6 +70,13 @@ public static class PublicCoreflowEfCoreEntityExtensionMappings
                 {
                     propertyBuilder.HasMaxLength(AccountConsts.MaxDomainConflictsLength);
                     propertyBuilder.HasDefaultValue(null);
+                })
+            .MapEfCoreProperty<IdentityUser, string?>(
+                AccountConsts.NamePrefixPropertyName,
+                (_, propertyBuilder) =>
+                {
+                    propertyBuilder.HasMaxLength(AccountConsts.MaxNamePrefixLength);
+                    propertyBuilder.HasDefaultValue(null);
                 });
         });
     }

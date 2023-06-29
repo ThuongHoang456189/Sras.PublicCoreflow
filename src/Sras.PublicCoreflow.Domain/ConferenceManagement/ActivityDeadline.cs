@@ -5,18 +5,44 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class ActivityDeadline : FullAuditedAggregateRoot<Guid>
     {
-        public string Name { get; private set; }
-        public byte Status { get; private set; }
-        public DateTime? Deadline { get; private set; }
         public Guid TrackId { get; private set; }
         public Track Track { get; private set; }
+        public string Phase { get; private set; }
+        public string Name { get; private set; }
+        public DateTime? PlanDeadline { get; set; }
+        public DateTime? Deadline { get; set; }
+        public bool IsCurrent { get; set; }
+        public bool IsNext { get; set; }
+        public byte Status { get; set; }
+        public DateTime? CompletionTime { get; set; }
+        public string? GuidelineGroup { get; set; }
+        public bool IsGuidelineShowed { get; set; }
+        public int Factor { get; set; }
+        public bool IsBeginPhaseMark { get; set; }
+        public bool CanSkip { get; set; }
 
-        public ActivityDeadline(Guid id, string name, byte status, DateTime? deadline, Guid trackId) : base(id) 
+        public ActivityDeadline(Guid id, Guid trackId,
+            string phase, string name,
+            DateTime? planDeadline, DateTime? deadline,
+            bool isCurrent, bool isNext,
+            byte status, DateTime? completionTime,
+            string? guidelineGroup, bool isGuidelineShowed,
+            int factor, bool isBeginPhaseMark, bool canSkip) : base(id)
         {
-            Name = name;
-            Status = status;
-            Deadline = deadline;
             TrackId = trackId;
+            Phase = phase;
+            Name = name;
+            PlanDeadline = planDeadline;
+            Deadline = deadline;
+            IsCurrent = isCurrent;
+            IsNext = isNext;
+            Status = status;
+            CompletionTime = completionTime;
+            GuidelineGroup = guidelineGroup;
+            IsGuidelineShowed = isGuidelineShowed;
+            Factor = factor;
+            IsBeginPhaseMark = isBeginPhaseMark;
+            CanSkip = canSkip;
         }
     }
 }

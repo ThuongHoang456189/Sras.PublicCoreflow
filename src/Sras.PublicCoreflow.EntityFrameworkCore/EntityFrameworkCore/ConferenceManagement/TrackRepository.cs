@@ -54,12 +54,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             try
             {
                 var dbContext = await GetDbContextAsync();
-                if(dbContext.Conferences.Any(co => co.Id == conferenceId))
+                if (dbContext.Conferences.Any(co => co.Id == conferenceId))
                 {
                     var trackId = _guidGenerator.Create();
                     var isDefault = dbContext.Conferences.Where(c => c.Id == conferenceId).First().IsSingleTrack;
-                    var track = new Track(trackId, isDefault, name, conferenceId, 
-                                            null, null, null, null, null, 
+                    var track = new Track(trackId, isDefault, name, conferenceId,
+                                            null, null, null, null, null, null, null, null,
                                             JsonSerializer.Serialize(TrackConsts.DefaultSubjectAreaRelevanceCoefficients));
                     dbContext.Conferences.Where(cc => cc.Id == conferenceId).First().Tracks.Add(track);
                     dbContext.Tracks.Add(track);
@@ -69,11 +69,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         trackId = trackId,
                         trackName = name
                     };
-                } else
+                }
+                else
                 {
                     throw new Exception("ConferenceId not existing");
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception("[ERROR][CreateTrackAsync] " + ex.Message);
             }
@@ -135,13 +137,14 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         //        isSingleTrack = conference.IsSingleTrack
         //    };
         //}
-        public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId) 
+        public async Task<object> GetTracksAndRoleOfUser(Guid userId, Guid conferenceId)
         {
             var dbContext = await GetDbContextAsync();
             if (isUserJoinConference(userId, conferenceId, dbContext).Result)
             {
                 return GetTrackOfTrackChairAndSubRoleEachTrack(userId, conferenceId, dbContext).Result;
-            } else
+            }
+            else
             {
                 var Author = dbContext.ConferenceRoles.Where(cr => cr.Name == "Author").First();
                 var id = Author.Id;
@@ -153,13 +156,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     roles = new List<object> {
                         new {
                             trackId = (string) null,
-                            subRoles = new List<object> { 
+                            subRoles = new List<object> {
                                 new {
                                     id,
-                                    name 
+                                    name
                                 }
                             },
-                        }, 
+                        },
                     },
                 };
             }
@@ -182,8 +185,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var trackChair = conferenceRoles.Where(cr => cr.Name == "Track Chair").First();
             var confAccId = dbContext.ConferenceAccounts.Where(c => c.AccountId == userId && c.ConferenceId == conferenceId).First().Id;
             var defaultSubRoles = new List<SubRole> { };
-            
-            
+
+
 
             defaultSubRoles.Add(new SubRole// default author
             {
@@ -214,8 +217,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 .Where(i => i.ConferenceAccountId == confAccId)
                 .Where(ii => ii.TrackId != null)
                 .GroupBy(i => i.TrackId);
-            
-            var roles = new List<object>(){ };
+
+            var roles = new List<object>() { };
             var subRoles = new List<SubRole>() { };
             var listTrackIdInTracks = new List<Guid>() { };
             foreach (var group in tracks)
@@ -231,18 +234,20 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         name = inc.ConferenceRole.Name,
                         nth = inc.ConferenceRole.Factor
                     }).ToList());
-                    
-                    if (group.Any(g => g.ConferenceRoleId == trackChair.Id)) {
+
+                    if (group.Any(g => g.ConferenceRoleId == trackChair.Id))
+                    {
                         roles.Add(new
                         {
                             trackId = group.Key,
                             subRoles = subRoles.Distinct().OrderBy(s => s.nth).Select(inc => new
                             {
                                 id = inc.id,
-                                name = inc.name                      
+                                name = inc.name
                             }).Distinct().ToList(),
                         });
-                    } else
+                    }
+                    else
                     {
                         roles.Add(new
                         {
@@ -268,9 +273,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         name = inc.name
                     }).Distinct().ToList(),
                 });
-            } 
+            }
 
-            return new {
+            return new
+            {
                 myConferences = GetMyConference(userId, dbContext).Result,
                 tracks = getTrackHaveTrackChairRole(confAccId, dbContext).Result,
                 roles,
@@ -299,10 +305,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             //var DBIncumbents = await dbContext.Incumbents.ToListAsync();
             var tracks = trackIds.Select(tr =>
              new
-                {
-                    trackId = tr,
-                    trackName = dbContext.Tracks.Where(t => t.Id == tr).First().Name,
-                    roles = new List<object> { new { id = conferenceRoleId, name = "Chair"}, dbContext.Incumbents
+             {
+                 trackId = tr,
+                 trackName = dbContext.Tracks.Where(t => t.Id == tr).First().Name,
+                 roles = new List<object> { new { id = conferenceRoleId, name = "Chair"}, dbContext.Incumbents
                                                                                                     .Where(i => i.TrackId == tr && i.ConferenceAccountId == accConfId)
                                                                                                     .OrderBy(incc => incc.ConferenceRole.Factor)
                                                                                                     .Select(inc => new
@@ -310,7 +316,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                                                                                                 id = inc.ConferenceRole.Id,
                                                                                                                 name = inc.ConferenceRole.Name
                                                                                                             }).ToList() }
-                }).ToList();
+             }).ToList();
             //5 Conference = Conferences.Where(conferenceId)
             var conference = dbContext.Conferences.Where(c => c.Id == conferenceId).First();
             if (conference == null) throw new Exception("ConferenceId Not Exist");
@@ -365,7 +371,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return dbContext.Conferences.Where(c => c.Id == conferenceId).First().IsSingleTrack;
         }
 
-        private bool isChairInConference(Guid conAccId, PublicCoreflowDbContext dbContext) 
+        private bool isChairInConference(Guid conAccId, PublicCoreflowDbContext dbContext)
         {
             return dbContext.Incumbents.ToList().Where(i => i.ConferenceAccountId == conAccId).Any(i => i.ConferenceRole.Name == "Chair");
         }
