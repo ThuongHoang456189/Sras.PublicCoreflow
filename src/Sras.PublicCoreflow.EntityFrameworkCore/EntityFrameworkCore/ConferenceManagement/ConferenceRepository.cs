@@ -235,8 +235,9 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     country = c.Country,
                     startDate = c.StartDate,
                     websiteLink = c.WebsiteLink,
-                    isNavbar = dbContext.Websites.Any(w => w.Id == c.Id) && dbContext.Websites.Where(w => w.Id == c.Id).ToList().Any(w => JsonSerializer.Deserialize<NavbarDTO>(w.NavBar).navbar.Count() > 0)
-                }
+                    isNavbar = dbContext.Websites.Any(w => w.Id == c.Id) && dbContext.Websites.Where(w => w.Id == c.Id).ToList().Any(w => JsonSerializer.Deserialize<NavbarDTO>(w.NavBar).navbar.Count() > 0),
+                    isHasWebsite = dbContext.Websites.Any(w => w.Id == c.Id)
+            }
             );
         }
 
