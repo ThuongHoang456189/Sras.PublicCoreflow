@@ -1121,7 +1121,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             if (!isNotFirstTime)
             {
-                var guidelines = await _guidelineRepository.GetListAsync(x => x.GuidelineGroup.ToLower().Equals(ActivityDeadlineConsts.PreSubmissionGuidelineGroup.ToLower()));
+                var guidelines = await _guidelineRepository
+                    .GetListAsync(x => x.GuidelineGroup.ToLower().Equals(ActivityDeadlineConsts.PreSubmissionGuidelineGroup.ToLower()));
+
+                guidelines = guidelines.OrderBy(x => x.Factor).ToList();
 
                 return new GuidelineGroupDto
                 {
@@ -1143,6 +1146,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             else
             {
                 var guidelines = await _guidelineRepository.GetListAsync(x => (x.IsChairOnly == isForChair && !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
+
+                guidelines = guidelines.OrderBy(x => x.Factor).ToList();
 
                 return new GuidelineGroupDto
                 {
