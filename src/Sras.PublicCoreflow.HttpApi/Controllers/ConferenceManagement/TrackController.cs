@@ -193,7 +193,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _trackAppService.CompleteActivityDeadlineAsync(id, activityDeadlineId);
         }
 
-        [HttpPost("{id}/guidelines")]
+        [HttpGet("{id}/guidelines")]
         public async Task<GuidelineGroupDto> GetGuidelines(Guid id, bool isForChair)
         {
             return await _trackAppService.GetGuidelines(id, isForChair);
