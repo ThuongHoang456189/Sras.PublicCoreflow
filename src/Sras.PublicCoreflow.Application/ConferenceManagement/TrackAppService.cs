@@ -182,7 +182,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 }
             }
 
-            return track.SubmissionSettings;
+            return track.SubmissionInstruction;
         }
 
         public async Task<string?> UpdateConflictSettingsAsync(Guid id, string? conflictSettings)
