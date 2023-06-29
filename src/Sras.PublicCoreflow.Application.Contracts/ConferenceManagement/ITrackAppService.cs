@@ -22,6 +22,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<string?> GetConflictSettingsAsync(Guid id);
         Task<string?> UpdateReviewSettingsAsync(Guid id, string? reviewSettings);
         Task<string?> GetReviewSettingsAsync(Guid id);
+        Task DeleteRevisionSettingsAsync(Guid id);
         Task<string?> UpdateRevisionSettingsAsync(Guid id, string? revisionSettings);
         Task<string?> GetRevisionSettingsAsync(Guid id);
         Task<string?> UpdateDecisionChecklistAsync(Guid id, string? decisionChecklist);

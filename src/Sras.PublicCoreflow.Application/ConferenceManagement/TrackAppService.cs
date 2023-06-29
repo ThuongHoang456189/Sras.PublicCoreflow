@@ -307,6 +307,30 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return revisionSettings;
         }
 
+        public async Task DeleteRevisionSettingsAsync(Guid id)
+        {
+            var track = await _trackRepository.FindAsync(id);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            track.RevisionSettings = null;
+
+            await _trackRepository.UpdateAsync(track);
+        }
+
         public async Task<string?> GetRevisionSettingsAsync(Guid id)
         {
             var track = await _trackRepository.FindAsync(id);
@@ -819,7 +843,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
                 if (revisionSettings?.NumberOfRevisions != null)
                 {
-                    throw new Exception("NumberOfRevisions Already Set");
+                    throw new BusinessException("NumberOfRevisions Already Set");
                 }
                 else
                 {

@@ -115,6 +115,14 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _trackAppService.UpdateRevisionSettingsAsync(id, revisionSettings?.Settings);
         }
 
+        [HttpDelete("{id}/revision-settings")]
+        public async Task<IActionResult> DeleteRevisionSettingsAsync(Guid id)
+        {
+            await _trackAppService.DeleteRevisionSettingsAsync(id);
+
+            return Ok("Deleted Successfully!");
+        }
+
         [HttpGet("{id}/revision-settings")]
         public async Task<string?> GetRevisionSettingsAsync(Guid id)
         {
