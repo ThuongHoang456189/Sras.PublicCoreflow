@@ -34,6 +34,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         );
 
         //Task<byte[]> GetSubmissionFiles(Guid id);
-        Task<Stream> DownloadSubmissionFiles(Guid id);
+        Task<ZipFileDto> DownloadSubmissionFiles(Guid id);
     }
 }

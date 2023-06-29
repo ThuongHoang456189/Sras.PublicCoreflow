@@ -42,7 +42,8 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         [HttpGet("{id}/submission-files")]
         public async Task<IActionResult> GetSubmissionFilesAsync(Guid id)
         {
-            return File(await _submissionAppService.DownloadSubmissionFiles(id), "application/zip", id.ToString() + ".zip");
+            var file = await _submissionAppService.DownloadSubmissionFiles(id);
+            return File(file.FileStream, "application/zip", file.FileName);
         }
 
 

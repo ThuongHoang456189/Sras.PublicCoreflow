@@ -667,7 +667,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         //    return await _submissionBlobContainer.GetAllBytesOrNullAsync(id.ToString()+"/green-bird-pink.png");
         //}
 
-        public async Task<Stream> DownloadSubmissionFiles(Guid id)
+        public async Task<ZipFileDto> DownloadSubmissionFiles(Guid id)
         {
             var submission = await _submissionRepository.FindAsync(id);
             if (submission == null)
@@ -701,7 +701,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             File.Delete(storePath);
 
-            return result;
+            return new ZipFileDto
+            {
+                FileName = zipFileName,
+                FileStream = result,
+            };
         }
     }
 }
