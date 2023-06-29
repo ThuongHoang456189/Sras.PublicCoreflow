@@ -19,6 +19,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IIncumbentRepository _incumbentRepository;
         private readonly IRepository<Track, Guid> _trackRepository;
         private readonly IRepository<ActivityDeadline, Guid> _activityDeadlineRepository;
+        private readonly IRepository<Guideline, Guid> _guidelineRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -27,7 +28,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public TrackAppService(IConferenceRepository conferenceRepository, 
             IIncumbentRepository incumbentRepository, IRepository<Track, Guid> trackRepository, 
             ICurrentUser currentUser, IGuidGenerator guidGenerator, ITrackRepository trackRepository1,
-            IRepository<ActivityDeadline, Guid> activityDeadlineRepository)
+            IRepository<ActivityDeadline, Guid> activityDeadlineRepository,
+            IRepository<Guideline, Guid> guidelineRepository)
         {
             _conferenceRepository = conferenceRepository;
             _incumbentRepository = incumbentRepository;
@@ -36,6 +38,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _guidGenerator = guidGenerator;
             _trackRepository2 = trackRepository1;
             _activityDeadlineRepository = activityDeadlineRepository;
+            _guidelineRepository = guidelineRepository;
         }
 
         public async Task<List<TrackBriefInfo>?> GetAllAsync(Guid conferenceId)
@@ -550,7 +553,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     IsNext = false,
                     Status = ActivityDeadlineConsts.EnabledStatus,
                     CompletionTime = null,
-                    GuidelineGroup = null,
+                    GuidelineGroup = ActivityDeadlineConsts.PreSubmissionGuidelineGroup,
                     IsGuidelineShowed = false,
                     Factor = 1,
                     IsBeginPhaseMark = true,
@@ -568,7 +571,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     IsNext = true,
                     Status = ActivityDeadlineConsts.EnabledStatus,
                     CompletionTime = null,
-                    GuidelineGroup = ActivityDeadlineConsts.PreSubmissionGuidelineGroup,
+                    GuidelineGroup = null,
                     IsGuidelineShowed = false,
                     Factor = 2,
                     IsBeginPhaseMark = true,
@@ -1093,6 +1096,60 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             await _activityDeadlineRepository.UpdateAsync(activityDeadline);
 
             return ObjectMapper.Map<ActivityDeadline, TrackPlanRecordInput>(activityDeadline);
+        }
+    
+        public async Task<GuidelineGroupDto> GetGuidelines(Guid trackId, bool isForChair)
+        {
+            var track = await _trackRepository.FindAsync(trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            var isNotFirstTime = await _activityDeadlineRepository.AnyAsync(x => x.TrackId == trackId);
+
+            if (!isNotFirstTime)
+            {
+                var guidelines = await _guidelineRepository.GetListAsync(x => x.GuidelineGroup.ToLower().Equals(ActivityDeadlineConsts.PreSubmissionGuidelineGroup.ToLower()));
+
+                return new GuidelineGroupDto
+                {
+                    GuidelineGroup = ActivityDeadlineConsts.PreSubmissionGuidelineGroup,
+                    Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
+                };
+            }
+
+            var guideline = await _activityDeadlineRepository.FirstOrDefaultAsync(x => x.IsCurrent && !x.GuidelineGroup.IsNullOrWhiteSpace() && !x.IsGuidelineShowed);
+
+            if(guideline == null)
+            {
+                return new GuidelineGroupDto
+                {
+                    GuidelineGroup = null,
+                    Guidelines = null,
+                };
+            }
+            else
+            {
+                var guidelines = await _guidelineRepository.GetListAsync(x => (x.IsChairOnly == isForChair && !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
+
+                return new GuidelineGroupDto
+                {
+                    GuidelineGroup = guideline.GuidelineGroup,
+                    Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
+                };
+            }
         }
     }
 }

@@ -30,5 +30,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<string?> GetCameraReadySubmissionSettingsAsync(Guid id);
         Task<string?> UpdatePresentationSettingsAsync(Guid id, string? presentationSettings);
         Task<string?> GetPresentationSettingsAsync(Guid id);
+        Task<List<TrackPlanRecordInput>> InitializeTrackPlan(Guid id, int numberOfRevisions);
+        Task<List<TrackPlanRecordInput>> GetInitialTrackPlan(Guid id);
+        Task<List<TrackPlanRecordInput>> SaveTrackPlanAsync(Guid trackId, List<TrackPlanRecordInput> trackPlanRecords);
+        Task<List<TrackPlanRecordInput>> GetTrackActivityTimeline(Guid id);
+        Task<List<TrackPlanRecordInput>> ExtendActivityDeadline(Guid trackId, TrackPlanRecordInput activityDeadline);
+        Task<TrackPlanRecordInput> CompleteActivityDeadlineAsync(Guid trackId, Guid activityDeadlineId);
+        Task<GuidelineGroupDto> GetGuidelines(Guid trackId, bool isForChair);
     }
 }

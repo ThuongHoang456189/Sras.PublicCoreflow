@@ -43,6 +43,8 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(d => d.Status == ActivityDeadlineConsts.Enabled ? ActivityDeadlineConsts.EnabledStatus :
             d.Status == ActivityDeadlineConsts.Completed ? ActivityDeadlineConsts.CompletedStatus : ActivityDeadlineConsts.DisabledStatus));
 
+        CreateMap<Guideline, TrackGuidelineDto>();
+
         CreateMap<IdentityRole, IdentityRoleDto>()
             .MapExtraProperties();
     }

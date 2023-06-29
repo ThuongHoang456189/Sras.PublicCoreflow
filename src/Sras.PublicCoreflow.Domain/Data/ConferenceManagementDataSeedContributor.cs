@@ -354,29 +354,27 @@ namespace Sras.PublicCoreflow.Data
 
             var guidelines = new List<Guideline>
             {
-                new Guideline(_guidGenerator.Create(), "Conference General Information", null, "Pre-Submission Guidelines", true, null, 1),
-                new Guideline(_guidGenerator.Create(), "Track", null, "Pre-Submission Guidelines", true, null, 2),
-                new Guideline(_guidGenerator.Create(), "Track Plan", null, "Pre-Submission Guidelines", false, null, 3),
-                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Submission Guidelines", false, null, 4),
-                new Guideline(_guidGenerator.Create(), "Subject Areas", null, "Pre-Submission Guidelines", false, null, 5),
-                new Guideline(_guidGenerator.Create(), "Submission Settings", null, "Pre-Submission Guidelines", false, null, 6),
-                new Guideline(_guidGenerator.Create(), "Submission Questions", null, "Pre-Submission Guidelines", false, null, 7),
+                new Guideline(_guidGenerator.Create(), "Track Plan", null, "Pre-Submission Guidelines", false, null, 1),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Submission Guidelines", false, null, 2),
+                new Guideline(_guidGenerator.Create(), "Subject Areas", null, "Pre-Submission Guidelines", false, null, 3),
+                new Guideline(_guidGenerator.Create(), "Submission Settings", null, "Pre-Submission Guidelines", false, null, 4),
+                new Guideline(_guidGenerator.Create(), "Submission Questions", null, "Pre-Submission Guidelines", false, null, 5),
 
-                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Review-Submission Guidelines", false, null, 8),
-                new Guideline(_guidGenerator.Create(), "Review Settings", null, "Pre-Review-Submission Guidelines", false, null, 9),
-                new Guideline(_guidGenerator.Create(), "Reviewers", null, "Pre-Review-Submission Guidelines", false, null, 10),
-                new Guideline(_guidGenerator.Create(), "Reviewer Assignments", null, "Pre-Review-Submission Guidelines", false, null, 11),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Review-Submission Guidelines", false, null, 6),
+                new Guideline(_guidGenerator.Create(), "Review Settings", null, "Pre-Review-Submission Guidelines", false, null, 7),
+                new Guideline(_guidGenerator.Create(), "Reviewers", null, "Pre-Review-Submission Guidelines", false, null, 8),
+                new Guideline(_guidGenerator.Create(), "Reviewer Assignments", null, "Pre-Review-Submission Guidelines", false, null, 9),
 
-                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Result-Notification Guidelines", false, null, 12),
-                new Guideline(_guidGenerator.Create(), "Decision Checklist", null, "Pre-Result-Notification Guidelines", false, null, 13),
-                new Guideline(_guidGenerator.Create(), "Author Notification Wizard", null, "Pre-Result-Notification Guidelines", false, null, 14),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Result-Notification Guidelines", false, null, 10),
+                new Guideline(_guidGenerator.Create(), "Decision Checklist", null, "Pre-Result-Notification Guidelines", false, null, 11),
+                new Guideline(_guidGenerator.Create(), "Author Notification Wizard", null, "Pre-Result-Notification Guidelines", false, null, 12),
 
-                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 15),
-                new Guideline(_guidGenerator.Create(), "Camera Ready Settings", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 16),
-                new Guideline(_guidGenerator.Create(), "Camera Ready Submission Checklist", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 17),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 13),
+                new Guideline(_guidGenerator.Create(), "Camera Ready Settings", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 14),
+                new Guideline(_guidGenerator.Create(), "Camera Ready Submission Checklist", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 15),
 
-                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Presentation-Submission Guidelines", false, null, 18),
-                new Guideline(_guidGenerator.Create(), "Presentation Settings", null, "Pre-Presentation-Submission Guidelines", false, null, 19),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Presentation-Submission Guidelines", false, null, 16),
+                new Guideline(_guidGenerator.Create(), "Presentation Settings", null, "Pre-Presentation-Submission Guidelines", false, null, 17),
             };
 
             await _guidelineRepository

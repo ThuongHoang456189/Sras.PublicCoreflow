@@ -156,5 +156,47 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _trackAppService.GetPresentationSettingsAsync(id);
         }
+
+        [HttpPost("{id}/track-plan-with-number-of-revisions")]
+        public async Task<List<TrackPlanRecordInput>> InitializeTrackPlan(Guid id, int numberOfRevisions)
+        {
+            return await _trackAppService.InitializeTrackPlan(id, numberOfRevisions);
+        }
+
+        [HttpGet("{id}/track-plan")]
+        public async Task<List<TrackPlanRecordInput>> GetInitialTrackPlan(Guid id)
+        {
+            return await _trackAppService.GetInitialTrackPlan(id);
+        }
+
+        [HttpPost("{id}/track-plan")]
+        public async Task<List<TrackPlanRecordInput>> SaveTrackPlanAsync(Guid id, List<TrackPlanRecordInput> trackPlanRecords)
+        {
+            return await _trackAppService.SaveTrackPlanAsync(id, trackPlanRecords);
+        }
+
+        [HttpGet("{id}/activity-timeline")]
+        public async Task<List<TrackPlanRecordInput>> GetTrackActivityTimeline(Guid id)
+        {
+            return await _trackAppService.GetTrackActivityTimeline(id);
+        }
+
+        [HttpPost("{id}/activity-timeline/extension")]
+        public async Task<List<TrackPlanRecordInput>> ExtendActivityDeadline(Guid id, TrackPlanRecordInput activityDeadline)
+        {
+            return await _trackAppService.ExtendActivityDeadline(id, activityDeadline);
+        }
+
+        [HttpPost("{id}/activity-timeline/completion")]
+        public async Task<TrackPlanRecordInput> CompleteActivityDeadlineAsync(Guid id, Guid activityDeadlineId)
+        {
+            return await _trackAppService.CompleteActivityDeadlineAsync(id, activityDeadlineId);
+        }
+
+        [HttpPost("{id}/guidelines")]
+        public async Task<GuidelineGroupDto> GetGuidelines(Guid id, bool isForChair)
+        {
+            return await _trackAppService.GetGuidelines(id, isForChair);
+        }
     }
 }
