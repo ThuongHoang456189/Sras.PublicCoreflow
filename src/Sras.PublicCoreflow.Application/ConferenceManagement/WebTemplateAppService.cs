@@ -67,14 +67,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
+        public async Task<object> UpdateTemplate(Guid webTemplateId, NavbarDTO navbarDTO)
+        {
+            return _websiteRepository.UpdateTemplate(webTemplateId, navbarDTO);
+        }
+
         public object CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
         {
             var webTemplateId = _guidGenerator.Create();
             var filePath = webTemplateId + "/" + fileName;
             try
             {
-                CreateWebTemplateFiles(filePath, file);
                 _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
+                CreateWebTemplateFiles(filePath, file);
                 var result = _websiteRepository.GetTemplateById(webTemplateId);
                 return new
                 {
@@ -156,5 +161,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
+        public async Task<object> GetListTemplate()
+        {
+            return new
+            {
+                selectedTemplate = (string)null,
+                templates = await _websiteRepository.GetListWebTemplate()
+            };
+        }
     }
 }

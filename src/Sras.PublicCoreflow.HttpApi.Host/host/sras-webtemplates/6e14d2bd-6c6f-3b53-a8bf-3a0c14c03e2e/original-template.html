@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conferences</title>
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.45.1/dist/suneditor.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/suneditor@2.45.1/dist/css/suneditor.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-image: url("https://icc2023.ieee-icc.org/sites/icc2023.ieee-icc.org/files/conferences2_wallpaper/ccncgradient.jpg");
+      }
+      ul, li {
+        list-style: none;
+        list-style-image: none;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .logo{
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        image-rendering: -webkit-optimize-contrast;
+        background-image: none;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #fefefe;
+        padding: 30px;
+      }
+      .header__left {
+        display: flex;
+        align-items: center;
+      }
+      .header__left-logo, .header__right-logo {
+        width: 200px;
+        height: 100px
+      }
+      .header__left-info {
+        margin-left: 24px;
+        font-size: 24px;
+      }
+      .date {
+        margin-bottom: 8px;
+      }
+      .nav {
+        display: 'flex';
+      }
+      .nav-list{
+        display: flex;
+      }
+      .nav-list__item {
+        padding: 12px 24px;
+        position: relative;
+        cursor: pointer;
+        background-color: #005f98;
+        color:#fefefe;
+        text-transform: capitalize;
+        font-size: 16px;
+        border-right: 1px solid #fefefe;
+      }
+      .nav-list__item:hover {
+        background-color: #00aeef;
+      }
+      .hide-items {
+        display: none;
+        position: absolute;
+        z-index: 2;
+        background-color: #005f98;
+        top: 100%;
+        left: 0;
+        min-width: 200px;
+      }
+      .nav-list__item:hover .hide-items {
+        display: block !important;
+      }
+      .hide-items-dropdown {
+        text-transform: capitalize;
+        background-color: #005f98;
+      }
+      .hide-items-dropdown a{
+        display: block;
+        padding: 10px 15px;
+        font-size: 16px;
+      }
+      .hide-items-dropdown:hover {
+        background-color: #00aeef;
+      }
+      .nav-list__item a, .hide-items-dropdown a {
+        text-decoration: none;
+        color: #fefefe;
+      }
+    </style>
+  </head>
+  <body>
+   <div class="container">
+    <header id="header">{header}</header>
+    <navbar id="nav">{nav}</navbar>
+    <div id="content" class="sun-editor-editable">{content}</div>
+  </body>
+   </div>
+</html>
