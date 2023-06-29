@@ -130,5 +130,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
         }
+
+        [HttpGet("{id}/selected-brief-info")]
+        public async Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id)
+        {
+            return await _submissionAppService.GetSelectedSubmissionBriefInfoAsync(id);
+        }
     }
 }

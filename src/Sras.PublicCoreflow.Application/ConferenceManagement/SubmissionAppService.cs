@@ -707,5 +707,30 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 FileStream = result,
             };
         }
+
+        public async Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id)
+        {
+            var submission = await _submissionRepository.FindAsync(id);
+
+            if(submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            var track = await _trackRepository.FindAsync(submission.TrackId);
+
+            if (track == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
+
+            return new SelectedSubmissionBriefInfo
+            {
+                SubmissionId = submission.Id,
+                Title = submission.Title,
+                TrackId = submission.TrackId,
+                TrackName = track.Name
+            };
+        }
     }
 }
