@@ -9,11 +9,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface IWebTemplateRepository
     {
-        void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath);
+        void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath, NavbarDTO navbarDTO);
         Task<IEnumerable<string>> GetConferenceUsedByTemplateId(Guid id);
         Task<IEnumerable<object>> GetListWebTemplate();
         Task<IEnumerable<TemplateResponseDTO>> GetListWebTemplateName();
         TemplateResponseDTO GetTemplateById(Guid id);
+        Task<Guid> getTemplateIdByWebId(string websiteId);
         Task<object> UpdateTemplate(Guid webTemplateId, NavbarDTO navbarDTO);
     }
 }

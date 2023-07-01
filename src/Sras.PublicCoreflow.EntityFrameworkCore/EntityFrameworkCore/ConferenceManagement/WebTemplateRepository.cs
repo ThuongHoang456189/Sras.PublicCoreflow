@@ -37,14 +37,16 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             });
         }
 
-        public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath)
+        public void CreateTemplate(Guid webTemplateId, string name, string description, string rootFilePath, NavbarDTO defaultNavbar)
         {
             var dbContext = GetDbContextAsync().Result;
 
             // Modified this
-            var defaultNavbar = new NavbarDTO()
+            if (defaultNavbar.navbar == null)
             {
-                navbar = new List<ParentNavbarDTO>()
+                defaultNavbar = new NavbarDTO()
+                {
+                    navbar = new List<ParentNavbarDTO>()
                 {
                     new ParentNavbarDTO()
                     {
@@ -61,7 +63,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         childs = new List<ChildNavbarDTO>(){ }
                     }
                 }
-            };
+                };
+            }
             WebTemplate webTemplate = new WebTemplate(webTemplateId, name, description, JsonSerializer.Serialize<NavbarDTO>(defaultNavbar), rootFilePath);
             dbContext.WebTemplates.Add(webTemplate);
             dbContext.SaveChanges();
@@ -83,11 +86,11 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 var result = dbContext.WebTemplates.Find(id);
                 return new TemplateResponseDTO()
                 {
-                    Id = id,
+                    Id = result.Id,
                     Name = result.Name,
-                    FileName = result.RootFilePath.Split("/").Last(),
-                    FilePath = result.RootFilePath,
-                    Description = result.Description
+                    conferenceUsed = result?.Websites.ToList().Select(w => w.Id).ToList(),
+                    Description = result.Description,
+                    Navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar)
                 };
             } else
             {
@@ -106,14 +109,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<IEnumerable<object>> GetListWebTemplate()
         {
             var dbContext = await GetDbContextAsync();
-            var templates = dbContext.WebTemplates.ToList().Select(t => new
+            var templates = dbContext.WebTemplates.Include(w => w.Websites).ToList().Select(t => new
             {
                 id = t.Id,
                 name = t.Name,
+                conferenceHasUsed = t.Websites.ToList().Select(w => w.Id).ToList(),
+                description = t.Description,
                 navbars = JsonSerializer.Deserialize<NavbarDTO>(t.NavBar).navbar
             });
             
             return templates;
+        }
+
+        public async Task<Guid> getTemplateIdByWebId(string websiteId)
+        {
+            var dbContext = await GetDbContextAsync();
+            return dbContext.Websites.Where(w => w.Id.ToString() == websiteId).First().WebTemplateId;
         }
     }
 }

@@ -23,6 +23,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IGuidGenerator _guidGenerator;
         private readonly IWebTemplateRepository _websiteRepository;
         private readonly IBlobContainer<WebTemplateContainer> _webTemplateBlobContainer;
+        private readonly string ORIGINAL_TEMPLATE_ROOT_FILE_PATH = "00676048-fe73-e4b9-7d38-3a0c152f40a6/original-template.html";
 
         public WebTemplateAppService(IGuidGenerator guidGenerator, IWebTemplateRepository websiteRepository, IBlobContainer<WebTemplateContainer> webTemplateBlobContainer)
         {
@@ -72,23 +73,22 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return _websiteRepository.UpdateTemplate(webTemplateId, navbarDTO);
         }
 
-        public object CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
+        public object CreateTemplate(string name, string description, NavbarDTO navbarDTO)
         {
             var webTemplateId = _guidGenerator.Create();
-            var filePath = webTemplateId + "/" + fileName;
+            var filePath = ORIGINAL_TEMPLATE_ROOT_FILE_PATH;
             try
             {
-                _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
-                CreateWebTemplateFiles(filePath, file);
+                _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath, navbarDTO);
+                //CreateWebTemplateFiles(filePath, file);
                 var result = _websiteRepository.GetTemplateById(webTemplateId);
                 return new
                 {
                     id = result.Id,
                     name = result.Name,
-                    fileName = result.FilePath.Split("/").Last(),
-                    content = "",
                     description = result.Description,
-                    size = (float)Math.Round(GetTemplateFiles(result.FilePath).Result.Length / 1024.0, 2)
+                    conferenceUsed = result.conferenceUsed,
+                    navbar = result.Navbar.navbar
                 };
             } catch (Exception ex)
             {
@@ -161,13 +161,34 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
-        public async Task<object> GetListTemplate()
+        public object GetListTemplate(string? websiteId)
         {
-            return new
+            var templates = _websiteRepository.GetListWebTemplate().Result;
+
+            if (websiteId != null)
             {
-                selectedTemplate = (string)null,
-                templates = await _websiteRepository.GetListWebTemplate()
-            };
+                var templateId = _websiteRepository.getTemplateIdByWebId(websiteId).Result;
+                var bylesFile = GetTemplateFiles(ORIGINAL_TEMPLATE_ROOT_FILE_PATH).Result;
+                var stringFile = Encoding.Default.GetString(bylesFile);
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = templateId,
+                    templates =  templates
+                };
+            }
+            else
+            {
+                var bylesFile = GetTemplateFiles(ORIGINAL_TEMPLATE_ROOT_FILE_PATH).Result;
+                var stringFile = Encoding.Default.GetString(bylesFile);
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = (string)null,
+                    templates = templates
+                };
+
+            }
         }
     }
 }
