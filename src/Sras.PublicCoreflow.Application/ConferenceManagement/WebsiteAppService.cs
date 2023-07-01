@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -234,13 +235,48 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var listWebsiteFileNames = fileNameContentRequests.ToList();
             var listFilenames = listWebsiteFileNames.Select(file => file.fileName);
             var oldPage = _websiteRepository.GetWebsitePage(webId);
-            if (oldPage.IsNullOrEmpty()) _websiteRepository.UpdatePageFile(webId, string.Join(";", listFilenames));
-            else _websiteRepository.UpdatePageFile(webId, oldPage + ";" + string.Join(";", listFilenames));
+            _websiteRepository.UpdatePageFile(webId, string.Join(";", listFilenames));
+            var listLabelHref = _websiteRepository.GetAllLabelHrefNavbar(webId);
+            var isDeleteSuccess = true;
             foreach (var file in listWebsiteFileNames )
             {
+                foreach ( var label in listLabelHref.Keys)
+                {
+                    string pattern = @"\{\{" + label + @":(.*?)\}\}";
+
+                    // Create a Regex object with the pattern
+                    Regex regex = new Regex(pattern);
+                    if (regex.IsMatch(file.finalContent))
+                    {
+                        Match match = regex.Match(file.finalContent);
+                        string anyText = null;
+                        // Check if a match is found
+                        if (match.Success)
+                        {
+                            // Get the captured value (anytext)
+                            anyText = match.Groups[1].Value;
+                            if (string.IsNullOrEmpty(anyText)) {
+                                anyText = label;
+                            }
+                        }
+                        else
+                        {
+                            anyText = label;
+                        }
+
+                        // Replace the matched pattern with the desired text
+                        file.finalContent = regex.Replace(file.finalContent, "<a href=\"" + listLabelHref[label] + "\">" + anyText + "</a>");
+                    }
+                }
+                
+                //foreach (var needDel in oldPage.Split(";").ToList())
+                //{
+                //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + TEMP_FOLDER_NAME + needDel).Result;
+                //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + FINAL_FOLDER_NAME + needDel).Result;
+                //}
                 UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
             }
-            return true;
+            return true & isDeleteSuccess;
         }
 
         public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId)
