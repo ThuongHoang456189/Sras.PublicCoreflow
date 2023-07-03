@@ -11,6 +11,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         bool ConfirmEmail(Guid id);
         IEnumerable<RegisterAccountRequest> GetAllAccount();
+        bool isConfirmAccount(Guid id);
         bool UpdateAccount(RegisterAccountRequest registerAccount);
     }
 }

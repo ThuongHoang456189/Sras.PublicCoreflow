@@ -286,7 +286,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         else
                         {
                             return false;
-                            Console.WriteLine("Folder does not exist.");
                         }
                 }
                 catch (Exception ex)

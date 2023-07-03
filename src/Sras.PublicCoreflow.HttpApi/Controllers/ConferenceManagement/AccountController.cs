@@ -6,6 +6,7 @@ using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Sras.PublicCoreflow.Dto;
+using System.Net;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -67,7 +68,14 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         [HttpGet("ConfirmEmail/{id}")]
         public ActionResult<bool> ConfirmEmail(Guid id)
         {
-            return Ok(_accountAppService.ConfirmEmail(id));
+            try
+            {
+                return Ok(_accountAppService.ConfirmEmail(id));
+            } catch (Exception ex)
+            {
+                if (ex.Message == "Account Already Confirmed") return Forbid();
+                else return BadRequest(ex.Message);
+            }
         }
     }
 }

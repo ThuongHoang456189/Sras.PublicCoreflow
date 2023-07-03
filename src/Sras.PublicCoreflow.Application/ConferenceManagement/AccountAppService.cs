@@ -21,8 +21,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IAccountRepository _accountRepository;
         private IGuidGenerator _guidGenerator;
         private readonly IdentityUserManager _identityUserManager;
-
-
+        private readonly IEmailRepository _emailRepository;
 
         public AccountAppService(IRepository<IdentityUser, Guid> userRepository,
             IRepository<Participant, Guid> participantRepository,
@@ -31,7 +30,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IRepository<ConferenceRole, Guid> conferenceRoleRepository,
             IAccountRepository accountRepository,
             IGuidGenerator guidGenerator,
-            IdentityUserManager identityUserManager)
+            IdentityUserManager identityUserManager,
+            IEmailRepository emailRepository)
         {
             _userRepository = userRepository;
             _participantRepository = participantRepository;
@@ -41,6 +41,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _accountRepository = accountRepository;
             _guidGenerator = guidGenerator;
             _identityUserManager = identityUserManager;
+            _emailRepository = emailRepository;
         }
 
         public async Task<AccountWithBriefInfo?> FindAsync(string email)
@@ -68,12 +69,20 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public bool UpdateAccount(RegisterAccountRequest registerAccount)
         {
-            return _accountRepository.UpdateAccount(registerAccount);
+            _accountRepository.UpdateAccount(registerAccount);
+            SendConfirmLinkThroughEmail(registerAccount.Email, registerAccount.Id, "Verify Account");
+            return true;
         }
 
         public bool ConfirmEmail(Guid id)
         {
+            if(_accountRepository.isConfirmAccount(id)) throw new Exception("Account Already Confirmed");
             return _accountRepository.ConfirmEmail(id);
+        }
+
+        public string SendConfirmLinkThroughEmail(string email, Guid nonConfirmedId, string subject)
+        {
+            return _emailRepository.SendEmailAsync(email, "http://localhost:3000/verify?account=" + nonConfirmedId, subject).Result;
         }
     }
 }

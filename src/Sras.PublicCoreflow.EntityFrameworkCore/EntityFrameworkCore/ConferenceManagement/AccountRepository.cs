@@ -54,7 +54,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 var user = dbContext.Users.FindAsync(registerAccount.Id).Result;
                 user.Name = registerAccount.Firstname;
-                user.Surname = registerAccount.Lastname;
+                user.Surname = registerAccount.Lastname + " " + registerAccount.MiddleName;
                 user.SetProperty(AccountConsts.OrganizationPropertyName, registerAccount.Organization);
                 user.SetProperty(AccountConsts.CountryPropertyName, registerAccount.Country);
                 dbContext.SaveChanges();
@@ -73,6 +73,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 dbContext.SaveChanges();
                 return true;
             }
+        }
+
+        public bool isConfirmAccount(Guid id)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            if (!dbContext.Users.Any(u => u.Id != id)) { throw new Exception("Account Not Found"); };
+            return dbContext.Users.Where(u => u.Id == id).First().EmailConfirmed;
         }
     }
 }
