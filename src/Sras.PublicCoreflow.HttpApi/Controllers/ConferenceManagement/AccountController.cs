@@ -5,6 +5,8 @@ using System;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Sras.PublicCoreflow.Dto;
+using System.Net;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -40,6 +42,39 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             else
             {
                 return BadRequest(resultDto);
+            }
+        }
+
+        [HttpPost("update-user-infomation")]
+        public ActionResult<bool> RegisterAccount([FromBody] RegisterAccountRequest registerAccount)
+        {
+            try
+            {
+                var result = _accountAppService.UpdateAccount(registerAccount);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<RegisterAccountRequest>> GetAllAccountInfo()
+        {
+            var result = _accountAppService.GetAllAccount();
+            return Ok(result);
+        }
+
+        [HttpGet("ConfirmEmail/{id}")]
+        public ActionResult<bool> ConfirmEmail(Guid id)
+        {
+            try
+            {
+                return Ok(_accountAppService.ConfirmEmail(id));
+            } catch (Exception ex)
+            {
+                if (ex.Message == "Account Already Confirmed") return Forbid();
+                else return BadRequest(ex.Message);
             }
         }
     }

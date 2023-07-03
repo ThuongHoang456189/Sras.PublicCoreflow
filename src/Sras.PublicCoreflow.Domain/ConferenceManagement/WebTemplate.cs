@@ -9,14 +9,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public string Name { get; set; }
         public string? Description { get; set; }
+        public string? NavBar { get; set; } // {home, conference: [conference-1, conference-2]}
         public string RootFilePath { get; set; }
 
         public ICollection<Website> Websites { get; set; }
 
-        public WebTemplate(Guid id, string name, string description, string rootFilePath) : base(id)
+        public WebTemplate(Guid id, string name, string? description, string? navBar, string rootFilePath) : base(id)
         {
             Name = name;
             Description = description;
+            NavBar = navBar;
 
             RootFilePath = rootFilePath;
 

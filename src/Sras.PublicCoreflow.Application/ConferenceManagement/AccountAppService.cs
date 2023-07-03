@@ -7,6 +7,7 @@ using Volo.Abp.Data;
 using System.Collections.Generic;
 using System.Linq;
 using Sras.PublicCoreflow.Dto;
+using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -17,18 +18,30 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IIncumbentRepository _incumbentRepository;
         private readonly IRepository<ConferenceAccount, Guid> _conferenceAccountRepository;
         private readonly IRepository<ConferenceRole, Guid> _conferenceRoleRepository;
+        private readonly IAccountRepository _accountRepository;
+        private IGuidGenerator _guidGenerator;
+        private readonly IdentityUserManager _identityUserManager;
+        private readonly IEmailRepository _emailRepository;
 
         public AccountAppService(IRepository<IdentityUser, Guid> userRepository,
             IRepository<Participant, Guid> participantRepository,
             IIncumbentRepository incumbentRepository,
             IRepository<ConferenceAccount, Guid> conferenceAccountRepository,
-            IRepository<ConferenceRole, Guid> conferenceRoleRepository)
+            IRepository<ConferenceRole, Guid> conferenceRoleRepository,
+            IAccountRepository accountRepository,
+            IGuidGenerator guidGenerator,
+            IdentityUserManager identityUserManager,
+            IEmailRepository emailRepository)
         {
             _userRepository = userRepository;
             _participantRepository = participantRepository;
             _incumbentRepository = incumbentRepository;
             _conferenceAccountRepository = conferenceAccountRepository;
             _conferenceRoleRepository = conferenceRoleRepository;
+            _accountRepository = accountRepository;
+            _guidGenerator = guidGenerator;
+            _identityUserManager = identityUserManager;
+            _emailRepository = emailRepository;
         }
 
         public async Task<AccountWithBriefInfo?> FindAsync(string email)
@@ -47,6 +60,29 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             result.Country = user.GetProperty<string?>(nameof(result.Country));
 
             return result;
+        }
+
+        public IEnumerable<RegisterAccountRequest> GetAllAccount()
+        {
+            return _accountRepository.GetAllAccount(); 
+        }
+
+        public bool UpdateAccount(RegisterAccountRequest registerAccount)
+        {
+            _accountRepository.UpdateAccount(registerAccount);
+            SendConfirmLinkThroughEmail(registerAccount.Email, registerAccount.Id, "Verify Account");
+            return true;
+        }
+
+        public bool ConfirmEmail(Guid id)
+        {
+            if(_accountRepository.isConfirmAccount(id)) throw new Exception("Account Already Confirmed");
+            return _accountRepository.ConfirmEmail(id);
+        }
+
+        public string SendConfirmLinkThroughEmail(string email, Guid nonConfirmedId, string subject)
+        {
+            return _emailRepository.SendEmailAsync(email, "http://localhost:3000/verify?account=" + nonConfirmedId, subject).Result;
         }
     }
 }

@@ -60,38 +60,66 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet]
+        public ActionResult<IEnumerable<object>> GetTemplates(string? websiteId)
+        {
+            try
+            {
+                var result = _webTemplateAppService.GetListTemplate(websiteId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("update-navbar-template")]
+        public async Task<ActionResult<object>> UpdateTemplate(Guid templateId, NavbarDTO navbarDTO)
+        {
+            try
+            {
+                var result = await _webTemplateAppService.UpdateTemplate(templateId, navbarDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         //public async Task<ActionResult<ResponseDto>> CreateWebTemplate(string name, string description, List<RemoteStreamContent> file)
         //{
         //    var result = await _webTemplateAppService.CreateTemplate(file.First(), name, description);
         //    return Ok(result);
         //}
-        [HttpPost("web-template-files")]
-        public async Task<ActionResult<object>> CreateWebTemplate(string name, string description, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("No file is selected.");
-            }
-            var fileName = file.FileName;
+        //[HttpPost("web-template-files")]
+        //public async Task<ActionResult<object>> CreateWebTemplate(string name, string description, IFormFile file)
+        //{
+        //    if (file == null || file.Length == 0)
+        //    {
+        //        return BadRequest("No file is selected.");
+        //    }
+        //    var fileName = file.FileName;
 
-            try
-            {
-                using (var stream = new MemoryStream())
-                {
-                    await file.CopyToAsync(stream);
-                    stream.Position = 0;
-                    var remoteStreamContent = new RemoteStreamContent(stream);
+        //    try
+        //    {
+        //        using (var stream = new MemoryStream())
+        //        {
+        //            await file.CopyToAsync(stream);
+        //            stream.Position = 0;
+        //            var remoteStreamContent = new RemoteStreamContent(stream);
 
-                    var result = _webTemplateAppService.CreateTemplate(remoteStreamContent, name.Trim(), description.Trim(), fileName);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Error in uploading and creating the web template: " + ex.Message);
-            }
-        }
+        //            //var result = _webTemplateAppService.CreateTemplate(remoteStreamContent, name.Trim(), description.Trim(), fileName);
+        //            return Ok(result);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest("Error in uploading and creating the web template: " + ex.Message);
+        //    }
+        //}
 
         [HttpGet("download-all-templates")]
         public async Task<ActionResult> downloadAllTemplates()
@@ -149,7 +177,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("templateFileInfos")]
-        public async Task<ActionResult<IEnumerable<object>>> GetListWebTemplateFileInfo()
+        public async Task<ActionResult<object>> GetListWebTemplateFileInfo()
         {
             try
             {
@@ -160,5 +188,20 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("create-template")]
+        public async Task<ActionResult<object>> CreateTempalte(string name, string description, [FromBody] NavbarDTO navbar)
+        {
+            try
+            {
+                var result = _webTemplateAppService.CreateTemplate(name, description, navbar);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

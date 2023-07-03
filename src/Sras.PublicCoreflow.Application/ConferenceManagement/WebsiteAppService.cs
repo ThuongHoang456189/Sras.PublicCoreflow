@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Volo.Abp;
@@ -95,7 +96,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.UpdateNavbarByConferenceId(conferenceId, webTemplateId, navbarDTO);
         }
 
-        public async void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal)
+        public void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal)
         {
             // craete html file with content inside
             //RemoteStreamContent tempFile = GetRemoteStreamFileFromContent(contentTemp);
@@ -104,13 +105,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             //SaveContentWebsiteFiles(conferenceId + "/" + TEMP_FOLDER_NAME + "/" + fileName, tempFile);
             //// create file in final folder {conferenceId}/final/{fileName}.html
             //SaveContentWebsiteFiles(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, finalFile);
-            _websiteRepository.AddContentToWebsite(conferenceId, fileName);
+            //_websiteRepository.AddContentToWebsite(conferenceId, fileName);
 
             using (var stream = new MemoryStream())
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    await writer.WriteAsync(contentTemp);
+                    writer.WriteAsync(contentTemp);
                     writer.Flush();
 
                     stream.Position = 0;
@@ -123,7 +124,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    await writer.WriteAsync(contentFinal);
+                    writer.WriteAsync(contentFinal);
                     writer.Flush();
 
                     stream.Position = 0;
@@ -132,9 +133,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     var result = _webBlobContainer.SaveAsync(conferenceId + "/" + FINAL_FOLDER_NAME + "/" + fileName, remoteStreamContent.GetStream(), true);
                 }
             }
-
-            // add file info to DB
-            
 
         }
 
@@ -232,19 +230,81 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _websiteRepository.UpdatePageFile(webId, newPages);
         }
 
-        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
+        public bool SaveFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests)
         {
             var listWebsiteFileNames = fileNameContentRequests.ToList();
-
-            foreach(var file in listWebsiteFileNames )
+            var listFilenames = listWebsiteFileNames.Select(file => file.fileName);
+            var oldPage = _websiteRepository.GetWebsitePage(webId);
+            _websiteRepository.UpdatePageFile(webId, string.Join(";", listFilenames));
+            var listLabelHref = _websiteRepository.GetAllLabelHrefNavbar(webId);
+            var isDeleteSuccess = true;
+            foreach (var file in listWebsiteFileNames )
             {
+                foreach ( var label in listLabelHref.Keys)
+                {
+                    string pattern = @"\{\{" + label + @":(.*?)\}\}";
+
+                    // Create a Regex object with the pattern
+                    Regex regex = new Regex(pattern);
+                    if (regex.IsMatch(file.finalContent))
+                    {
+                        Match match = regex.Match(file.finalContent);
+                        string anyText = null;
+                        // Check if a match is found
+                        if (match.Success)
+                        {
+                            // Get the captured value (anytext)
+                            anyText = match.Groups[1].Value;
+                            if (string.IsNullOrEmpty(anyText)) {
+                                anyText = label;
+                            }
+                        }
+                        else
+                        {
+                            anyText = label;
+                        }
+
+                        // Replace the matched pattern with the desired text
+                        file.finalContent = regex.Replace(file.finalContent, "<a href=\"" + listLabelHref[label] + "\">" + anyText + "</a>");
+                    }
+                }
+
+                //foreach (var needDel in oldPage.Split(";").ToList())
+                //{
+                //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + TEMP_FOLDER_NAME + needDel).Result;
+                //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + FINAL_FOLDER_NAME + needDel).Result;
+                //}
+                try
+                {
+                        // Check if the folder exists
+                        if (Directory.Exists("host/sras-websites/" + webId.ToString()))
+                        {
+                            // Delete the folder and its contents recursively
+                            Directory.Delete("host/sras-websites/" + webId.ToString(), true);
+                            Console.WriteLine("Folder deleted successfully.");
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred: " + ex.Message);
+                }
                 UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
             }
-            return listWebsiteFileNames.ToList().Select(file =>
+            return true & isDeleteSuccess;
+        }
+
+        public IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId)
+        {
+            IEnumerable<string> listNames = _websiteRepository.GetAllPageNameOfWebsite(webId).Result;
+            return listNames.ToList().Select(name =>
             new FileNameAndByteDTO()
             {
-                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + file.fileName),
-                fileName = file.fileName
+                bytes = GetWebsiteFiles(webId + "/" + FINAL_FOLDER_NAME + "/" + name),
+                fileName = name
             });
         }
     }

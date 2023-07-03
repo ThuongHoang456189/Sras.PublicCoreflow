@@ -2,6 +2,7 @@
 using System;
 using Volo.Abp.Application.Services;
 using System.Collections.Generic;
+using Sras.PublicCoreflow.Dto;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {

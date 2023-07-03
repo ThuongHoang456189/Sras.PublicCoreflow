@@ -156,15 +156,25 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPut("Update-pages-website")]
-        public async Task<object> UpdatePageFile(Guid webId, string newPages)
+        public async Task<object> UpdatePageFile(Guid webId, string? newPages)
         {
-            return await _websiteAppService.UpdatePageFile(webId, newPages);
+            if (newPages == null)
+            return await _websiteAppService.UpdatePageFile(webId, "");
+            else
+                return await _websiteAppService.UpdatePageFile(webId, newPages);
+
         }
 
-        [HttpPost("export-final-website/{webId}")]
-        public async Task<object> ExportFinalFileOfWebsiteCreating(Guid webId, [FromBody] FileNameContentRequest[] fileNameContentRequests)
+        [HttpPost("save-final-website/{webId}")]
+        public bool ExportFinalFileOfWebsiteCreating(Guid webId, [FromBody] FileNameContentRequest[] fileNameContentRequests)
         {
-            IEnumerable<FileNameAndByteDTO> listBytes = _websiteAppService.ExportFinalFileOfWebsiteCreating(webId, fileNameContentRequests);
+            return _websiteAppService.SaveFinalFileOfWebsiteCreating(webId, fileNameContentRequests);
+        }
+
+        [HttpGet("export-final-website/{webId}")]
+        public object ExportFinalFileOfWebsiteCreating(Guid webId)
+        {
+            IEnumerable<FileNameAndByteDTO> listBytes = _websiteAppService.ExportFinalFileOfWebsiteCreating(webId);
             using (var ms = new MemoryStream())
             {
                 using (var archive =

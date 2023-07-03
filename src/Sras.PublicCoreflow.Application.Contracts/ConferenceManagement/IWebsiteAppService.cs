@@ -11,7 +11,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> CreateWebsite(Guid webtemplateId, Guid conferenceId);
         Task<bool> DeleteNavbarAndHrefFile(Guid conferenceId, string idParent, string idChild);
         Task<IEnumerable<FileNameAndByteDTO>> DownloadAllFinalFile(Guid conferenceId);
-        IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests);
+        bool SaveFinalFileOfWebsiteCreating(Guid webId, FileNameContentRequest[] fileNameContentRequests);
         Task<IEnumerable<object>> GetAllWebsite();
         Task<IEnumerable<object>> GetContentFinalOfWebsite(Guid conferenceId);
         Task<IEnumerable<object>> GetContentTempOfWebsite(Guid conferenceId);
@@ -20,5 +20,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> UpdateNavbarByConferenceId(Guid conferenceId, Guid webTemplateId, NavbarDTO navbarDTO);
         Task<object> UpdatePageFile(Guid webId, string newPages);
         void UploadContentOfWebsite(Guid conferenceId, string fileName, string contentTemp, string contentFinal);
+        IEnumerable<FileNameAndByteDTO> ExportFinalFileOfWebsiteCreating(Guid webId);
     }
 }
