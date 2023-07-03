@@ -268,12 +268,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         file.finalContent = regex.Replace(file.finalContent, "<a href=\"" + listLabelHref[label] + "\">" + anyText + "</a>");
                     }
                 }
-                
+
                 //foreach (var needDel in oldPage.Split(";").ToList())
                 //{
                 //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + TEMP_FOLDER_NAME + needDel).Result;
                 //    isDeleteSuccess = isDeleteSuccess && _webBlobContainer.DeleteAsync(webId.ToString() + "/" + FINAL_FOLDER_NAME + needDel).Result;
                 //}
+                try
+                {
+                        // Check if the folder exists
+                        if (Directory.Exists("host/sras-websites/" + webId.ToString()))
+                        {
+                            // Delete the folder and its contents recursively
+                            Directory.Delete("host/sras-websites/" + webId.ToString(), true);
+                            Console.WriteLine("Folder deleted successfully.");
+                        }
+                        else
+                        {
+                            return false;
+                            Console.WriteLine("Folder does not exist.");
+                        }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred: " + ex.Message);
+                }
                 UploadContentOfWebsite(webId, file.fileName, file.tempContent, file.finalContent);
             }
             return true & isDeleteSuccess;
