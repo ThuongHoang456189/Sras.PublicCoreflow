@@ -216,5 +216,22 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             else throw new Exception("webId is not existing");
         }
 
+        public Dictionary<string, string> GetAllLabelHrefNavbar(Guid webId)
+        {
+            var dbContext = GetDbContextAsync().Result;
+            Dictionary<string, string> labelAndHrefDTOs = new Dictionary<string, string>();
+            string navbarStr = dbContext.Websites.Where(w => w.Id == webId).First().NavBar;
+            var navbar = JsonSerializer.Deserialize<NavbarDTO>(navbarStr).navbar;
+            foreach( var item in navbar.SelectMany(n => n.childs))
+            {
+                labelAndHrefDTOs.Add(item.childLabel, item.href);
+            }
+            foreach( var itemPar in navbar)
+            {
+                labelAndHrefDTOs.Add(itemPar.parentLabel, itemPar.href);
+            }
+
+            return labelAndHrefDTOs;
+        }
     }
 }
