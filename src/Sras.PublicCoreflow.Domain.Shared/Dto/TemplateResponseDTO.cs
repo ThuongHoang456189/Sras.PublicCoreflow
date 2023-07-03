@@ -6,7 +6,7 @@ namespace Sras.PublicCoreflow.Dto
 {
     public class TemplateResponseDTO
     {
-        public List<Guid>? conferenceUsed;
+        public List<string>? conferenceHasUsed;
 
         public Guid Id { get; set; }
         public string Name { get; set; }

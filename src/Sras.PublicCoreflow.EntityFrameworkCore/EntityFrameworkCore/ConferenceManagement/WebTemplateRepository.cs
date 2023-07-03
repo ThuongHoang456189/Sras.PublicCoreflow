@@ -83,12 +83,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = GetDbContextAsync().Result;
             if (dbContext.WebTemplates.Any(w => w.Id == id))
             {
+                dbContext.WebTemplates.Include(t => t.Websites).ThenInclude(w => w.Conference);
                 var result = dbContext.WebTemplates.Find(id);
                 return new TemplateResponseDTO()
                 {
                     Id = result.Id,
                     Name = result.Name,
-                    conferenceUsed = result?.Websites.ToList().Select(w => w.Id).ToList(),
+                    conferenceHasUsed = dbContext.Conferences.Where(c => result.Websites.Select(w => w.Id).Contains(c.Id)).Select(c => c.FullName).ToList(),
                     Description = result.Description,
                     Navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar)
                 };
@@ -109,11 +110,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<IEnumerable<object>> GetListWebTemplate()
         {
             var dbContext = await GetDbContextAsync();
+            dbContext.WebTemplates.Include(t => t.Websites).ThenInclude(w => w.Conference);
             var templates = dbContext.WebTemplates.Include(w => w.Websites).ToList().Select(t => new
             {
                 id = t.Id,
                 name = t.Name,
-                conferenceHasUsed = t.Websites.ToList().Select(w => w.Id).ToList(),
+                conferenceHasUsed = dbContext.Conferences.Where(c => t.Websites.Select(w => w.Id).Contains(c.Id)).Select(c => c.FullName).ToList(),
                 description = t.Description,
                 navbars = JsonSerializer.Deserialize<NavbarDTO>(t.NavBar).navbar
             });

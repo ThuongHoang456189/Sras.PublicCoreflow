@@ -87,7 +87,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     id = result.Id,
                     name = result.Name,
                     description = result.Description,
-                    conferenceUsed = result.conferenceUsed,
+                    conferenceHasUsed = result.conferenceHasUsed,
                     navbar = result.Navbar.navbar
                 };
             } catch (Exception ex)
@@ -111,7 +111,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         name = item.Name,
                         fileName = item.FileName,
                         description = item.Description,
-                        conferenceUsed = _websiteRepository.GetConferenceUsedByTemplateId(item.Id).Result,
+                        conferenceHasUsed = _websiteRepository.GetConferenceUsedByTemplateId(item.Id).Result,
                         content = stringFile
                     };
                 });
@@ -123,7 +123,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     name = item.Name,
                     fileName = item.FileName,
                     description = item.Description,
-                    conferenceUsed = new List<string>() { },
+                    conferenceHasUsed = new List<string>() { },
                     content = ""
                 });
             }
