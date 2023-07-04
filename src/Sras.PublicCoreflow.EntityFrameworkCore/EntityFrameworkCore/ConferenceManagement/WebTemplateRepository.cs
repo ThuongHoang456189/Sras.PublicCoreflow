@@ -74,12 +74,20 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = GetDbContextAsync().Result;
             
-            var webtemplate = dbContext.WebTemplates.Where(w => w.Id == webTemplateId).First();
+            var webtemplate = dbContext.WebTemplates.Include(w => w.Websites).Where(w => w.Id == webTemplateId).First();
             webtemplate.NavBar = JsonSerializer.Serialize<NavbarDTO>(new NavbarDTO() { navbar = dto.navbar});
             webtemplate.Name = dto.name;
             webtemplate.Description = dto.description;
             dbContext.SaveChanges();
-            return GetTemplateById(webTemplateId);
+            var result = dbContext.WebTemplates.Find(webTemplateId);
+            return new TemplateResponseDTO()
+            {
+                Id = result.Id,
+                Name = result.Name,
+                conferenceHasUsed = dbContext.Conferences.Where(c => result.Websites.Select(w => w.Id).Contains(c.Id)).Select(c => c.FullName).ToList(),
+                Description = result.Description,
+                Navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar)
+            };
         }
 
         public TemplateResponseDTO GetTemplateById(Guid id)
