@@ -21,6 +21,8 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<PlaceholderGroup, Guid> _placeholderGroupRepository;
         private readonly IRepository<SupportedPlaceholder, Guid> _supportedPlaceholderRepository;
         private readonly IRepository<ConflictCase, Guid> _conflictCaseRepository;
+        private readonly IRepository<QuestionGroup, Guid> _questionGroupRepository;
+
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
         private readonly IRepository<Guideline, Guid> _guidelineRepository;
@@ -68,6 +70,7 @@ namespace Sras.PublicCoreflow.Data
             IRepository<PlaceholderGroup, Guid> placeholderGroupRepository,
             IRepository<SupportedPlaceholder, Guid> supportedPlaceholderRepository,
             IRepository<ConflictCase, Guid> conflictCaseRepository,
+            IRepository<QuestionGroup, Guid> questionGroupRepository,
             IdentityUserManager identityUserManager,
             IRepository<IdentityUser, Guid> userRepository,
             IRepository<Guideline, Guid> guidelineRepository)
@@ -79,6 +82,7 @@ namespace Sras.PublicCoreflow.Data
             _placeholderGroupRepository = placeholderGroupRepository;
             _supportedPlaceholderRepository = supportedPlaceholderRepository;
             _conflictCaseRepository = conflictCaseRepository;
+            _questionGroupRepository = questionGroupRepository;
 
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
@@ -381,6 +385,23 @@ namespace Sras.PublicCoreflow.Data
                 .InsertManyAsync(guidelines, autoSave: true);
         }
 
+        private async Task CreateQuestionGroupsAsync()
+        {
+            if (await _questionGroupRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var questionGroups = new List<QuestionGroup>
+            {
+                QuestionGroup.DefaultQuestionGroups.SubmissionQuestionGroup,
+                QuestionGroup.DefaultQuestionGroups.DecisionChecklistGroup,
+                QuestionGroup.DefaultQuestionGroups.CameraReadyChecklistGroup,
+            };
+
+            await _questionGroupRepository.InsertManyAsync(questionGroups, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -395,6 +416,7 @@ namespace Sras.PublicCoreflow.Data
             await CreateSupportedPlaceholdersAsync();
             await CreateConflictCasesAsync();
             await CreateGuidelinesAsync();
+            await CreateQuestionGroupsAsync();
         }
     }
 }

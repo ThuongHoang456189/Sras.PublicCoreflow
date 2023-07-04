@@ -10,6 +10,7 @@ using Volo.Abp.Guids;
 using Volo.Abp.ObjectMapping;
 using Volo.Abp.Users;
 using Sras.PublicCoreflow.Extension;
+using static Sras.PublicCoreflow.ConferenceManagement.TrackAppService;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -20,6 +21,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IRepository<Track, Guid> _trackRepository;
         private readonly IRepository<ActivityDeadline, Guid> _activityDeadlineRepository;
         private readonly IRepository<Guideline, Guid> _guidelineRepository;
+        private readonly IRepository<Question, Guid> _questionRepository;
 
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
@@ -29,7 +31,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IIncumbentRepository incumbentRepository, IRepository<Track, Guid> trackRepository, 
             ICurrentUser currentUser, IGuidGenerator guidGenerator, ITrackRepository trackRepository1,
             IRepository<ActivityDeadline, Guid> activityDeadlineRepository,
-            IRepository<Guideline, Guid> guidelineRepository)
+            IRepository<Guideline, Guid> guidelineRepository,
+            IRepository<Question, Guid> questionRepository)
         {
             _conferenceRepository = conferenceRepository;
             _incumbentRepository = incumbentRepository;
@@ -39,6 +42,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _trackRepository2 = trackRepository1;
             _activityDeadlineRepository = activityDeadlineRepository;
             _guidelineRepository = guidelineRepository;
+            _questionRepository = questionRepository;
         }
 
         public async Task<List<TrackBriefInfo>?> GetAllAsync(Guid conferenceId)
@@ -932,9 +936,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             int twiceNumberOfRevisions = 0;
 
             // Calculate number of revisions
-            for (int i = 1; i <= trackPlanRecords.Count; i++)
+            for (int i = 0; i < trackPlanRecords.Count; i++)
             {
-                trackPlanRecords[i].Factor = i;
+                trackPlanRecords[i].Factor = i + 1;
                 trackPlanRecords[i].Deadline = trackPlanRecords[i].PlanDeadline;
 
                 if (trackPlanRecords[i].Name.ToLower().StartsWith("revision"))
@@ -1179,6 +1183,237 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
                 };
             }
+        }
+
+        public class QuestionOperation
+        {
+            public Question Question { get; set; }
+            public QuestionManipulationOperators Operation { get; set; }
+        }
+
+        public async Task<ResponseDto> CreateOrUpdateQuestionListAsync(Guid trackId, QuestionListInput input)
+        {
+            var track = await _trackRepository.FindAsync(trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            // Skip clean input
+
+            // OldList
+            var existedQuestions = await _questionRepository.GetListAsync(x => x.TrackId == trackId);
+
+            if (input.Questions == null)
+                input.Questions = new List<QuestionDto>();
+
+            List<QuestionOperation> questionOperations = new List<QuestionOperation>();
+
+            for (int i = 0; i < input.Questions.Count; i++)
+            {
+                var q = new Question(
+                    input.Questions[i].Id,
+                    input.Questions[i].QuestionGroupId,
+                    input.Questions[i].TrackId,
+                    input.Questions[i].Title,
+                    input.Questions[i].Text,
+                    input.Questions[i].IsRequired,
+                    input.Questions[i].IsVisibleToReviewers,
+                    input.Questions[i].Type,
+                    input.Questions[i].TypeName,
+                    JsonSerializer.Serialize(input.Questions[i].ShowAs),
+                    i);
+
+                questionOperations.Add(new QuestionOperation
+                {
+                    Question = q,
+                    Operation = existedQuestions.Exists(x => x.Id == q.Id) ?
+                    QuestionManipulationOperators.Update : QuestionManipulationOperators.Add
+                });
+            }
+
+            existedQuestions.ForEach(x =>
+            {
+                if (!input.Questions.Exists(y => y.Id == x.Id))
+                {
+                    questionOperations.Add(new QuestionOperation
+                    {
+                        Question = x,
+                        Operation = QuestionManipulationOperators.Delete
+                    });
+                }
+            });
+
+            questionOperations.ForEach(async x =>
+            {
+                if(x.Operation == QuestionManipulationOperators.Delete)
+                {
+                    await _questionRepository.DeleteAsync(x.Question.Id);
+                }
+                else if(x.Operation == QuestionManipulationOperators.Add)
+                {
+                    await _questionRepository.InsertAsync(x.Question);
+                }
+                else if(x.Operation == QuestionManipulationOperators.Update)
+                {
+                    await _questionRepository.UpdateAsync(x.Question);
+                }
+            });
+
+            return new ResponseDto
+            {
+                IsSuccess = true,
+                Message = "Update Question List successfully"
+            };
+        }
+    
+        public async Task<List<QuestionDto>> GetSubmissionQuestionListAsync(Guid trackId)
+        {
+            var track = await _trackRepository.FindAsync(trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            var existedQuestions = await _questionRepository.GetListAsync(x => x.TrackId == trackId && x.QuestionGroupId 
+            == QuestionGroup.DefaultQuestionGroups.SubmissionQuestionGroup.Id);
+
+            existedQuestions = existedQuestions.OrderBy(x => x.Index).ToList();
+
+            var result = new List<QuestionDto>();
+
+            existedQuestions.ForEach(x =>
+            {
+                result.Add(new QuestionDto
+                {
+                    Id = x.Id,
+                    QuestionGroupId = x.QuestionGroupId,
+                    TrackId = x.TrackId,
+                    Title = x.Title,
+                    Text = x.Text,
+                    IsRequired = x.IsRequired,
+                    IsVisibleToReviewers = x.IsVisibleToReviewers,
+                    Type = x.Type,
+                    TypeName = x.TypeName,
+                    ShowAs = JsonSerializer.Deserialize<ShowAsDto>(x.ShowAs)
+                });
+            });
+
+            return result;
+        }
+
+        public async Task<List<QuestionDto>> GetDecisionChecklistQuestionsAsync(Guid trackId)
+        {
+            var track = await _trackRepository.FindAsync(trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            var existedQuestions = await _questionRepository.GetListAsync(x => x.TrackId == trackId && x.QuestionGroupId
+            == QuestionGroup.DefaultQuestionGroups.DecisionChecklistGroup.Id);
+
+            existedQuestions = existedQuestions.OrderBy(x => x.Index).ToList();
+
+            var result = new List<QuestionDto>();
+
+            existedQuestions.ForEach(x =>
+            {
+                result.Add(new QuestionDto
+                {
+                    Id = x.Id,
+                    QuestionGroupId = x.QuestionGroupId,
+                    TrackId = x.TrackId,
+                    Title = x.Title,
+                    Text = x.Text,
+                    IsRequired = x.IsRequired,
+                    IsVisibleToReviewers = x.IsVisibleToReviewers,
+                    Type = x.Type,
+                    TypeName = x.TypeName,
+                    ShowAs = JsonSerializer.Deserialize<ShowAsDto>(x.ShowAs)
+                });
+            });
+
+            return result;
+        }
+
+        public async Task<List<QuestionDto>> GetCameraReadyChecklistQuestionsAsync(Guid trackId)
+        {
+            var track = await _trackRepository.FindAsync(trackId);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            var existedQuestions = await _questionRepository.GetListAsync(x => x.TrackId == trackId && x.QuestionGroupId
+            == QuestionGroup.DefaultQuestionGroups.CameraReadyChecklistGroup.Id);
+
+            existedQuestions = existedQuestions.OrderBy(x => x.Index).ToList();
+
+            var result = new List<QuestionDto>();
+
+            existedQuestions.ForEach(x =>
+            {
+                result.Add(new QuestionDto
+                {
+                    Id = x.Id,
+                    QuestionGroupId = x.QuestionGroupId,
+                    TrackId = x.TrackId,
+                    Title = x.Title,
+                    Text = x.Text,
+                    IsRequired = x.IsRequired,
+                    IsVisibleToReviewers = x.IsVisibleToReviewers,
+                    Type = x.Type,
+                    TypeName = x.TypeName,
+                    ShowAs = JsonSerializer.Deserialize<ShowAsDto>(x.ShowAs)
+                });
+            });
+
+            return result;
         }
     }
 }

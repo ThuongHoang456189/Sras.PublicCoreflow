@@ -38,5 +38,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<List<TrackPlanRecordInput>> ExtendActivityDeadline(Guid trackId, TrackPlanRecordInput activityDeadline);
         Task<TrackPlanRecordInput> CompleteActivityDeadlineAsync(Guid trackId, Guid activityDeadlineId);
         Task<GuidelineGroupDto> GetGuidelines(Guid trackId, bool isForChair);
+        Task<ResponseDto> CreateOrUpdateQuestionListAsync(Guid trackId, QuestionListInput input);
+        Task<List<QuestionDto>> GetSubmissionQuestionListAsync(Guid trackId);
+        Task<List<QuestionDto>> GetDecisionChecklistQuestionsAsync(Guid trackId);
+        Task<List<QuestionDto>> GetCameraReadyChecklistQuestionsAsync(Guid trackId);
     }
 }

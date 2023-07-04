@@ -28,7 +28,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public ICollection<SubjectArea> SubjectAreas { get; set; }
         public ICollection<Submission> Submissions { get; set; }
         public ICollection<ConflictCase> ConflictCases { get; set; }
-        public ICollection<QuestionGroupTrack> QuestionGroups { get; set; }
+        public ICollection<Question> Questions { get; set; }
         public ICollection<ActivityDeadline> ActivityDeadlines { get; set; }
 
         public Track(
@@ -64,7 +64,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             SubjectAreas = new Collection<SubjectArea>();
             Submissions = new Collection<Submission>();
             ConflictCases = new Collection<ConflictCase>();
-            QuestionGroups = new Collection<QuestionGroupTrack>();
+            Questions = new Collection<Question>();
             ActivityDeadlines = new Collection<ActivityDeadline>();
         }
 

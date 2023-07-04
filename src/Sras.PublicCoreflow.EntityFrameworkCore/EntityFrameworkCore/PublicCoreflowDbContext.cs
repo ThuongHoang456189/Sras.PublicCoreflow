@@ -71,7 +71,6 @@ public class PublicCoreflowDbContext :
     public DbSet<PlaceholderGroup> PlaceholderGroups { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionGroup> QuestionsGroups { get; set; }
-    public DbSet<QuestionGroupTrack> QuestionGroupTracks { get; set; }
     public DbSet<ReviewAssignment> ReviewAssignments { get; set; }
     public DbSet<SubjectArea> SubjectAreas { get; set; }
     public DbSet<Submission> Submissions { get; set; }
@@ -344,6 +343,18 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Questions", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.Title)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Text)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Type)
+            .HasMaxLength(64);
+
+            b.Property(x => x.TypeName)
+            .HasMaxLength(64);
         });
 
         builder.Entity<QuestionGroup>(b =>
@@ -352,13 +363,7 @@ public class PublicCoreflowDbContext :
             b.ConfigureByConvention();
 
             b.Property(x => x.Name)
-            .HasMaxLength(64);
-        });
-
-        builder.Entity<QuestionGroupTrack>(b =>
-        {
-            b.ToTable("QuestionGroupTracks", PublicCoreflowConsts.DbSchema);
-            b.ConfigureByConvention();
+            .HasMaxLength(256);
         });
 
         builder.Entity<ReviewAssignment>(b =>

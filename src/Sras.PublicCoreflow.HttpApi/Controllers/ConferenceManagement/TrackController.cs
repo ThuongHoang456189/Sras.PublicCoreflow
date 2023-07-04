@@ -206,5 +206,29 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _trackAppService.GetGuidelines(id, isForChair);
         }
+
+        [HttpPost("{id}/submission-questions")]
+        public async Task<IActionResult> CreateOrUpdateQuestionListAsync(Guid id, QuestionListInput input)
+        {
+            return Ok(await _trackAppService.CreateOrUpdateQuestionListAsync(id, input));
+        }
+
+        [HttpGet("{id}/submission-questions")]
+        public async Task<List<QuestionDto>> GetSubmissionQuestionListAsync(Guid id)
+        {
+            return await _trackAppService.GetSubmissionQuestionListAsync(id);
+        }
+
+        [HttpGet("{id}/decision-checklist-questions")]
+        public async Task<List<QuestionDto>> GetDecisionChecklistQuestionsAsync(Guid id)
+        {
+            return await _trackAppService.GetDecisionChecklistQuestionsAsync(id);
+        }
+
+        [HttpGet("{id}/camera-ready-checklist-questions")]
+        public async Task<List<QuestionDto>> GetCameraReadyChecklistQuestionsAsync(Guid id)
+        {
+            return await _trackAppService.GetCameraReadyChecklistQuestionsAsync(id);
+        }
     }
 }
