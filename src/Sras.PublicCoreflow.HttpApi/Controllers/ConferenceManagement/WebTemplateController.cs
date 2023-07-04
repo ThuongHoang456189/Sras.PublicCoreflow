@@ -74,12 +74,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
-        [HttpPut("update-navbar-template")]
-        public async Task<ActionResult<object>> UpdateTemplate(Guid templateId, NavbarDTO navbarDTO)
+        [HttpPut("update-navbar-template/{templateId}")]
+        public async Task<ActionResult<object>> UpdateTemplate(Guid templateId, [FromBody] TemplateCreateRequestDTO dto)
         {
             try
             {
-                var result = await _webTemplateAppService.UpdateTemplate(templateId, navbarDTO);
+                var result = await _webTemplateAppService.UpdateTemplate(templateId, dto);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -199,6 +199,20 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
             catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{templateId}")]
+        public async Task<ActionResult<bool>> DeleteWebTemplateById(Guid templateId)
+        {
+            try
+            {
+                var result = await _webTemplateAppService.DeleteWebTemplateById(templateId);
+                return Ok(result);
+            } catch(Exception ex)
+            {
+                if (ex.Message == "Web Template is using") return Forbid();
                 return BadRequest(ex.Message);
             }
         }

@@ -54,7 +54,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             {
                 var user = dbContext.Users.FindAsync(registerAccount.Id).Result;
                 user.Name = registerAccount.Firstname;
-                user.Surname = registerAccount.Lastname + " " + registerAccount.MiddleName;
+                user.Surname = registerAccount.Lastname;
+                user.SetProperty(AccountConsts.MiddleNamePropertyName, registerAccount.MiddleName);
                 user.SetProperty(AccountConsts.OrganizationPropertyName, registerAccount.Organization);
                 user.SetProperty(AccountConsts.CountryPropertyName, registerAccount.Country);
                 dbContext.SaveChanges();
