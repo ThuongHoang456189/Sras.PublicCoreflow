@@ -15,7 +15,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<FileDTO> downloadOneTemplate(Guid templateId);
         Task<IEnumerable<object>> GetListWebTemplateFileInfo();
         object GetListTemplate(string? websiteId);
-        Task<object> UpdateTemplate(Guid webTemplateId, NavbarDTO navbarDTO);
         object CreateTemplate(string name, string description, NavbarDTO navbarDTO);
+        Task<object> UpdateTemplate(Guid webTemplateId, TemplateCreateRequestDTO dto);
+        Task<bool> DeleteWebTemplateById(Guid templateId);
     }
 }

@@ -70,12 +70,24 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             dbContext.SaveChanges();
         }
 
-        public async Task<object> UpdateTemplate(Guid webTemplateId, NavbarDTO navbarDTO)
+        public async Task<TemplateResponseDTO> UpdateTemplate(Guid webTemplateId, TemplateCreateRequestDTO dto)
         {
             var dbContext = GetDbContextAsync().Result;
-            dbContext.WebTemplates.Where(w => w.Id == webTemplateId).First().NavBar = JsonSerializer.Serialize<NavbarDTO>(navbarDTO);
+            
+            var webtemplate = dbContext.WebTemplates.Include(w => w.Websites).Where(w => w.Id == webTemplateId).First();
+            webtemplate.NavBar = JsonSerializer.Serialize<NavbarDTO>(new NavbarDTO() { navbar = dto.navbar});
+            webtemplate.Name = dto.name;
+            webtemplate.Description = dto.description;
             dbContext.SaveChanges();
-            return dbContext.WebTemplates.Where(w => w.Id == webTemplateId).First();
+            var result = dbContext.WebTemplates.Find(webTemplateId);
+            return new TemplateResponseDTO()
+            {
+                Id = result.Id,
+                Name = result.Name,
+                conferenceHasUsed = dbContext.Conferences.Where(c => result.Websites.Select(w => w.Id).Contains(c.Id)).Select(c => c.FullName).ToList(),
+                Description = result.Description,
+                Navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar)
+            };
         }
 
         public TemplateResponseDTO GetTemplateById(Guid id)
@@ -127,6 +139,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.Websites.Where(w => w.Id.ToString() == websiteId).First().WebTemplateId;
+        }
+
+        public async Task<bool> RemoveTemplateByTemplateId(Guid templateId)
+        {
+            var dbContext = await GetDbContextAsync();
+            var template = dbContext.WebTemplates.Include(w => w.Websites).Where(t => t.Id == templateId).First();
+            if(dbContext.Conferences.Where(c => template.Websites.Select(w => w.Id).Contains(c.Id)).Any())
+            {
+                throw new Exception("Web Template is using");
+            }
+            dbContext.WebTemplates.Remove(template);
+            return true;
         }
     }
 }

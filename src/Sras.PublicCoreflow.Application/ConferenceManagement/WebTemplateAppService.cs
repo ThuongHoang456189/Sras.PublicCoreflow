@@ -68,9 +68,17 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public async Task<object> UpdateTemplate(Guid webTemplateId, NavbarDTO navbarDTO)
+        public async Task<object> UpdateTemplate(Guid webTemplateId, TemplateCreateRequestDTO dto)
         {
-            return _websiteRepository.UpdateTemplate(webTemplateId, navbarDTO);
+            var result = await _websiteRepository.UpdateTemplate(webTemplateId, dto);
+            return new
+            {
+                id = result.Id,
+                name = result.Name,
+                description = result.Description,
+                conferenceHasUsed = result.conferenceHasUsed,
+                navbar = result.Navbar.navbar
+            };
         }
 
         public object CreateTemplate(string name, string description, NavbarDTO navbarDTO)
@@ -189,6 +197,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 };
 
             }
+        }
+
+        public async Task<bool> DeleteWebTemplateById(Guid templateId)
+        {
+            return await _websiteRepository.RemoveTemplateByTemplateId(templateId);
         }
     }
 }
