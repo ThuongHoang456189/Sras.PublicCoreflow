@@ -84,6 +84,7 @@ public class PublicCoreflowDbContext :
     public DbSet<WebTemplate> WebTemplates { get; set; }
     public DbSet<Website> Websites { get; set; }
     public DbSet<Guideline> Guidelines { get; set; }
+    public DbSet<SubmissionAttachment> SubmissionAttachments { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
@@ -520,6 +521,18 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Route)
             .HasMaxLength(GuidelineConsts.MaxRouteLength);
+        });
+
+        builder.Entity<SubmissionAttachment>(b =>
+        {
+            b.ToTable("SubmissionAttachments", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootSupplementaryMaterialFilePath)
+            .HasMaxLength(SubmissionAttachmentConsts.MaxRootFilePathLength);
+
+            b.Property(x => x.RootPresentationFilePath)
+            .HasMaxLength(SubmissionAttachmentConsts.MaxRootFilePathLength);
         });
 
         builder.Entity<SubmissionAggregationSP>(b =>

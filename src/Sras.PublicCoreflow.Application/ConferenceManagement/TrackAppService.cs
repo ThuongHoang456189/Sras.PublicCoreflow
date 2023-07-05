@@ -1173,7 +1173,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
             else
             {
-                var guidelines = await _guidelineRepository.GetListAsync(x => (x.IsChairOnly == isForChair && !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
+                var guidelines = await _guidelineRepository.GetListAsync(x => ((x.IsChairOnly && x.IsChairOnly == isForChair) || !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
 
                 guidelines = guidelines.OrderBy(x => x.Factor).ToList();
 
