@@ -74,7 +74,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 priceTable = ConferenceConsts.DefaultPriceTable;
             }
-            else if (conference.RegistrationSettings != null && !conference.RegistrationSettings.IsNullOrWhiteSpace())
+            else if (conference.RegistrationSettings != null && !string.IsNullOrWhiteSpace(conference.RegistrationSettings))
             {
                 priceTable = JsonSerializer.Deserialize<PriceTable?>(conference.RegistrationSettings);
             }

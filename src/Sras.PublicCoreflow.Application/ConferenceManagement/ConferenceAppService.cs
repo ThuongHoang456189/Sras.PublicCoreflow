@@ -403,7 +403,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
             else
             {
-                if (conference.RegistrationSettings == null || conference.RegistrationSettings.IsNullOrWhiteSpace())
+                if (conference.RegistrationSettings == null || string.IsNullOrWhiteSpace(conference.RegistrationSettings))
                     return new PriceTable();
                 return JsonSerializer.Deserialize<PriceTable?>(conference.RegistrationSettings);
             }

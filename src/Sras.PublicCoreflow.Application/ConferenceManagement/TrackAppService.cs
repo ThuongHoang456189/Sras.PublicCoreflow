@@ -1160,29 +1160,39 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
                 };
             }
-
-            var guideline = await _activityDeadlineRepository.FirstOrDefaultAsync(x => x.IsCurrent && !x.GuidelineGroup.IsNullOrWhiteSpace() && !x.IsGuidelineShowed);
-
-            if(guideline == null)
+            try
             {
-                return new GuidelineGroupDto
+                //var guideline = await _activityDeadlineRepository.FirstOrDefaultAsync(x => x.IsCurrent && !x.GuidelineGroup.IsNullOrWhiteSpace() && !x.IsGuidelineShowed);
+
+                var guideline = await _activityDeadlineRepository.FirstOrDefaultAsync(x => x.IsCurrent && !string.IsNullOrWhiteSpace(x.GuidelineGroup) && !x.IsGuidelineShowed);
+
+                if (guideline == null)
                 {
-                    GuidelineGroup = null,
-                    Guidelines = null,
-                };
+                    return new GuidelineGroupDto
+                    {
+                        GuidelineGroup = null,
+                        Guidelines = null,
+                    };
+                }
+                else
+                {
+                    var guidelines = await _guidelineRepository.GetListAsync(x => (x.IsChairOnly == isForChair && !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
+
+                    guidelines = guidelines.OrderBy(x => x.Factor).ToList();
+
+                    return new GuidelineGroupDto
+                    {
+                        GuidelineGroup = guideline.GuidelineGroup,
+                        Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
+                    };
+                }
             }
-            else
+            catch(Exception ex)
             {
-                var guidelines = await _guidelineRepository.GetListAsync(x => (x.IsChairOnly == isForChair && !x.IsChairOnly) && x.GuidelineGroup.ToLower().Equals(guideline.GuidelineGroup.ToLower()));
-
-                guidelines = guidelines.OrderBy(x => x.Factor).ToList();
-
-                return new GuidelineGroupDto
-                {
-                    GuidelineGroup = guideline.GuidelineGroup,
-                    Guidelines = ObjectMapper.Map<List<Guideline>, List<TrackGuidelineDto>>(guidelines)
-                };
+                Console.WriteLine(ex.Message);
             }
+
+            return null;
         }
 
         public class QuestionOperation
