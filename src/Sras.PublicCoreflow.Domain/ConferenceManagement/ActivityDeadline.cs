@@ -20,6 +20,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public int Factor { get; set; }
         public bool IsBeginPhaseMark { get; set; }
         public bool CanSkip { get; set; }
+        public int? RevisionNo { get; set; }
 
         public ActivityDeadline(Guid id, Guid trackId,
             string phase, string name,
@@ -27,7 +28,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             bool isCurrent, bool isNext,
             byte status, DateTime? completionTime,
             string? guidelineGroup, bool isGuidelineShowed,
-            int factor, bool isBeginPhaseMark, bool canSkip) : base(id)
+            int factor, bool isBeginPhaseMark, bool canSkip, int? revisionNo) : base(id)
         {
             TrackId = trackId;
             Phase = phase;
@@ -43,6 +44,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Factor = factor;
             IsBeginPhaseMark = isBeginPhaseMark;
             CanSkip = canSkip;
+            RevisionNo = revisionNo;
         }
     }
 }

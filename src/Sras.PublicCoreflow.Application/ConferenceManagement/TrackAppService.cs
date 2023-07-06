@@ -586,6 +586,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 1,
                     IsBeginPhaseMark = true,
                     CanSkip = false,
+                    RevisionNo = null
                 },
                 new TrackPlanRecordInput
                 {
@@ -604,6 +605,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 2,
                     IsBeginPhaseMark = true,
                     CanSkip = false,
+                    RevisionNo = null
                 },
                 new TrackPlanRecordInput
                 {
@@ -622,6 +624,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 3,
                     IsBeginPhaseMark = false,
                     CanSkip = false,
+                    RevisionNo = null
                 },
                 new TrackPlanRecordInput
                 {
@@ -640,6 +643,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 4,
                     IsBeginPhaseMark = false,
                     CanSkip = true,
+                    RevisionNo = null
                 },
                 new TrackPlanRecordInput
                 {
@@ -658,6 +662,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 5,
                     IsBeginPhaseMark = false,
                     CanSkip = true,
+                    RevisionNo = null
                 },
                 new TrackPlanRecordInput
                 {
@@ -676,6 +681,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     Factor = 6,
                     IsBeginPhaseMark = false,
                     CanSkip = false,
+                    RevisionNo = null
                 }
             };
 
@@ -699,6 +705,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 5+2*i,
                         IsBeginPhaseMark = false,
                         CanSkip = true,
+                        RevisionNo = i
                     });
                 list.Add(
                     new TrackPlanRecordInput
@@ -718,6 +725,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 6+2*i,
                         IsBeginPhaseMark = false,
                         CanSkip = true,
+                        RevisionNo = i
                     });
             }
 
@@ -739,6 +747,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 6 + 2 * numberOfRevisions + 1,
                         IsBeginPhaseMark = false,
                         CanSkip = false,
+                        RevisionNo = null
                     });
             list.Add(
                     new TrackPlanRecordInput
@@ -758,6 +767,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 6 + 2 * numberOfRevisions + 2,
                         IsBeginPhaseMark = false,
                         CanSkip = false,
+                        RevisionNo = null
                     });
             list.Add(
                     new TrackPlanRecordInput
@@ -777,6 +787,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 6 + 2 * numberOfRevisions + 3,
                         IsBeginPhaseMark = false,
                         CanSkip = false,
+                        RevisionNo = null
                     });
             list.Add(
                     new TrackPlanRecordInput
@@ -796,6 +807,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         Factor = 6 + 2 * numberOfRevisions + 4,
                         IsBeginPhaseMark = false,
                         CanSkip = false,
+                        RevisionNo = null
                     });
 
             return list;
@@ -943,6 +955,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                 if (trackPlanRecords[i].Name.ToLower().StartsWith("revision"))
                 {
+                    if(trackPlanRecords[i].Name.ToLower().EndsWith("Review Submission Deadline".ToLower()))
+                    {
+                        trackPlanRecords[i].RevisionNo = (i - 5) / 2;
+                    }
+                    else
+                    {
+                        trackPlanRecords[i].RevisionNo = (i - 4) / 2;
+                    }
+
                     twiceNumberOfRevisions++;
                 }
             }
@@ -976,7 +997,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 activityDeadlines.Add(
                     new ActivityDeadline(record.Id, trackId, record.Phase, record.Name, record.PlanDeadline?.Date, record.PlanDeadline?.Date, record.IsCurrent, record.IsNext, ActivityDeadlineConsts.Enabled, 
-                    null, record.GuidelineGroup, record.IsGuidelineShowed, record.Factor, record.IsBeginPhaseMark, record.CanSkip));
+                    null, record.GuidelineGroup, record.IsGuidelineShowed, record.Factor, record.IsBeginPhaseMark, record.CanSkip, record.RevisionNo));
             });
 
             await _activityDeadlineRepository.InsertManyAsync(activityDeadlines);
@@ -1006,6 +1027,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var deadlines = await _activityDeadlineRepository.GetListAsync(x => x.TrackId == track.Id && !x.Name.ToLower().Equals(ActivityDeadlineConsts.StartDate.ToLower())
             && !x.Name.ToLower().Equals(ActivityDeadlineConsts.EndDate.ToLower()));
 
+            deadlines = deadlines.OrderBy(x => x.Factor).ToList();
+
             return ObjectMapper.Map<List<ActivityDeadline>, List<TrackPlanRecordInput>>(deadlines);
         }
 
@@ -1031,21 +1054,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var deadlines = await _activityDeadlineRepository.GetListAsync(x => x.TrackId == track.Id && !x.Name.ToLower().Equals(ActivityDeadlineConsts.StartDate.ToLower())
             && !x.Name.ToLower().Equals(ActivityDeadlineConsts.EndDate.ToLower()));
 
-            var currentPlanDeadline = deadlines.First(x => x.IsCurrent).PlanDeadline;
+            var currentPlanDeadline = deadlines.FirstOrDefault(x => x.IsCurrent)?.PlanDeadline;
             if (currentPlanDeadline == null)
             {
-                throw new BusinessException("Current Plan Deadline not Existed");
+                throw new BusinessException("Current plan deadline not extendable");
             }
 
-            var nextPlanDeadline = deadlines.First(x => x.IsNext).PlanDeadline;
+            var nextPlanDeadline = deadlines.FirstOrDefault(x => x.IsNext)?.PlanDeadline;
             if (nextPlanDeadline == null)
             {
-                throw new BusinessException("Next Plan Deadline not Existed");
+                throw new BusinessException("All plan deadlines have been overdue");
             }
 
             if ((DateTime.Now.Date.AddDays(1) - currentPlanDeadline.Value.Date).Days < 0)
             {
-                throw new BusinessException("Cannot extend Deadline before the day before the Plan Deadline");
+                throw new BusinessException("Cannot extend the deadline before the day before the plan deadline");
             }
             else
             {
@@ -1057,17 +1080,17 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                 if (!today.IsLessThan(DateTimeExtensions.MinDate(oldDeadline, newDeadline)))
                 {
-                    throw new Exception("Both the new Deadline and the old Deadline should be at least a day after today");
+                    throw new Exception("Both the new deadline and the old deadline should be at least a day after today");
                 }
                 else
                 {
                     if (!newDeadline.IsGreaterThan(DateTimeExtensions.MaxDate(today, currentPlanDeadline.Value)))
                     {
-                        throw new Exception("The new Deadline should greater both today and plan deadline");
+                        throw new Exception("The new deadline should greater both today and plan deadline");
                     }
                     else
                     {
-                        if(!newDeadline.IsLessThan(nextPlanDeadline.Value))
+                        if (!newDeadline.IsLessThan(nextPlanDeadline.Value))
                         {
                             throw new Exception("The new deadline should less than the next plan deadline");
                         }
@@ -1077,7 +1100,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                             deadlines.ForEach(x =>
                             {
-                                if(x.Factor >= updatingDeadline.Factor && x.Deadline.Value.Date == updatingDeadline.Deadline.Value.Date)
+                                if (x.Factor >= updatingDeadline.Factor && x.Deadline.Value.Date == updatingDeadline.Deadline.Value.Date)
                                 {
                                     x.Deadline = activityDeadline.Deadline;
                                 }

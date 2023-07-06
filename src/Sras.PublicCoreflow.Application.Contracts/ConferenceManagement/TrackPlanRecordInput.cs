@@ -19,5 +19,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public int Factor { get; set; }
         public bool IsBeginPhaseMark { get; set; }
         public bool CanSkip { get; set; }
+        public int? RevisionNo { get; set; }
     }
 }
