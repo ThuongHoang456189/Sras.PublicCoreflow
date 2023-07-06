@@ -47,16 +47,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     
                     var outsiderResult = await dbContext.Outsiders.AddAsync(outsider);
                     await dbContext.SaveChangesAsync();
-
+                    var result = dbContext.Outsiders.Include(o => o.Participants).FirstOrDefault(o => o.Email == request.Email);
                     return new OutsiderCreateResponse()
                     {
-                        OutsiderId = outsiderId.ToString(),
-                        Email = request.Email,
-                        Firstname = request.Firstname,
-                        Lastname = request.Lastname,
-                        Organization = request.Organization,
+                        OutsiderId = result.Id.ToString(),
+                        Email = result.Email,
+                        Firstname = result.FirstName,
+                        Middlename = result.MiddleName,
+                        Lastname = result.LastName,
+                        Organization = result.Organization,
                         hasAccount = false,
-                        ParticipantId = participantId,
+                        ParticipantId = result.Participants.First().Id,
+                        Country = result.Country
                     };
                 }
                 catch (Exception ex)
