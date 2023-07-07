@@ -126,12 +126,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 if (dbContext.Users.Any(u => u.Email == email)) 
                     return dbContext.Users.Where(us => us.Email == email).Select(r => new
                     {
-                        id = r.Id, firstName = r.Name, lastName = r.Surname, email = r.Email, organization = r.OrganizationUnits.FirstOrDefault(), hasAccount= true
+                        userId = r.Id,
+                        outsiderId = (string)null,
+                        firstName = r.Name,
+                        middleName = (string)null, // cant get middle
+                        lastName = r.Surname, 
+                        email = r.Email, 
+                        organization = (string)null,  // cant get 
+                        country = (string)null,
+                        hasAccount = true
                     }).First();
                 else if (dbContext.Outsiders.Any(o => o.Email == email))
                     return dbContext.Outsiders.Where(us => us.Email == email).Select(r => new
                     {
-                        id = r.Id,
+                        outsiderId = r.Id,
+                        userId = (string)null,
                         firstname = r.FirstName,
                         middlename = r.MiddleName,
                         lastname = r.LastName,
@@ -141,7 +150,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         hasAccount = false
                     }).First();
 
-                return new { };
+                return (string)null;
             } catch (Exception ex)
             {
                 throw new Exception("[ERROR][SearchOutsiderByEmail] " + ex.Message, ex);
