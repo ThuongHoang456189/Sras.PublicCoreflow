@@ -1,0 +1,22 @@
+[
+  {
+    "ReferenceTypeId": 1,
+    "ReferenceTypeName": "Associate degree"
+  },
+  {
+    "ReferenceTypeId": 2,
+    "ReferenceTypeName": "Bachelor’s degree"
+  },
+  {
+    "ReferenceTypeId": 3,
+    "ReferenceTypeName": "Master’s degree"
+  },
+  {
+    "ReferenceTypeId": 4,
+    "ReferenceTypeName": "Doctoral degree"
+  },
+  {
+    "ReferenceTypeId": 5,
+    "ReferenceTypeName": "Professional degree"
+  }
+]

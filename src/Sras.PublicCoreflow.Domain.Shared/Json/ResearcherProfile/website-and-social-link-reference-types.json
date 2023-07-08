@@ -1,0 +1,10 @@
+[
+  {
+    "ReferenceTypeId": 1,
+    "ReferenceTypeName": "Personal Website"
+  },
+  {
+    "ReferenceTypeId": 2,
+    "ReferenceTypeName": "LinkedIn Profile"
+  }
+]

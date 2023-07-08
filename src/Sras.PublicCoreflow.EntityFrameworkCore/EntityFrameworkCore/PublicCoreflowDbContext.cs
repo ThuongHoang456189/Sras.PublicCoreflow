@@ -71,7 +71,6 @@ public class PublicCoreflowDbContext :
     public DbSet<PlaceholderGroup> PlaceholderGroups { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionGroup> QuestionsGroups { get; set; }
-    public DbSet<QuestionGroupTrack> QuestionGroupTracks { get; set; }
     public DbSet<ReviewAssignment> ReviewAssignments { get; set; }
     public DbSet<SubjectArea> SubjectAreas { get; set; }
     public DbSet<Submission> Submissions { get; set; }
@@ -84,6 +83,9 @@ public class PublicCoreflowDbContext :
     public DbSet<RegistrationPaper> RegistrationPapers { get; set; }
     public DbSet<WebTemplate> WebTemplates { get; set; }
     public DbSet<Website> Websites { get; set; }
+    public DbSet<Guideline> Guidelines { get; set; }
+    public DbSet<SubmissionAttachment> SubmissionAttachments { get; set; }
+    public DbSet<ResearcherProfile> ResearcherProfiles { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
@@ -192,6 +194,9 @@ public class PublicCoreflowDbContext :
             b.Property(x => x.Email)
             .HasMaxLength(OutsiderConsts.MaxEmailLength);
 
+            b.Property(x => x.NamePrefix)
+            .HasMaxLength(OutsiderConsts.MaxNamePrefixLength);
+
             b.Property(x => x.FirstName)
             .HasMaxLength(OutsiderConsts.MaxFirstNameLength);
 
@@ -213,8 +218,14 @@ public class PublicCoreflowDbContext :
             b.ToTable("ActivityDeadlines", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
+            b.Property(x => x.Phase)
+            .HasMaxLength(ActivityDeadlineConsts.MaxPhaseLength);
+
             b.Property(x => x.Name)
-            .HasMaxLength(64);
+            .HasMaxLength(ActivityDeadlineConsts.MaxNameLength);
+
+            b.Property(x => x.GuidelineGroup)
+            .HasMaxLength(ActivityDeadlineConsts.MaxGuidelineGroupLength);
         });
 
         builder.Entity<Author>(b =>
@@ -334,6 +345,18 @@ public class PublicCoreflowDbContext :
         {
             b.ToTable("Questions", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
+
+            b.Property(x => x.Title)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Text)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Type)
+            .HasMaxLength(64);
+
+            b.Property(x => x.TypeName)
+            .HasMaxLength(64);
         });
 
         builder.Entity<QuestionGroup>(b =>
@@ -342,13 +365,7 @@ public class PublicCoreflowDbContext :
             b.ConfigureByConvention();
 
             b.Property(x => x.Name)
-            .HasMaxLength(64);
-        });
-
-        builder.Entity<QuestionGroupTrack>(b =>
-        {
-            b.ToTable("QuestionGroupTracks", PublicCoreflowConsts.DbSchema);
-            b.ConfigureByConvention();
+            .HasMaxLength(256);
         });
 
         builder.Entity<ReviewAssignment>(b =>
@@ -444,7 +461,7 @@ public class PublicCoreflowDbContext :
             .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
 
             b.Property(x => x.CopyRightFilePath)
-            .HasMaxLength (CameraReadyConsts.MaxFilePathLength);
+            .HasMaxLength(CameraReadyConsts.MaxFilePathLength);
         });
 
         builder.Entity<Registration>(b =>
@@ -482,17 +499,83 @@ public class PublicCoreflowDbContext :
             b.ToTable("Websites", PublicCoreflowConsts.DbSchema);
             b.ConfigureByConvention();
 
-            b.Property(x => x.NavBar)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
-
-            b.Property(x => x.Pages)
-            .HasMaxLength(PublicCoreflowConsts.MaxJsonLength);
-
             b.Property(x => x.RootFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
 
             b.Property(x => x.TempFilePath)
             .HasMaxLength(PublicCoreflowConsts.MaxRootFilePathLength);
+        });
+
+        builder.Entity<Guideline>(b =>
+        {
+            b.ToTable("Guidelines", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+            .HasMaxLength(GuidelineConsts.MaxNameLength);
+
+            b.Property(x => x.Description)
+            .HasMaxLength(GuidelineConsts.MaxDescriptionLength);
+
+            b.Property(x => x.GuidelineGroup)
+            .HasMaxLength(GuidelineConsts.MaxGuidelineGroupLength);
+
+            b.Property(x => x.Route)
+            .HasMaxLength(GuidelineConsts.MaxRouteLength);
+        });
+
+        builder.Entity<SubmissionAttachment>(b =>
+        {
+            b.ToTable("SubmissionAttachments", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.RootSupplementaryMaterialFilePath)
+            .HasMaxLength(SubmissionAttachmentConsts.MaxRootFilePathLength);
+
+            b.Property(x => x.RootPresentationFilePath)
+            .HasMaxLength(SubmissionAttachmentConsts.MaxRootFilePathLength);
+        });
+
+        builder.Entity<ResearcherProfile>(b =>
+        {
+            b.ToTable("ResearcherProfiles", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.PublishName)
+            .HasMaxLength(256);
+
+            b.Property(x => x.PrimaryEmail)
+            .HasMaxLength(256);
+
+            b.Property(x => x.Introduction)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Gender)
+            .HasMaxLength(64);
+
+            b.Property(x => x.CurrentResearchScientistTitle)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentAdministrationPosition)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentAcademicFunction)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentDegree)
+            .HasMaxLength(512);
+
+            b.Property(x => x.HomeAddress)
+            .HasMaxLength(1024);
+
+            b.Property(x => x.PhoneNumber)
+            .HasMaxLength(16);
+
+            b.Property(x => x.MobilePhoneNumber)
+            .HasMaxLength(16);
+
+            b.Property(x => x.Fax)
+            .HasMaxLength(32);
         });
 
         builder.Entity<SubmissionAggregationSP>(b =>

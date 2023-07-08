@@ -40,11 +40,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     }
                     var outsiderId = _guidGenerator.Create();
                     var participantId = _guidGenerator.Create();
-                    var outsider = new Outsider(outsiderId, request.Email, request.Firstname, request.Middlename, request.Lastname, request.Organization, request.Country);
+
+                    // Modified this
+                    var outsider = new Outsider(outsiderId, request.Email, null, request.Firstname, request.Middlename, request.Lastname, request.Organization, request.Country);
                     var participant = new Participant(participantId, null, outsiderId);
                     outsider.Participants.Add(participant);
                     //participant.Outsiders.Add(outsider);
-                    
+
                     var outsiderResult = await dbContext.Outsiders.AddAsync(outsider);
                     await dbContext.SaveChangesAsync();
                     var result = dbContext.Outsiders.Include(o => o.Participants).FirstOrDefault(o => o.Email == request.Email);
@@ -72,7 +74,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<IEnumerable<object>> GetAllOutsiders()
         {
             var dbContext = await GetDbContextAsync();
-            var result = await dbContext.Outsiders.Select(x => new 
+            var result = await dbContext.Outsiders.Select(x => new
             {
                 OutsiderId = x.Id.ToString(),
                 Email = x.Email,
@@ -99,7 +101,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 if (request.Lastname != null) needToUpdate.SetLastName(request.Lastname);
                 if (request.Email != null)
                 {
-                    if (request.Email != needToUpdate.Email) {
+                    if (request.Email != needToUpdate.Email)
+                    {
                         if (!dbContext.Outsiders.Any(o => o.Email == request.Email) &&
                         !dbContext.Users.Any(u => u.Email == request.Email))
                             needToUpdate.SetEmail(request.Email);
@@ -109,10 +112,12 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 if (request.Organization != null) needToUpdate.SetOrganization(request.Organization);
                 if (request.Country != null) needToUpdate.SetCountry(request.Country);
                 dbContext.SaveChanges();
-                return new {
+                return new
+                {
                     message = "Update Success"
                 };
-            } else
+            }
+            else
             {
                 throw new Exception("Update Outsider Repo: The OutsiderId is not Existing");
             }
@@ -123,7 +128,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             try
             {
                 var dbContext = await GetDbContextAsync();
-                if (dbContext.Users.Any(u => u.Email == email)) 
+                if (dbContext.Users.Any(u => u.Email == email))
                     return dbContext.Users.Where(us => us.Email == email).Select(r => new
                     {
                         userId = r.Id,

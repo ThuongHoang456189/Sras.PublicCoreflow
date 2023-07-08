@@ -1,0 +1,12 @@
+[
+  {
+    "ReferenceTypeId": 1,
+    "ReferenceTypeName": "ORCID",
+    "IsRequired": true
+  },
+  {
+    "ReferenceTypeId": 2,
+    "ReferenceTypeName": "Scopus ID",
+    "IsRequired": false
+  }
+]

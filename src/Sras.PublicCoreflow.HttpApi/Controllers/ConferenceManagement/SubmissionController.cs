@@ -42,7 +42,8 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         [HttpGet("{id}/submission-files")]
         public async Task<IActionResult> GetSubmissionFilesAsync(Guid id)
         {
-            return File(await _submissionAppService.DownloadSubmissionFiles(id), "application/zip", id.ToString() + ".zip");
+            var file = await _submissionAppService.DownloadSubmissionFiles(id);
+            return File(file.FileStream, "application/zip", file.FileName);
         }
 
 
@@ -83,9 +84,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{id}/reviewer-assignment")]
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid id)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id)
         {
-            return await _submissionAppService.GeSubmissionReviewerAssignmentSuggestionAsync(id);
+            return await _submissionAppService.GetSubmissionReviewerAssignmentSuggestionAsync(id);
         }
 
         [HttpPost("{id}/reviewer-assignment")]
@@ -128,6 +129,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
         {
             return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
+        }
+
+        [HttpGet("{id}/selected-brief-info")]
+        public async Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id)
+        {
+            return await _submissionAppService.GetSelectedSubmissionBriefInfoAsync(id);
         }
     }
 }

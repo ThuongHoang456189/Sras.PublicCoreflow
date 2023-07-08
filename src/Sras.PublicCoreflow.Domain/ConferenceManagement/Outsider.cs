@@ -9,6 +9,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     public class Outsider : FullAuditedAggregateRoot<Guid>
     {
         public string Email { get; private set; }
+        public string? NamePrefix { get; private set; }
         public string FirstName { get; private set; }
         public string? MiddleName { get; private set; }
         public string LastName { get; private set; }
@@ -16,9 +17,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Country { get; private set; }
         public ICollection<Participant> Participants { get; private set; }
 
-        public Outsider(Guid id, string email, string firstName, string? middleName, string lastName, string? organization, string country) : base(id) 
+        public Outsider(Guid id, string email, string? namePrefix, string firstName, string? middleName, string lastName, string? organization, string country) : base(id)
         {
             SetEmail(email);
+            NamePrefix = namePrefix;
             SetFirstName(firstName);
             SetMiddleName(middleName);
             SetLastName(lastName);
@@ -28,7 +30,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Participants = new Collection<Participant>();
         }
 
-        public Outsider SetEmail (string email)
+        public Outsider SetEmail(string email)
         {
             Email = Check.NotNullOrWhiteSpace(string.IsNullOrEmpty(email) ? email : email.Trim(), nameof(email), OutsiderConsts.MaxEmailLength);
             return this;
@@ -67,4 +69,3 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         }
     }
 }
-

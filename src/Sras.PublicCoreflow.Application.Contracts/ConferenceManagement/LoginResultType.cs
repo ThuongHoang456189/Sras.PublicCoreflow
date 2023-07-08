@@ -6,8 +6,10 @@
 
         InvalidUserNameOrPassword = 2,
 
-        NotAllowed = 3,
+        EmailNotConfirmed = 3,
 
-        LockedOut = 4,
+        NotAllowed = 4,
+
+        LockedOut = 5,
     }
 }

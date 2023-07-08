@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Sras.PublicCoreflow.ConferenceManagement;
 using Sras.PublicCoreflow.Dto;
+using System.Text.Json;
+using Volo.Abp.AutoMapper;
 using Volo.Abp.Identity;
 
 namespace Sras.PublicCoreflow;
@@ -37,6 +39,13 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(sp => sp.Reviewed == null ? 0 : sp.Reviewed))
             .ForMember(sd => sd.AverageScore,
             opt => opt.MapFrom(sp => sp.AverageScore == null ? 0 : sp.AverageScore));
+
+        CreateMap<ActivityDeadline, TrackPlanRecordInput>()
+            .ForMember(p => p.Status,
+            opt => opt.MapFrom(d => d.Status == ActivityDeadlineConsts.Enabled ? ActivityDeadlineConsts.EnabledStatus :
+            d.Status == ActivityDeadlineConsts.Completed ? ActivityDeadlineConsts.CompletedStatus : ActivityDeadlineConsts.DisabledStatus));
+
+        CreateMap<Guideline, TrackGuidelineDto>();
 
         CreateMap<IdentityRole, IdentityRoleDto>()
             .MapExtraProperties();

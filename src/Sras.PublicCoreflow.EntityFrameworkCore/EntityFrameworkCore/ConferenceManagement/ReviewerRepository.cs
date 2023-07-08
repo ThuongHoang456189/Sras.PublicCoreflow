@@ -285,7 +285,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                                            SubmissionSubjectAreas = null,
                                            Relevance = 0
                                        })
-                                       .OrderBy(sorting.IsNullOrWhiteSpace() ? ReviewerConsts.DefaultSorting : sorting)
+                                       .OrderBy(string.IsNullOrWhiteSpace(sorting) ? ReviewerConsts.DefaultSorting : sorting)
                                        .PageBy(skipCount, maxResultCount)
                                        .ToList();
 

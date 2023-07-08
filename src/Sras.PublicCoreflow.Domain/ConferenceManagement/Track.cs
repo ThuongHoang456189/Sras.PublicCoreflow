@@ -14,18 +14,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string Name { get; private set; }
         public Guid ConferenceId { get; private set; }
         public Conference Conference { get; private set; }
-        public string? SubmissionInstruction { get; internal set; }
-        public string? SubmissionSettings { get; internal set; }
-        public string? ConflictSettings { get; internal set; }
-        public string? ReviewSettings { get; internal set; }
-        public string? CameraReadySubmissionSettings { get; internal set; }
+        public string? SubmissionInstruction { get; set; }
+        public string? SubmissionSettings { get; set; }
+        public string? ConflictSettings { get; set; }
+        public string? ReviewSettings { get; set; }
+        public string? RevisionSettings { get; set; }
+        public string? DecisionChecklist { get; set; }
+        public string? CameraReadySubmissionSettings { get; set; }
+        public string? PresentationSettings { get; set; }
         public string? SubjectAreaRelevanceCoefficients { get; set; }
 
         public ICollection<Incumbent> Incumbents { get; set; }
         public ICollection<SubjectArea> SubjectAreas { get; set; }
         public ICollection<Submission> Submissions { get; set; }
         public ICollection<ConflictCase> ConflictCases { get; set; }
-        public ICollection<QuestionGroupTrack> QuestionGroups { get; set; }
+        public ICollection<Question> Questions { get; set; }
         public ICollection<ActivityDeadline> ActivityDeadlines { get; set; }
 
         public Track(
@@ -37,7 +40,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         string? submissionSettings,
         string? conflictSettings,
         string? reviewSettings,
+        string? revisionSettings,
+        string? decisionChecklist,
         string? cameraReadySubmissionSettings,
+        string? presentationSettings,
         string? subjectAreaRelevanceCoefficients)
             : base(id)
         {
@@ -48,14 +54,17 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             SubmissionSettings = submissionSettings;
             ConflictSettings = conflictSettings;
             ReviewSettings = reviewSettings;
+            RevisionSettings = revisionSettings;
+            DecisionChecklist = decisionChecklist;
             CameraReadySubmissionSettings = cameraReadySubmissionSettings;
+            PresentationSettings = presentationSettings;
             SubjectAreaRelevanceCoefficients = subjectAreaRelevanceCoefficients;
 
             Incumbents = new Collection<Incumbent>();
             SubjectAreas = new Collection<SubjectArea>();
             Submissions = new Collection<Submission>();
             ConflictCases = new Collection<ConflictCase>();
-            QuestionGroups = new Collection<QuestionGroupTrack>();
+            Questions = new Collection<Question>();
             ActivityDeadlines = new Collection<ActivityDeadline>();
         }
 
@@ -101,7 +110,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public Track AddSubjectArea(Guid subjectAreaId, string subjectAreaName)
         {
-            if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim())))
+            if (SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim())))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToTrack);
             }
@@ -114,12 +123,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Track UpdateSubjectArea(Guid subjectAreaId, string subjectAreaName)
         {
             var subjectArea = SubjectAreas.SingleOrDefault(x => x.Id == subjectAreaId);
-            if(subjectArea == null)
+            if (subjectArea == null)
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaNotFound);
             }
-            else if(SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(
-                string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim()) 
+            else if (SubjectAreas.Any(x => x.Name.EqualsIgnoreCase(
+                string.IsNullOrEmpty(subjectAreaName) ? subjectAreaName : subjectAreaName.Trim())
             && x.Id != subjectAreaId))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubjectAreaAlreadyExistToTrack);
@@ -130,18 +139,18 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return this;
         }
 
-        public Track AddSubmission(Guid submissionId, string title, 
-            string @abstract, string rootFilePath, 
-            string? domainConflicts, Guid? createdIncumbentId, 
+        public Track AddSubmission(Guid submissionId, string title,
+            string @abstract, string rootFilePath,
+            string? domainConflicts, Guid? createdIncumbentId,
             string? answers, Guid statusId)
         {
-            if(Submissions.Any(x => x.Title.EqualsIgnoreCase(string.IsNullOrEmpty(title) ? title : title.Trim())
+            if (Submissions.Any(x => x.Title.EqualsIgnoreCase(string.IsNullOrEmpty(title) ? title : title.Trim())
             && x.Abstract.EqualsIgnoreCase(string.IsNullOrEmpty(@abstract) ? @abstract : @abstract.Trim())))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionAlreadyExistToTrack);
             }
 
-            Submissions.Add(new Submission(submissionId, title, @abstract, rootFilePath, Id, domainConflicts, 
+            Submissions.Add(new Submission(submissionId, title, @abstract, rootFilePath, Id, domainConflicts,
                 createdIncumbentId, createdIncumbentId, answers, statusId, null, null, null, false, false, null, false, null));
 
             return this;

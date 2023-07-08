@@ -11,5 +11,7 @@
 
         public const string DefaultSorting = "Title asc";
         public const int DefaultMaxResultCount = 50;
+
+        public const int DefaultMaxZipFileNameLength = 50;
     }
 }
