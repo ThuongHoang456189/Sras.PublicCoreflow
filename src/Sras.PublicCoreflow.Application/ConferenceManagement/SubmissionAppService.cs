@@ -348,11 +348,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             };
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
         {
             var result = new SubmissionReviewerAssignmentSuggestionDto();
 
-            var data = await _submissionRepository.GeSubmissionReviewerAssignmentSuggestionAsync(submissionId);
+            var data = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(submissionId);
 
             result.TrackId = data.TrackId;
             result.TrackName = data.TrackName;

@@ -84,9 +84,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{id}/reviewer-assignment")]
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid id)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id)
         {
-            return await _submissionAppService.GeSubmissionReviewerAssignmentSuggestionAsync(id);
+            return await _submissionAppService.GetSubmissionReviewerAssignmentSuggestionAsync(id);
         }
 
         [HttpPost("{id}/reviewer-assignment")]

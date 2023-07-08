@@ -272,7 +272,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return 0;
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestion> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
+        public async Task<SubmissionReviewerAssignmentSuggestion> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
         {
             var dbContext = await GetDbContextAsync();
 

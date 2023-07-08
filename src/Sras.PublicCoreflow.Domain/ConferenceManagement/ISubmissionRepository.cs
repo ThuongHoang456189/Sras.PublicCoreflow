@@ -14,7 +14,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<int> GetCountConflictedReviewer(Guid submissionId);
         Task<List<ReviewerWithConflictDetails>> GetListReviewerWithConflictDetails(Guid submissionId);
 
-        Task<SubmissionReviewerAssignmentSuggestion> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
+        Task<SubmissionReviewerAssignmentSuggestion> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
 
         Task<List<SubmissionAggregation>> GetListSubmissionAggregation(
             Guid conferenceId,

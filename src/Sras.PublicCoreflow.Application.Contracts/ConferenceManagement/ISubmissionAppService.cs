@@ -17,7 +17,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<IEnumerable<object>> GetSubmissionsAsync();
         Task<ResponseDto> UpdateSubmissionConflict(Guid submissionId, List<ConflictInput> conflicts);
         Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid submissionId);
-        Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
+        Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
         Task<CreationResponseDto> CreateRevisionAsync(Guid submissionId, List<RemoteStreamContent> files);
         Task<CreationResponseDto> CreateCameraReadyAsync(Guid submissionId, List<RemoteStreamContent> files);
         Task<ResponseDto> AssignReviewerAsync(Guid submissionId, Guid reviewerId, bool isAssigned);

@@ -85,6 +85,7 @@ public class PublicCoreflowDbContext :
     public DbSet<Website> Websites { get; set; }
     public DbSet<Guideline> Guidelines { get; set; }
     public DbSet<SubmissionAttachment> SubmissionAttachments { get; set; }
+    public DbSet<ResearcherProfile> ResearcherProfiles { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     #endregion
 
@@ -533,6 +534,48 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.RootPresentationFilePath)
             .HasMaxLength(SubmissionAttachmentConsts.MaxRootFilePathLength);
+        });
+
+        builder.Entity<ResearcherProfile>(b =>
+        {
+            b.ToTable("ResearcherProfiles", PublicCoreflowConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.PublishName)
+            .HasMaxLength(256);
+
+            b.Property(x => x.PrimaryEmail)
+            .HasMaxLength(256);
+
+            b.Property(x => x.Introduction)
+            .HasMaxLength(2048);
+
+            b.Property(x => x.Gender)
+            .HasMaxLength(64);
+
+            b.Property(x => x.CurrentResearchScientistTitle)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentAdministrationPosition)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentAcademicFunction)
+            .HasMaxLength(512);
+
+            b.Property(x => x.CurrentDegree)
+            .HasMaxLength(512);
+
+            b.Property(x => x.HomeAddress)
+            .HasMaxLength(1024);
+
+            b.Property(x => x.PhoneNumber)
+            .HasMaxLength(16);
+
+            b.Property(x => x.MobilePhoneNumber)
+            .HasMaxLength(16);
+
+            b.Property(x => x.Fax)
+            .HasMaxLength(32);
         });
 
         builder.Entity<SubmissionAggregationSP>(b =>
