@@ -19,6 +19,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Name = name;
             Description = description;
             NavBar = navBar;
+
             RootFilePath = rootFilePath;
 
             Websites = new Collection<Website>();

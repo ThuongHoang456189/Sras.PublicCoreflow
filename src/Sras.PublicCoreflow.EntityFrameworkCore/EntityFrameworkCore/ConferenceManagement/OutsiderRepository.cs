@@ -49,16 +49,18 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
                     var outsiderResult = await dbContext.Outsiders.AddAsync(outsider);
                     await dbContext.SaveChangesAsync();
-
+                    var result = dbContext.Outsiders.Include(o => o.Participants).FirstOrDefault(o => o.Email == request.Email);
                     return new OutsiderCreateResponse()
                     {
-                        OutsiderId = outsiderId.ToString(),
-                        Email = request.Email,
-                        Firstname = request.Firstname,
-                        Lastname = request.Lastname,
-                        Organization = request.Organization,
+                        OutsiderId = result.Id.ToString(),
+                        Email = result.Email,
+                        Firstname = result.FirstName,
+                        Middlename = result.MiddleName,
+                        Lastname = result.LastName,
+                        Organization = result.Organization,
                         hasAccount = false,
-                        ParticipantId = participantId,
+                        ParticipantId = result.Participants.First().Id,
+                        Country = result.Country
                     };
                 }
                 catch (Exception ex)
@@ -129,17 +131,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 if (dbContext.Users.Any(u => u.Email == email))
                     return dbContext.Users.Where(us => us.Email == email).Select(r => new
                     {
-                        id = r.Id,
+                        userId = r.Id,
+                        outsiderId = (string)null,
                         firstName = r.Name,
-                        lastName = r.Surname,
-                        email = r.Email,
-                        organization = r.OrganizationUnits.FirstOrDefault(),
+                        middleName = (string)null, // cant get middle
+                        lastName = r.Surname, 
+                        email = r.Email, 
+                        organization = (string)null,  // cant get 
+                        country = (string)null,
                         hasAccount = true
                     }).First();
                 else if (dbContext.Outsiders.Any(o => o.Email == email))
                     return dbContext.Outsiders.Where(us => us.Email == email).Select(r => new
                     {
-                        id = r.Id,
+                        outsiderId = r.Id,
+                        userId = (string)null,
                         firstname = r.FirstName,
                         middlename = r.MiddleName,
                         lastname = r.LastName,
@@ -149,9 +155,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         hasAccount = false
                     }).First();
 
-                return new { };
-            }
-            catch (Exception ex)
+                return (string)null;
+            } catch (Exception ex)
             {
                 throw new Exception("[ERROR][SearchOutsiderByEmail] " + ex.Message, ex);
             }

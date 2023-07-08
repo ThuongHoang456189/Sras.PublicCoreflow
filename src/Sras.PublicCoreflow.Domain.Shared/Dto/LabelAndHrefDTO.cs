@@ -4,8 +4,9 @@ using System.Text;
 
 namespace Sras.PublicCoreflow.Dto
 {
-    public class NavbarDTO
+    public class LabelAndHrefDTO
     {
-        public List<ParentNavbarDTO>? navbar { get; set; }
+        public string label { get; set; }
+        public string href { get; set; }
     }
 }

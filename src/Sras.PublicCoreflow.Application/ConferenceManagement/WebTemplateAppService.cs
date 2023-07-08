@@ -23,6 +23,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IGuidGenerator _guidGenerator;
         private readonly IWebTemplateRepository _websiteRepository;
         private readonly IBlobContainer<WebTemplateContainer> _webTemplateBlobContainer;
+        private readonly string ORIGINAL_TEMPLATE_ROOT_FILE_PATH = "00676048-fe73-e4b9-7d38-3a0c152f40a6/original-template.html";
 
         public WebTemplateAppService(IGuidGenerator guidGenerator, IWebTemplateRepository websiteRepository, IBlobContainer<WebTemplateContainer> webTemplateBlobContainer)
         {
@@ -67,23 +68,35 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _webTemplateBlobContainer.GetAllBytesOrNullAsync(rootFilePath);
         }
 
-        public object CreateTemplate(RemoteStreamContent file, string name, string description, string fileName)
+        public async Task<object> UpdateTemplate(Guid webTemplateId, TemplateCreateRequestDTO dto)
+        {
+            var result = await _websiteRepository.UpdateTemplate(webTemplateId, dto);
+            return new
+            {
+                id = result.Id,
+                name = result.Name,
+                description = result.Description,
+                conferenceHasUsed = result.conferenceHasUsed,
+                navbar = result.Navbar.navbar
+            };
+        }
+
+        public object CreateTemplate(string name, string description, NavbarDTO navbarDTO)
         {
             var webTemplateId = _guidGenerator.Create();
-            var filePath = webTemplateId + "/" + fileName;
+            var filePath = ORIGINAL_TEMPLATE_ROOT_FILE_PATH;
             try
             {
-                CreateWebTemplateFiles(filePath, file);
-                _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath);
+                _websiteRepository.CreateTemplate(webTemplateId, name, description, filePath, navbarDTO);
+                //CreateWebTemplateFiles(filePath, file);
                 var result = _websiteRepository.GetTemplateById(webTemplateId);
                 return new
                 {
                     id = result.Id,
                     name = result.Name,
-                    fileName = result.FilePath.Split("/").Last(),
-                    content = "",
                     description = result.Description,
-                    size = (float)Math.Round(GetTemplateFiles(result.FilePath).Result.Length / 1024.0, 2)
+                    conferenceHasUsed = result.conferenceHasUsed,
+                    navbar = result.Navbar.navbar
                 };
             } catch (Exception ex)
             {
@@ -106,7 +119,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                         name = item.Name,
                         fileName = item.FileName,
                         description = item.Description,
-                        conferenceUsed = _websiteRepository.GetConferenceUsedByTemplateId(item.Id).Result,
+                        conferenceHasUsed = _websiteRepository.GetConferenceUsedByTemplateId(item.Id).Result,
                         content = stringFile
                     };
                 });
@@ -118,7 +131,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     name = item.Name,
                     fileName = item.FileName,
                     description = item.Description,
-                    conferenceUsed = new List<string>() { },
+                    conferenceHasUsed = new List<string>() { },
                     content = ""
                 });
             }
@@ -156,5 +169,39 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             });
         }
 
+        public object GetListTemplate(string? websiteId)
+        {
+            var templates = _websiteRepository.GetListWebTemplate().Result;
+
+            if (websiteId != null)
+            {
+                var templateId = _websiteRepository.getTemplateIdByWebId(websiteId).Result;
+                var bylesFile = GetTemplateFiles(ORIGINAL_TEMPLATE_ROOT_FILE_PATH).Result;
+                var stringFile = Encoding.Default.GetString(bylesFile);
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = templateId,
+                    templates =  templates
+                };
+            }
+            else
+            {
+                var bylesFile = GetTemplateFiles(ORIGINAL_TEMPLATE_ROOT_FILE_PATH).Result;
+                var stringFile = Encoding.Default.GetString(bylesFile);
+                return new
+                {
+                    content = stringFile,
+                    selectedTemplate = (string)null,
+                    templates = templates
+                };
+
+            }
+        }
+
+        public async Task<bool> DeleteWebTemplateById(Guid templateId)
+        {
+            return await _websiteRepository.RemoveTemplateByTemplateId(templateId);
+        }
     }
 }
