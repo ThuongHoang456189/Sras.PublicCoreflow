@@ -113,5 +113,18 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpPatch("Update-Conference-logo/{conferenceId}")]
+        public async Task<ActionResult<object>> UpdateConferenceLogo(Guid conferenceId,[FromBody] string logo)
+        {
+            try
+            {
+                var result = await _conferenceService.UpdateConferenceLogo(conferenceId, logo);
+                return Ok(result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

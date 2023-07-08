@@ -424,5 +424,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _conferenceRepository.GetConferencesWithNavbarStatus();
         }
+        public async Task<object> UpdateConferenceLogo(Guid conferenceId, string logo)
+        {
+            return await _conferenceRepository.UpdateConferenceLogo(conferenceId, logo);
+        }
+
     }
 }

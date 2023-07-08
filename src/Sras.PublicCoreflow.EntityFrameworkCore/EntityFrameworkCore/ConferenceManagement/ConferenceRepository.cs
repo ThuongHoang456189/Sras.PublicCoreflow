@@ -246,5 +246,21 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = await GetDbContextAsync();
             return dbContext.ConferenceAccounts.Where(c => c.ConferenceId == conferenceId && c.AccountId == accId).First();
         }
+
+        public async Task<object> UpdateConferenceLogo(Guid conferenceId, string logo)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (!dbContext.Conferences.Any(c => c.Id == conferenceId)) throw new Exception("ConferenceId not eixsting");
+            var con = dbContext.Conferences.Where(c => c.Id == conferenceId).First();
+            con.Logo = logo;
+            dbContext.SaveChanges();
+            return dbContext.Conferences.Where(_ => _.Id == conferenceId).Select(c =>
+            new
+            {
+                c.Id,
+                c.Logo,
+                c.FullName
+            }).First();
+        }
     }
 }
