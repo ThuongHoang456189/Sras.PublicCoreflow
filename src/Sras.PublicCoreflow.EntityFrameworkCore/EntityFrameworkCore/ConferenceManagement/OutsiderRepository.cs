@@ -134,6 +134,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         email = r.Email, 
                         organization = (string)null,  // cant get 
                         country = (string)null,
+                        pariticipantId =  dbContext.Participants.Where(p => p.AccountId == r.Id).First() != null ? dbContext.Participants.Where(p => p.AccountId == r.Id).First().Id.ToString() : (string)null,
                         hasAccount = true
                     }).First();
                 else if (dbContext.Outsiders.Any(o => o.Email == email))
@@ -147,6 +148,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         email = r.Email,
                         organization = r.Organization,
                         country = r.Country,
+                        pariticipantId = r.Participants.First().Id,
                         hasAccount = false
                     }).First();
 
