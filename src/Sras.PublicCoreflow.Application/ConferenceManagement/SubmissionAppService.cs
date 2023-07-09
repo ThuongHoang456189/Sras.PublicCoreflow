@@ -142,7 +142,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var submissionId = _guidGenerator.Create();
             Submission submission = new Submission(submissionId, input.Title, input.Abstract, submissionId.ToString(), track.Id,
                 input.DomainConflicts, null, null, input.Answers,
-                awaitingDecisionPaperStatus.Id, null, awaitingDecisionPaperStatus.Id, null, false, false, null, false, null);
+                awaitingDecisionPaperStatus.Id, null, awaitingDecisionPaperStatus.Id, null, false, false, null, false, null, null);
 
             // Add first clone
             submission.Clones.Add(new SubmissionClone(_guidGenerator.Create(), submissionId, true, 0));
