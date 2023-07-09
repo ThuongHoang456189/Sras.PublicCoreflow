@@ -10,7 +10,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? OrganizationWebsite { get; set;}
         public string OrganizationPhoneNumber { get; set; } //--internal phone number format
         public string? GRID { get; set; }
-        public string? OrganizationalRepresentative { get; set; }
-        public string? OrganizationalRepresentativePhoneNumber { get; set; }
     }
 }

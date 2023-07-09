@@ -13,6 +13,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string PublishName { get; set; }
         public string PrimaryEmail { get; set; }
         public string? WebsiteAndSocialLinks { get; set; } // json -- by ReferenceWithReferenceTypeInclusion
+        public string? ORCID { get; set; } // json -- by ReferenceWithReferenceTypeInclusion
         public string? OtherIDs { get; set; } // json -- by ReferenceWithReferenceTypeInclusion
         public string? AlsoKnownAs { get; set; } // json hoac list string, phan tach bang escape
         public string? Introduction { get; set; }
@@ -33,16 +34,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? Employments { get; set; } // json Employment
         public string? Scholarships { get; set; } // json --ScholarshipAndAward
         public string? Awards { get; set; } // json -- ScholarshipAndAward
-        public string? Languages { get; set; } // json --LanguageAndSkill
-        public string? OtherCertificates { get; set; } // json -- LanguageAndSkill
+        public string? Skills { get; set; } // json --Skill -- both for language and other skills
         public string? ResearchDirections { get; set; } // json ResearchDirection
         public string? Publications { get; set; } // json
 
-        public ResearcherProfile(Guid id, string publishName, string primaryEmail, string? websiteAndSocialLinks, string? otherIDs, string? alsoKnownAs, string? introduction, DateTime dateOfBirth, string gender, string? currentResearchScientistTitle, string? currentAdministrationPosition, string? currentAcademicFunction, int? yearOfCurrentAcademicFunctionAchievement, string? currentDegree, int? yearOfCurrentCurrentDegreeAchievement, string? homeAddress, string? phoneNumber, string? mobilePhoneNumber, string? fax, string? workplace, string? educations, string? employments, string? scholarships, string? awards, string? languages, string? otherCertificates, string? researchDirections, string? publications) : base(id)
+        public ResearcherProfile(Guid id, string publishName, string primaryEmail, string? websiteAndSocialLinks, string? oRCID, string? otherIDs, string? alsoKnownAs, string? introduction, DateTime dateOfBirth, string gender, string? currentResearchScientistTitle, string? currentAdministrationPosition, string? currentAcademicFunction, int? yearOfCurrentAcademicFunctionAchievement, string? currentDegree, int? yearOfCurrentCurrentDegreeAchievement, string? homeAddress, string? phoneNumber, string? mobilePhoneNumber, string? fax, string? workplace, string? educations, string? employments, string? scholarships, string? awards, string? skills, string? researchDirections, string? publications) : base(id)
         {
             PublishName = publishName;
             PrimaryEmail = primaryEmail;
             WebsiteAndSocialLinks = websiteAndSocialLinks;
+            ORCID = oRCID;
             OtherIDs = otherIDs;
             AlsoKnownAs = alsoKnownAs;
             Introduction = introduction;
@@ -63,8 +64,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Employments = employments;
             Scholarships = scholarships;
             Awards = awards;
-            Languages = languages;
-            OtherCertificates = otherCertificates;
+            Skills = skills;
             ResearchDirections = researchDirections;
             Publications = publications;
         }
