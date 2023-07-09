@@ -858,6 +858,31 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return submissionList;
         }
 
+        public async Task<SubmissionSummarySPO?> GetSubmissionSummaryAsync(Guid submissionId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@SubmissionId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = submissionId
+                }
+            };
+
+            var resultList = await dbContext.Set<SubmissionSummarySPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetSubmissionSummary @SubmissionId", sqlParameters.ToArray()).ToListAsync();
+
+            if(resultList.Count > 0)
+            {
+                return resultList.First();
+            }
+
+            return null;
+        }
+
         public override async Task<IQueryable<Submission>> WithDetailsAsync()
         {
             return (await GetQueryableAsync())

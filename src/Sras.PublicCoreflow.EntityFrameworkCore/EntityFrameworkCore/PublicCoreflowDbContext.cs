@@ -87,6 +87,7 @@ public class PublicCoreflowDbContext :
     public DbSet<SubmissionAttachment> SubmissionAttachments { get; set; }
     public DbSet<ResearcherProfile> ResearcherProfiles { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
+    public virtual DbSet<SubmissionSummarySPO> SubmissionSummarySPOs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -579,6 +580,11 @@ public class PublicCoreflowDbContext :
         });
 
         builder.Entity<SubmissionAggregationSP>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<SubmissionSummarySPO>(b =>
         {
             b.HasNoKey();
         });

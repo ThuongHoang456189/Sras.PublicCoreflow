@@ -33,5 +33,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             int skipCount,
             int maxResultCount
         );
+
+        Task<SubmissionSummarySPO?> GetSubmissionSummaryAsync(Guid submissionId);
     }
 }

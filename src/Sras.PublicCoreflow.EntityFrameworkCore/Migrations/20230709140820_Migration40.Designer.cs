@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230709140820_Migration40")]
+    partial class Migration40
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1756,6 +1759,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
 
+                    b.Property<string>("Languages")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("LastModificationTime");
@@ -1768,7 +1774,7 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
 
-                    b.Property<string>("ORCID")
+                    b.Property<string>("OtherCertificates")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OtherIDs")
@@ -1795,9 +1801,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Scholarships")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Skills")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WebsiteAndSocialLinks")
