@@ -591,17 +591,15 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             try
             {
                 // Assume that the file extension is exactly matched its file name extension
-                string fileName = "";
                 files.ForEach(async file =>
                 {
                     if (file != null && file.ContentLength > 0)
                     {
                         await CreateCameraReadyFilesAsync(submission.Id.ToString() + "/" + file.FileName, file, true);
-                        fileName = file.FileName;
                     }
                 });
 
-                submission.CameraReadies.Add(new CameraReady(submission.Id, submission.Id.ToString() + "/" + fileName, null));
+                submission.CameraReadies.Add(new CameraReady(submission.Id, submission.Id.ToString(), null, null));
                 await _submissionRepository.UpdateAsync(submission);
 
                 response.IsSuccess = true;
