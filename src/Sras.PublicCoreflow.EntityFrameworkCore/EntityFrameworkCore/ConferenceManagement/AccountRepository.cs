@@ -38,7 +38,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 Firstname = u.Name,
                 Lastname = u.Surname,
                 Organization = "",                
-                Country = ""
+                Country = "",
+                pariticipantId = dbContext.Participants.Where(p => p.AccountId == u.Id).First() != null ? dbContext.Participants.Where(p => p.AccountId == u.Id).First().Id.ToString() : (string)null,
             });
         }
 

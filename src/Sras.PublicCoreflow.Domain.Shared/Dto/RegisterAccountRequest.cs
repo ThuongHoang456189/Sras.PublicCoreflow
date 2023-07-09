@@ -14,5 +14,6 @@ namespace Sras.PublicCoreflow.Dto
         public string Lastname { get; set; }
         public string Organization { get; set; }
         public string Country { get; set; }
+        public string pariticipantId { get; set; }
     }
 }
