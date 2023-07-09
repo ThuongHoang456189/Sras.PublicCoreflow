@@ -9,6 +9,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public interface ICameraReadyAppService
     {
-        Task<FileDTO> downloadOneCameraReadyFile(Guid camId);
+        Task<IEnumerable<FileDTO>> downloadOneCameraReadyFile(Guid camId);
     }
 }

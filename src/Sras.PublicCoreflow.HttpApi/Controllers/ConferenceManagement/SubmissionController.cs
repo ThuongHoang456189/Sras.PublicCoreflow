@@ -4,6 +4,8 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -134,16 +136,27 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{submissionId}/download-camera-ready-file")]
-        public async Task<ActionResult<byte[]>> DownloadCameraReadyFile(Guid submissionId)
+        public async Task<ActionResult> DownloadCameraReadyFile(Guid submissionId)
         {
-            var fileDTO = await _cameraReadyAppService.downloadOneCameraReadyFile(submissionId);
-            var stream = new MemoryStream(fileDTO.file);
-            stream.Position = 0;
-
-            return new FileStreamResult(stream, "application/octet-stream")
+            IEnumerable<FileDTO> listBytes = await _cameraReadyAppService.downloadOneCameraReadyFile(submissionId);
+            using (var ms = new MemoryStream())
             {
-                FileDownloadName = fileDTO.fileName
-            };
+                using (var archive =
+                new System.IO.Compression.ZipArchive(ms, ZipArchiveMode.Create, true))
+                {
+
+                    var zipEntry = (ZipArchiveEntry)null;
+                    foreach (var (item, index) in listBytes.Select((value, i) => (value, i)))
+                    {
+                        zipEntry = archive.CreateEntry(item.fileName, CompressionLevel.Fastest);
+                        using (var zipStream = zipEntry.Open())
+                        {
+                            zipStream.Write(item.file, 0, item.file.Length);
+                        }
+                    }
+                }
+                return File(ms.ToArray(), "application/zip", "CameraReadies.zip");
+            }
 
         }
         

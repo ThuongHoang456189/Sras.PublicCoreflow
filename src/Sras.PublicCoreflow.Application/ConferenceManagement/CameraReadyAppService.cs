@@ -4,6 +4,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -23,6 +24,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IGuidGenerator _guidGenerator;
         private readonly IBlobContainer<CameraReadyContainer> _cameraReadyContainer;
         private readonly ICameraReadyRepository _cameraReadyRepository;
+        private readonly string ROOT_FILE_PATH = "\\host\\sras-camera-readies\\";
 
         public CameraReadyAppService(IGuidGenerator guidGenerator, IBlobContainer<CameraReadyContainer> cameraReadyContainer, ICameraReadyRepository cameraReadyRepository)
         {
@@ -96,16 +98,32 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         //// continue code here
 
-        public async Task<FileDTO> downloadOneCameraReadyFile(Guid camId)
+        public async Task<IEnumerable<FileDTO>> downloadOneCameraReadyFile(Guid camId)
         {
             //var rootFilePath = _cameraReadyRepository.GetCameraReadyById(camId).GetAwaiter().GetResult().RootCameraReadyFilePath;
-            var rootFilePath = "3fa85f64-5717-4562-b3fc-2c963f66afa6/haha.html";
-            var fileName = rootFilePath.Split("/").Last();
-            return new FileDTO()
+            var folderPath = Directory.GetCurrentDirectory() + ROOT_FILE_PATH + "3fa85f64-5717-4562-b3fc-2c963f66afa6\\";
+            List<FileDTO> fileBytesList = new List<FileDTO>();
+            var root = Directory.GetCurrentDirectory();
+            if (Directory.Exists(folderPath))
             {
-                file = GetCameraReadyFiles(rootFilePath).Result,
-                fileName = fileName
-            };
+                string[] fileNames = Directory.GetFiles(folderPath);
+
+                foreach (string fileName in fileNames)
+                {
+                    byte[] fileBytes = File.ReadAllBytes(fileName);
+                    fileBytesList.Add(new FileDTO()
+                    {
+                        file = fileBytes,
+                        fileName = fileName.Split("\\").Last()
+                    });
+                }
+            }
+            else
+            {
+                Console.WriteLine("Folder does not exist.");
+            }
+
+            return fileBytesList;
         }
     }
 }
