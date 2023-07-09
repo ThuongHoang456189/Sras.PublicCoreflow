@@ -800,7 +800,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     IncumbentFullName = submissionConflictedIncumbentFacts[1].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[1],
                     IncumbentOrganization = submissionConflictedIncumbentFacts[2].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[2],
                     IncumbentEmail = submissionConflictedIncumbentFacts[3].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[3],
-                    Conflicts = submissionConflictedIncumbentFacts[4].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[4].Substring(1, submissionConflictedIncumbentFacts[4].Length - 2).Split(";").ToList()
+                    Conflicts = submissionConflictedIncumbentFacts[4].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[4].Substring(1, submissionConflictedIncumbentFacts[4].Length - 2).Split(@"\").ToList()
                 });
             });
 
@@ -816,7 +816,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             try
             {
-                return Directory.GetFiles(submissionPath).ToList();
+                return Directory.GetFiles(submissionPath).Select(x => Path.GetFileName(x)).ToList();
             }
             catch(Exception)
             {
@@ -833,7 +833,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             try
             {
-                return Directory.GetFiles(revisionPath).ToList();
+                return Directory.GetFiles(revisionPath).Select(x => Path.GetFileName(x)).ToList();
             }
             catch (Exception)
             {
@@ -843,41 +843,32 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<SubmissionSummaryDto?> GetSubmissionSummaryAsync(Guid submissionId)
         {
-            try
+            var result = await _submissionRepository.GetSubmissionSummaryAsync(submissionId);
+
+            if (result == null)
+                return null;
+
+            var summary = new SubmissionSummaryDto()
             {
-                var result = await _submissionRepository.GetSubmissionSummaryAsync(submissionId);
+                ConferenceFullName = result.ConferenceFullName,
+                ConferenceShortName = result.ConferenceShortName,
+                TrackName = result.TrackName,
+                PaperId = result.PaperId,
+                Title = result.Title,
+                Abstract = result.Abstract,
+                CreationTime = result.CreationTime,
+                LastModificationTime = result.LastModificationTime,
+                Authors = GetListSubmissionSummaryAuthor(result.SelectedAuthors),
+                SubjectAreas = GetListSubmissionSummarySubmissionSubjectArea(result.SelectedSubmissionSubjectAreas),
+                DomainConflicts = result.DomainConflicts,
+                ConflictsOfInterest = GetListSubmissionSummarySubmissionConflictedIncumbent(result.SelectedSubmissionConflictedIncumbents),
+                SubmissionFiles = GetSubmissionSummarySubmissionFiles(result.SubmissionRootFilePath),
+                SubmittedRevisionNo = result.SubmittedRevisionNo,
+                RevisionFiles = GetSubmissionSummaryRevisionFiles(result.RevisionRootFilePath),
+                SubmissionQuestionsResponse = result.SubmissionQuestionsResponse
+            };
 
-                if (result == null)
-                    return null;
-
-                var summary = new SubmissionSummaryDto()
-                {
-                    ConferenceFullName = result.ConferenceFullName,
-                    ConferenceShortName = result.ConferenceShortName,
-                    TrackName = result.TrackName,
-                    PaperId = result.PaperId,
-                    Title = result.Title,
-                    Abstract = result.Abstract,
-                    CreationTime = result.CreationTime,
-                    LastModificationTime = result.LastModificationTime,
-                    Authors = GetListSubmissionSummaryAuthor(result.SelectedAuthors),
-                    SubjectAreas = GetListSubmissionSummarySubmissionSubjectArea(result.SelectedSubmissionSubjectAreas),
-                    DomainConflicts = result.DomainConflicts,
-                    ConflictsOfInterest = GetListSubmissionSummarySubmissionConflictedIncumbent(result.SelectedSubmissionConflictedIncumbents),
-                    SubmissionFiles = GetSubmissionSummarySubmissionFiles(result.SubmissionRootFilePath),
-                    SubmittedRevisionNo = result.SubmittedRevisionNo,
-                    RevisionFiles = GetSubmissionSummaryRevisionFiles(result.RevisionRootFilePath),
-                    SubmissionQuestionsResponse = result.SubmissionQuestionsResponse
-                };
-
-                return summary;
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return null;
+            return summary;
         }
     }
 }

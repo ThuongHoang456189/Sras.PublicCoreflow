@@ -140,7 +140,7 @@ namespace Sras.PublicCoreflow.Migrations
 									SelectedConflicts.Email,
 									'['+
 									stuff(
-									(select ';' + 
+									(select '\' + 
 										(
 											SelectedConflictCases.ConflictCase
 										) as 'ConflictCase'
@@ -218,7 +218,7 @@ namespace Sras.PublicCoreflow.Migrations
 							SelectedConflicts.Email,
 							'['+
 							stuff(
-							(select ';' + 
+							(select '\' + 
 								(
 									SelectedConflictCases.ConflictCase
 								) as 'ConflictCase'
