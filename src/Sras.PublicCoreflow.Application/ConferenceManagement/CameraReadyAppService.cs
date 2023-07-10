@@ -96,17 +96,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         //// continue code here
 
-        //public async Task<FileDTO> downloadOneCameraReadyFile(Guid camId)
-        //{
-        //    var rootFilePath = _cameraReadyRepository.GetCameraReadyById(camId).GetAwaiter().GetResult().RootCameraReadyFilePath;
-        //    var file = listTemplate.ToList().Where(t => t.Id == templateId).First();
-        //    var filePath = file.FilePath;
-        //    var fileName = file.FilePath.Split("/").Last();
-        //    return new FileDTO()
-        //    {
-        //        file = GetTemplateFiles(filePath).Result,
-        //        fileName = fileName
-        //    };
-        //}
+        public async Task<FileDTO> downloadOneCameraReadyFile(Guid camId)
+        {
+            //var rootFilePath = _cameraReadyRepository.GetCameraReadyById(camId).GetAwaiter().GetResult().RootCameraReadyFilePath;
+            var rootFilePath = "3fa85f64-5717-4562-b3fc-2c963f66afa6/haha.html";
+            var fileName = rootFilePath.Split("/").Last();
+            return new FileDTO()
+            {
+                file = GetCameraReadyFiles(rootFilePath).Result,
+                fileName = fileName
+            };
+        }
     }
 }

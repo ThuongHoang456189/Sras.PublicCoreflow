@@ -21,10 +21,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
     public class SubmissionController : AbpController
     {
         private readonly ISubmissionAppService _submissionAppService;
+        private readonly ICameraReadyAppService _cameraReadyAppService;
 
-        public SubmissionController(ISubmissionAppService submissionAppService)
+        public SubmissionController(ISubmissionAppService submissionAppService, ICameraReadyAppService cameraReadyAppService)
         {
             _submissionAppService = submissionAppService;
+            _cameraReadyAppService = cameraReadyAppService;
         }
 
         [HttpPost]
@@ -128,6 +130,19 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
         {
             return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
+        }
+
+        [HttpGet("{submissionId}/download-camera-ready-file")]
+        public async Task<ActionResult<byte[]>> DownloadCameraReadyFile(Guid submissionId)
+        {
+            var fileDTO = await _cameraReadyAppService.downloadOneCameraReadyFile(submissionId);
+            var stream = new MemoryStream(fileDTO.file);
+            stream.Position = 0;
+
+            return new FileStreamResult(stream, "application/octet-stream")
+            {
+                FileDownloadName = fileDTO.fileName
+            };
         }
     }
 }
