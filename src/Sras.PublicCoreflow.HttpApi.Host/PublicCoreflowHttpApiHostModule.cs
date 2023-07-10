@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.Identity;
 using Volo.Abp.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Volo.Abp.Content;
+using Microsoft.AspNetCore.Http;
 
 namespace Sras.PublicCoreflow;
 
@@ -128,6 +130,7 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "PublicCoreflow API", Version = "v1" });
             options.DocInclusionPredicate((docName, description) => true);
             options.CustomSchemaIds(type => type.FullName);
+            options.MapType(typeof(IFormFile), () => new OpenApiSchema() { Type = "file", Format = "binary" });
         });
         //context.Services.AddAbpSwaggerGenWithOAuth(
         //    configuration["AuthServer:Authority"],

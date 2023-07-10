@@ -143,6 +143,9 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Country)
             .HasMaxLength(ConferenceConsts.MaxCountryLength);
+
+            b.Property(x => x.TimeZone)
+            .HasMaxLength(ConferenceConsts.MaxTimeZoneLength);
         });
 
         builder.Entity<ConferenceAccount>(b =>

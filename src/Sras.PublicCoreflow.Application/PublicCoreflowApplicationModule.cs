@@ -7,6 +7,8 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
+using System;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow;
 
@@ -42,5 +44,9 @@ namespace Sras.PublicCoreflow;
             });
         });
 
+        Configure<AbpClockOptions>(options =>
+        {
+            options.Kind = DateTimeKind.Utc;
+        });
     }
 }

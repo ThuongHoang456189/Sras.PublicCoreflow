@@ -12,6 +12,7 @@ using Volo.Abp.Identity;
 using Volo.Abp.Users;
 using Volo.Abp;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -26,6 +27,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IdentityUserAppService _userAppService;
+        private readonly IConfiguration _configuration;
 
         private const string Chair = "Chair";
         private const string DefaultTrackName = "__";
@@ -39,7 +41,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IIncumbentRepository incumbentRepository,
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
-            IdentityUserAppService userAppService)
+            IdentityUserAppService userAppService,
+            IConfiguration configuration)
         {
             _conferenceRepository = conferenceRepository;
             _userRepository = userRepository;
@@ -50,6 +53,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _userAppService = userAppService;
+            _configuration = configuration;
         }
 
         private async Task<bool> IsConferenceExist(ConferenceWithDetailsInput input)
@@ -97,7 +101,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    input.WebsiteLink, null, null, input.Logo ?? "logotemp1", input.IsSingleTrack);
+                    input.WebsiteLink, null, null, input.Logo ?? "logotemp1", input.IsSingleTrack, string.IsNullOrWhiteSpace(input.TimeZone) ? null : _configuration["TimeZones:Default"]);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 
