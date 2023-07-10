@@ -45,8 +45,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private const string SubmissionBlobRoot = "sras-submissions";
 
         public SubmissionAppService(
-            IRepository<Track, Guid> trackRepository, 
-            IRepository<PaperStatus, Guid> paperStatusRepository, 
+            IRepository<Track, Guid> trackRepository,
+            IRepository<PaperStatus, Guid> paperStatusRepository,
             IRepository<SubjectArea, Guid> subjectAreaRepository,
             IIncumbentRepository incumbentRepository,
             IConferenceRepository conferenceRepository,
@@ -59,8 +59,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IRepository<Revision, Guid> revisionRepository,
             IReviewerRepository reviewerRepository,
             IRepository<CameraReady, Guid> cameraReadyRepository,
-            ICurrentUser currentUser, 
-            IGuidGenerator guidGenerator, 
+            ICurrentUser currentUser,
+            IGuidGenerator guidGenerator,
             IBlobContainer<SubmissionContainer> submissionBlobContainer,
             IBlobContainer<RevisionContainer> revisionBlobContainer,
             IBlobContainer<CameraReadyContainer> cameraReadyContainer)
@@ -141,8 +141,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             var submissionId = _guidGenerator.Create();
             Submission submission = new Submission(submissionId, input.Title, input.Abstract, submissionId.ToString(), track.Id,
-                input.DomainConflicts, null, null, input.Answers, 
-                awaitingDecisionPaperStatus.Id, null, awaitingDecisionPaperStatus.Id, null, false, false, null, false, null);
+                input.DomainConflicts, null, null, input.Answers,
+                awaitingDecisionPaperStatus.Id, null, awaitingDecisionPaperStatus.Id, null, false, false, null, false, null, null);
 
             // Add first clone
             submission.Clones.Add(new SubmissionClone(_guidGenerator.Create(), submissionId, true, 0));
@@ -213,7 +213,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 response.IsSuccess = false;
                 response.Message = "Exception";
             }
-            
+
             return response;
         }
 
@@ -222,7 +222,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             if (request.allAuthors)
             {
                 return await _submissionRepository.GetNumOfSubmissionAndEmailWithAllAuthor(request);
-            } else
+            }
+            else
             {
                 return await _submissionRepository.GetNumOfSubmissionAndEmailWithPrimaryContactAuthor(request);
             }
@@ -262,7 +263,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 // Allocation operation
                 submissionConflictOperationTable.ForEach(x =>
                 {
-                    if(!conflicts.Any(y => y.ConflictCaseId == x.ConflictCaseId && y.ReviewerId == x.IncumbentId))
+                    if (!conflicts.Any(y => y.ConflictCaseId == x.ConflictCaseId && y.ReviewerId == x.IncumbentId))
                     {
                         x.Operation = ConflictManipulationOperators.Del;
                     }
@@ -270,7 +271,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
                 conflicts.ForEach(x =>
                 {
-                    if(!submissionConflictOperationTable.Any(y => y.IncumbentId == x.ReviewerId && y.ConflictCaseId == x.ConflictCaseId))
+                    if (!submissionConflictOperationTable.Any(y => y.IncumbentId == x.ReviewerId && y.ConflictCaseId == x.ConflictCaseId))
                     {
                         ConflictOperation newOperation = new ConflictOperation
                         {
@@ -288,11 +289,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 // Perform operations
                 submissionConflictOperationTable.ForEach(x =>
                 {
-                    if(x.Operation == ConflictManipulationOperators.Add)
+                    if (x.Operation == ConflictManipulationOperators.Add)
                     {
                         Conflict newConflict = new Conflict(_guidGenerator.Create(), x.SubmissionId, x.IncumbentId, x.ConflictCaseId, x.IsDefinedByReviewer);
                         submission.Conflicts.Add(newConflict);
-                    }else if(x.Operation == ConflictManipulationOperators.Del)
+                    }
+                    else if (x.Operation == ConflictManipulationOperators.Del)
                     {
                         var foundConflict = submission.Conflicts.FirstOrDefault(y => y.ConflictCaseId == x.ConflictCaseId && y.IncumbentId == x.IncumbentId && !y.IsDefinedByReviewer);
                         if (foundConflict != null)
@@ -319,13 +321,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public async Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid submissionId)
         {
             var submission = await _submissionRepository.FindAsync(submissionId);
-            if(submission == null)
+            if (submission == null)
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
             }
 
             var track = await _trackRepository.FindAsync(submission.TrackId);
-            if(track == null)
+            if (track == null)
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
             }
@@ -346,11 +348,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             };
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
         {
             var result = new SubmissionReviewerAssignmentSuggestionDto();
 
-            var data = await _submissionRepository.GeSubmissionReviewerAssignmentSuggestionAsync(submissionId);
+            var data = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(submissionId);
 
             result.TrackId = data.TrackId;
             result.TrackName = data.TrackName;
@@ -361,7 +363,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return result;
         }
-    
+
         public async Task<CreationResponseDto> CreateRevisionAsync(Guid submissionId, List<RemoteStreamContent> files)
         {
             CreationResponseDto response = new();
@@ -513,7 +515,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
             }
 
-            var paperStatus = await _paperStatusRepository.FindAsync(x  => x.Id == paperStatusId);
+            var paperStatus = await _paperStatusRepository.FindAsync(x => x.Id == paperStatusId);
             if (paperStatus == null)
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.PaperStatusNotFound);
@@ -521,7 +523,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             try
             {
-                if(submission.StatusId != paperStatusId)
+                if (submission.StatusId != paperStatusId)
                 {
                     submission.StatusId = paperStatusId;
 
@@ -569,7 +571,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
             }
 
-            if(submission.CameraReadies.Any(x => x.Id == submission.Id))
+            if (submission.CameraReadies.Any(x => x.Id == submission.Id))
             {
                 throw new BusinessException(PublicCoreflowDomainErrorCodes.CameraReadyAlreadyExist);
             }
@@ -579,7 +581,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             {
                 // Check author relationship
 
-                if(!(submission.IsRequestedForCameraReady && 
+                if (!(submission.IsRequestedForCameraReady &&
                     submission.NotifiedStatus != null && submission.NotifiedStatus.Name.ToLower().Equals(Accept.ToLower())))
                 {
                     throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionIsNotAllowedToSubmitCameraReady);
@@ -667,9 +669,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         //    return await _submissionBlobContainer.GetAllBytesOrNullAsync(id.ToString()+"/green-bird-pink.png");
         //}
 
-        public async Task<Stream> DownloadSubmissionFiles(Guid id)
+        public async Task<ZipFileDto> DownloadSubmissionFiles(Guid id)
         {
-            var storePath = string.Join("/", BlobRoot, SubmissionBlobRoot, id.ToString() + ".zip");
+            var submission = await _submissionRepository.FindAsync(id);
+            if (submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            var zipFileName = submission.Title.ToLower().Replace(" ", "-").Truncate(SubmissionConsts.DefaultMaxZipFileNameLength) + ".zip";
+            var storePath = string.Join("/", BlobRoot, SubmissionBlobRoot, zipFileName);
 
             using (ZipFile zip = new())
             {
@@ -690,11 +699,40 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 zip.Save(storePath);
             }
 
-            var result = await _submissionBlobContainer.GetAsync(id.ToString() + ".zip");
+            var result = await _submissionBlobContainer.GetAsync(zipFileName);
 
             File.Delete(storePath);
 
-            return result;
+            return new ZipFileDto
+            {
+                FileName = zipFileName,
+                FileStream = result,
+            };
+        }
+
+        public async Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id)
+        {
+            var submission = await _submissionRepository.FindAsync(id);
+
+            if(submission == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.SubmissionNotFound);
+            }
+
+            var track = await _trackRepository.FindAsync(submission.TrackId);
+
+            if (track == null)
+            {
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+            }
+
+            return new SelectedSubmissionBriefInfo
+            {
+                SubmissionId = submission.Id,
+                Title = submission.Title,
+                TrackId = submission.TrackId,
+                TrackName = track.Name
+            };
         }
     }
 }

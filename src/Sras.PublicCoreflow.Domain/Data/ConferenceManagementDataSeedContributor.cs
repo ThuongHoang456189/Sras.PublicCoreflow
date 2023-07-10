@@ -21,8 +21,11 @@ namespace Sras.PublicCoreflow.Data
         private readonly IRepository<PlaceholderGroup, Guid> _placeholderGroupRepository;
         private readonly IRepository<SupportedPlaceholder, Guid> _supportedPlaceholderRepository;
         private readonly IRepository<ConflictCase, Guid> _conflictCaseRepository;
+        private readonly IRepository<QuestionGroup, Guid> _questionGroupRepository;
+
         private readonly IdentityUserManager _identityUserManager;
         private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly IRepository<Guideline, Guid> _guidelineRepository;
 
         private Guid _sandraId;
         private Guid _sergeyId;
@@ -34,6 +37,10 @@ namespace Sras.PublicCoreflow.Data
         private Guid _davidRossId;
         private Guid _tomId;
         private Guid _shreeId;
+        private Guid _duongId;
+        private Guid _hienId;
+        private Guid _truonganhId;
+        private Guid _thuongId;
 
         private IdentityUser _sandra;
         private IdentityUser _sergey;
@@ -45,6 +52,10 @@ namespace Sras.PublicCoreflow.Data
         private IdentityUser _davidRoss;
         private IdentityUser _tom;
         private IdentityUser _shree;
+        private IdentityUser _duong;
+        private IdentityUser _hien;
+        private IdentityUser _truonganh;
+        private IdentityUser _thuong;
 
         private Guid _conferencePlaceholderGroup;
         private Guid _submissionPlaceholderGroup;
@@ -59,8 +70,10 @@ namespace Sras.PublicCoreflow.Data
             IRepository<PlaceholderGroup, Guid> placeholderGroupRepository,
             IRepository<SupportedPlaceholder, Guid> supportedPlaceholderRepository,
             IRepository<ConflictCase, Guid> conflictCaseRepository,
+            IRepository<QuestionGroup, Guid> questionGroupRepository,
             IdentityUserManager identityUserManager,
-            IRepository<IdentityUser, Guid> userRepository)
+            IRepository<IdentityUser, Guid> userRepository,
+            IRepository<Guideline, Guid> guidelineRepository)
         {
             _guidGenerator = guidGenerator;
             _paperStatusRepository = paperStatusRepository;
@@ -69,14 +82,16 @@ namespace Sras.PublicCoreflow.Data
             _placeholderGroupRepository = placeholderGroupRepository;
             _supportedPlaceholderRepository = supportedPlaceholderRepository;
             _conflictCaseRepository = conflictCaseRepository;
+            _questionGroupRepository = questionGroupRepository;
 
             _identityUserManager = identityUserManager;
             _userRepository = userRepository;
+            _guidelineRepository = guidelineRepository;
         }
 
         private async Task CreateParticipantsAsync()
         {
-            if(await _participantRepository.GetCountAsync() > 0)
+            if (await _participantRepository.GetCountAsync() > 0)
             {
                 return;
             }
@@ -93,6 +108,10 @@ namespace Sras.PublicCoreflow.Data
                 new Participant(_guidGenerator.Create(), _davidRossId, null),
                 new Participant(_guidGenerator.Create(), _tomId, null),
                 new Participant(_guidGenerator.Create(), _shreeId, null),
+                new Participant(_guidGenerator.Create(), _duongId, null),
+                new Participant(_guidGenerator.Create(), _hienId, null),
+                new Participant(_guidGenerator.Create(), _truonganhId, null),
+                new Participant(_guidGenerator.Create(), _thuongId, null),
             };
 
             await _participantRepository.InsertManyAsync(participants);
@@ -102,7 +121,8 @@ namespace Sras.PublicCoreflow.Data
         {
             _sandra = new IdentityUser(_sandraId = _guidGenerator.Create(), "SandraWolf", "sandra_wolf@gmail.com")
                 .SetProperty(AccountConsts.OrganizationPropertyName, "Hoa Lac Campus, FPT University")
-                .SetProperty(AccountConsts.CountryPropertyName, "India");
+                .SetProperty(AccountConsts.CountryPropertyName, "India")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "Dr.");
             _sandra.Name = "Sandra";
             _sandra.Surname = "Wolf";
 
@@ -114,7 +134,8 @@ namespace Sras.PublicCoreflow.Data
 
             _welly = new IdentityUser(_wellyId = _guidGenerator.Create(), "WellyTambunan", "welly_tambunan@gmail.com")
                 .SetProperty(AccountConsts.OrganizationPropertyName, "Ton Duc Thang University")
-                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam");
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "Dr.");
             _welly.Name = "Welly";
             _welly.Surname = "Tambunan";
 
@@ -157,6 +178,38 @@ namespace Sras.PublicCoreflow.Data
             _shree.Name = "Shree";
             _shree.Surname = "Patel";
 
+            _duong = new IdentityUser(_duongId = _guidGenerator.Create(), "MaiHoangDuong", "maihoangduong11062000@gmail.com")
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "B.Sc.")
+                .SetProperty(AccountConsts.MiddleNamePropertyName, "Hoang");
+            _duong.Name = "Duong";
+            _duong.Surname = "Mai";
+
+            _hien = new IdentityUser(_hienId = _guidGenerator.Create(), "BuiTheHien", "hienbtse150763@fpt.edu.vn")
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "B.Sc.")
+                .SetProperty(AccountConsts.MiddleNamePropertyName, "The");
+            _hien.Name = "Hien";
+            _hien.Surname = "Bui";
+
+            _truonganh = new IdentityUser(_truonganhId = _guidGenerator.Create(), "NguyenDangTruongAnh", "anhndtse150640@fpt.edu.vn")
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "B.Sc.")
+                .SetProperty(AccountConsts.MiddleNamePropertyName, "Dang Truong");
+            _truonganh.Name = "Anh";
+            _truonganh.Surname = "Nguyen";
+
+            _thuong = new IdentityUser(_thuongId = _guidGenerator.Create(), "HoangThiHoaiThuong", "thuonghthse140087@fpt.edu.vn")
+                .SetProperty(AccountConsts.OrganizationPropertyName, "HCM Campus, FPT University")
+                .SetProperty(AccountConsts.CountryPropertyName, "Vietnam")
+                .SetProperty(AccountConsts.NamePrefixPropertyName, "B.Sc.")
+                .SetProperty(AccountConsts.MiddleNamePropertyName, "Thi Hoai");
+            _thuong.Name = "Thuong";
+            _thuong.Surname = "Hoang";
+
             var users = new List<IdentityUser>
             {
                 _sandra,
@@ -169,6 +222,10 @@ namespace Sras.PublicCoreflow.Data
                 _davidRoss,
                 _tom,
                 _shree,
+                _duong,
+                _hien,
+                _truonganh,
+                _thuong
             };
 
             foreach (var user in users)
@@ -215,7 +272,7 @@ namespace Sras.PublicCoreflow.Data
             await _conferenceRoleRepository.InsertManyAsync(conferenceRoles, autoSave: true);
         }
 
-        private async Task CreatePlaceholderGroupAsync()
+        private async Task CreatePlaceholderGroupsAsync()
         {
             if (await _placeholderGroupRepository.GetCountAsync() > 0)
             {
@@ -233,7 +290,7 @@ namespace Sras.PublicCoreflow.Data
             await _placeholderGroupRepository.InsertManyAsync(placeholderGroups, autoSave: true);
         }
 
-        private async Task CreateSupportedPlaceholderAsync()
+        private async Task CreateSupportedPlaceholdersAsync()
         {
             if (await _supportedPlaceholderRepository.GetCountAsync() > 0)
             {
@@ -271,7 +328,7 @@ namespace Sras.PublicCoreflow.Data
         }
 
 
-        private async Task CreateConflictCaseAsync()
+        private async Task CreateConflictCasesAsync()
         {
             if (await _conflictCaseRepository.GetCountAsync() > 0)
             {
@@ -292,6 +349,59 @@ namespace Sras.PublicCoreflow.Data
                 .InsertManyAsync(conflictCases, autoSave: true);
         }
 
+        private async Task CreateGuidelinesAsync()
+        {
+            if (await _guidelineRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var guidelines = new List<Guideline>
+            {
+                new Guideline(_guidGenerator.Create(), "Track Plan", null, "Pre-Submission Guidelines", false, null, 1),
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Submission Guidelines", false, null, 2),
+                new Guideline(_guidGenerator.Create(), "Subject Areas", null, "Pre-Submission Guidelines", false, null, 3),
+                new Guideline(_guidGenerator.Create(), "Submission Settings", null, "Pre-Submission Guidelines", false, null, 4),
+                new Guideline(_guidGenerator.Create(), "Submission Questions", null, "Pre-Submission Guidelines", false, null, 5),
+
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Review-Submission Guidelines", false, null, 6),
+                new Guideline(_guidGenerator.Create(), "Review Settings", null, "Pre-Review-Submission Guidelines", false, null, 7),
+                new Guideline(_guidGenerator.Create(), "Reviewers", null, "Pre-Review-Submission Guidelines", false, null, 8),
+                new Guideline(_guidGenerator.Create(), "Reviewer Assignments", null, "Pre-Review-Submission Guidelines", false, null, 9),
+
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Result-Notification Guidelines", false, null, 10),
+                new Guideline(_guidGenerator.Create(), "Decision Checklist", null, "Pre-Result-Notification Guidelines", false, null, 11),
+                new Guideline(_guidGenerator.Create(), "Author Notification Wizard", null, "Pre-Result-Notification Guidelines", false, null, 12),
+
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 13),
+                new Guideline(_guidGenerator.Create(), "Camera Ready Settings", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 14),
+                new Guideline(_guidGenerator.Create(), "Camera Ready Submission Checklist", null, "Pre-Camera-Ready-Submission Guidelines", false, null, 15),
+
+                new Guideline(_guidGenerator.Create(), "Activity Timeline", null, "Pre-Presentation-Submission Guidelines", false, null, 16),
+                new Guideline(_guidGenerator.Create(), "Presentation Settings", null, "Pre-Presentation-Submission Guidelines", false, null, 17),
+            };
+
+            await _guidelineRepository
+                .InsertManyAsync(guidelines, autoSave: true);
+        }
+
+        private async Task CreateQuestionGroupsAsync()
+        {
+            if (await _questionGroupRepository.GetCountAsync() > 0)
+            {
+                return;
+            }
+
+            var questionGroups = new List<QuestionGroup>
+            {
+                QuestionGroup.DefaultQuestionGroups.SubmissionQuestionGroup,
+                QuestionGroup.DefaultQuestionGroups.DecisionChecklistGroup,
+                QuestionGroup.DefaultQuestionGroups.CameraReadyChecklistGroup,
+            };
+
+            await _questionGroupRepository.InsertManyAsync(questionGroups, autoSave: true);
+        }
+
         public async Task SeedAsync(DataSeedContext context)
         {
             if (await _userRepository.GetCountAsync() <= 1)
@@ -302,9 +412,11 @@ namespace Sras.PublicCoreflow.Data
 
             await CreatePaperStatusesAsync();
             await CreateConferenceRolesAsync();
-            await CreatePlaceholderGroupAsync();
-            await CreateSupportedPlaceholderAsync();
-            await CreateConflictCaseAsync();
+            await CreatePlaceholderGroupsAsync();
+            await CreateSupportedPlaceholdersAsync();
+            await CreateConflictCasesAsync();
+            await CreateGuidelinesAsync();
+            await CreateQuestionGroupsAsync();
         }
     }
 }

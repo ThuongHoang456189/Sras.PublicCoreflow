@@ -272,7 +272,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return 0;
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestion> GeSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
+        public async Task<SubmissionReviewerAssignmentSuggestion> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
         {
             var dbContext = await GetDbContextAsync();
 
@@ -709,7 +709,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                         });
                     }
 
-                    if (!y.Review.IsNullOrWhiteSpace())
+                    if (!string.IsNullOrWhiteSpace(y.Review))
                     {
                         numberOfCompletedReviews++;
                     }
@@ -817,7 +817,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     SqlDbType = SqlDbType.VarChar,
                     Size = 1024,
                     Direction = ParameterDirection.Input,
-                    Value = inclusionText.IsNullOrWhiteSpace() || inclusionText == null ? DBNull.Value : inclusionText.Trim()
+                    Value = string.IsNullOrWhiteSpace(inclusionText) || inclusionText == null ? DBNull.Value : inclusionText.Trim()
                 },
                 new SqlParameter() {
                     ParameterName = "@ConferenceId",

@@ -31,12 +31,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public DateTime? CameraReadyRequestTime { get; set; }
         public bool IsRequestedForPresentation { get; private set; }
         public DateTime? PresentationRequestTime { get; private set; }
+        public string? ChairNote { get; private set; }
 
         public ICollection<SubmissionSubjectArea> SubjectAreas { get; set; }
         public ICollection<Author> Authors { get; set; }
         public ICollection<Conflict> Conflicts { get; set; }
         public ICollection<SubmissionClone> Clones { get; set; }
         public ICollection<CameraReady> CameraReadies { get; set; }
+        public ICollection<SubmissionAttachment> SubmissionAttachments { get; set; }
 
         public Submission(Guid id, string title, 
             string @abstract, string? rootFilePath, 
@@ -46,7 +48,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             Guid? notifiedStatusId, DateTime? lastNotificationTime,
             bool isFinallyDecided, 
             bool isRequestedForCameraReady, DateTime? cameraReadyRequestTime,
-            bool isRequestedForPresentation, DateTime? presentationRequestTime) : base(id)
+            bool isRequestedForPresentation, DateTime? presentationRequestTime, string? chairNote) : base(id)
         {
             SetTitle(title);
             SetAbstract(@abstract);
@@ -65,12 +67,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             CameraReadyRequestTime = cameraReadyRequestTime;
             IsRequestedForPresentation = isRequestedForPresentation;
             PresentationRequestTime = presentationRequestTime;
+            ChairNote = chairNote;
 
             SubjectAreas = new Collection<SubmissionSubjectArea>();
             Authors = new Collection<Author>();
             Conflicts = new Collection<Conflict>();
             Clones = new Collection<SubmissionClone>();
             CameraReadies = new Collection<CameraReady>();
+            SubmissionAttachments = new Collection<SubmissionAttachment>();
         }
 
         public Submission SetTitle(string title)

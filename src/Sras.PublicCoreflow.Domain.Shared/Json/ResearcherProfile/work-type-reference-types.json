@@ -1,0 +1,10 @@
+[
+  {
+    "ReferenceTypeId": 1,
+    "ReferenceTypeName": "Journal article"
+  },
+  {
+    "ReferenceTypeId": 2,
+    "ReferenceTypeName": "Conference paper"
+  }
+]

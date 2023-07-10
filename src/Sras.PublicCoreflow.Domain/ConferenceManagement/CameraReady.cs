@@ -11,11 +11,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public Submission Submission { get; protected set; }
         public string? RootCameraReadyFilePath { get; set; }
         public string? CopyRightFilePath { get; private set; }
+        public string? Answers { get; private set; }
 
-        public CameraReady(Guid id, string? rootCameraReadyFilePath, string? copyRightFilePath) : base(id)
+        public CameraReady(Guid id, string? rootCameraReadyFilePath, string? copyRightFilePath, string? answers) : base(id)
         {
             RootCameraReadyFilePath = rootCameraReadyFilePath;
             CopyRightFilePath = copyRightFilePath;
+            Answers = answers;
         }
     }
 }

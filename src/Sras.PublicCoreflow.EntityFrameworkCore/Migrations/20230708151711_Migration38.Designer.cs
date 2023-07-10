@@ -13,8 +13,8 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    [Migration("20230628163033_Migration31")]
-    partial class Migration31
+    [Migration("20230708151711_Migration38")]
+    partial class Migration38
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,12 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("CanSkip")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("CompletionTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -61,11 +67,30 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<int>("Factor")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GuidelineGroup")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<bool>("IsBeginPhaseMark")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsGuidelineShowed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNext")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
@@ -79,6 +104,17 @@ namespace Sras.PublicCoreflow.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Phase")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime?>("PlanDeadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RevisionNo")
+                        .HasColumnType("int");
 
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
@@ -163,6 +199,9 @@ namespace Sras.PublicCoreflow.Migrations
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Answers")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -715,6 +754,40 @@ namespace Sras.PublicCoreflow.Migrations
                     b.ToTable("EmailTemplates", (string)null);
                 });
 
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Guideline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<int>("Factor")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GuidelineGroup")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<bool>("IsChairOnly")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Route")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Guidelines", (string)null);
+                });
+
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Incumbent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1060,6 +1133,10 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
+                    b.Property<string>("NamePrefix")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
                     b.Property<string>("Organization")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -1351,11 +1428,20 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
 
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsVisibleToReviewers")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastModificationTime")
                         .HasColumnType("datetime2")
@@ -1365,29 +1451,40 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
-                    b.Property<Guid?>("NextQuestionId")
+                    b.Property<Guid>("QuestionGroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("QuestionGroupTrackId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Settings")
+                    b.Property<string>("ShowAs")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<Guid>("TrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NextQuestionId");
+                    b.HasIndex("QuestionGroupId");
 
-                    b.HasIndex("QuestionGroupTrackId");
+                    b.HasIndex("TrackId");
 
                     b.ToTable("Questions", (string)null);
                 });
@@ -1439,80 +1536,12 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("Settings")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.ToTable("QuestionGroups", (string)null);
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.QuestionGroupTrack", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<Guid>("QuestionGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Settings")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TrackId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionGroupId");
-
-                    b.HasIndex("TrackId");
-
-                    b.ToTable("QuestionGroupTracks", (string)null);
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Registration", b =>
@@ -1643,6 +1672,152 @@ namespace Sras.PublicCoreflow.Migrations
                     b.HasIndex("SubmissionId");
 
                     b.ToTable("RegistrationPapers", (string)null);
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ResearcherProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AlsoKnownAs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Awards")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("CurrentAcademicFunction")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("CurrentAdministrationPosition")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("CurrentDegree")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("CurrentResearchScientistTitle")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("Educations")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Employments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<string>("Fax")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("HomeAddress")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("Introduction")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("Languages")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("MobilePhoneNumber")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("OtherCertificates")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OtherIDs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("PrimaryEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Publications")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublishName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("ResearchDirections")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Scholarships")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WebsiteAndSocialLinks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Workplace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("YearOfCurrentAcademicFunctionAchievement")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("YearOfCurrentCurrentDegreeAchievement")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResearcherProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ReviewAssignment", b =>
@@ -2131,6 +2306,64 @@ namespace Sras.PublicCoreflow.Migrations
                     b.ToTable("SubmissionAggregationSPs");
                 });
 
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("RootPresentationFilePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("RootSupplementaryMaterialFilePath")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SubmissionAttachments", (string)null);
+                });
+
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionClone", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2350,6 +2583,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
+                    b.Property<string>("DecisionChecklist")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("DeleterId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("DeleterId");
@@ -2384,7 +2620,13 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("PresentationSettings")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ReviewSettings")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RevisionSettings")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SubjectAreaRelevanceCoefficients")
@@ -2517,12 +2759,10 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnName("LastModifierId");
 
                     b.Property<string>("NavBar")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Pages")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RootFilePath")
                         .HasMaxLength(1024)
@@ -3313,6 +3553,10 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)")
                         .HasColumnName("Name");
+
+                    b.Property<string>("NamePrefix")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("NormalizedEmail")
                         .IsRequired()
@@ -4368,31 +4612,14 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Question", b =>
                 {
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Question", "NextQuestion")
-                        .WithMany()
-                        .HasForeignKey("NextQuestionId");
-
-                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.QuestionGroupTrack", "QuestionGroupTrack")
-                        .WithMany("Questions")
-                        .HasForeignKey("QuestionGroupTrackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NextQuestion");
-
-                    b.Navigation("QuestionGroupTrack");
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.QuestionGroupTrack", b =>
-                {
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.QuestionGroup", "QuestionGroup")
-                        .WithMany("Tracks")
+                        .WithMany("Questions")
                         .HasForeignKey("QuestionGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Track", "Track")
-                        .WithMany("QuestionGroups")
+                        .WithMany("Questions")
                         .HasForeignKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -4436,6 +4663,17 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Navigation("Registration");
 
                     b.Navigation("Submission");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ResearcherProfile", b =>
+                {
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", "Account")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.ReviewAssignment", b =>
@@ -4552,6 +4790,17 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Navigation("Status");
 
                     b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionAttachment", b =>
+                {
+                    b.HasOne("Sras.PublicCoreflow.ConferenceManagement.Submission", "Submission")
+                        .WithMany("SubmissionAttachments")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Submission");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionClone", b =>
@@ -4825,11 +5074,6 @@ namespace Sras.PublicCoreflow.Migrations
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.QuestionGroup", b =>
                 {
-                    b.Navigation("Tracks");
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.QuestionGroupTrack", b =>
-                {
                     b.Navigation("Questions");
                 });
 
@@ -4863,6 +5107,8 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Navigation("Conflicts");
 
                     b.Navigation("SubjectAreas");
+
+                    b.Navigation("SubmissionAttachments");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.SubmissionClone", b =>
@@ -4880,7 +5126,7 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.Navigation("Incumbents");
 
-                    b.Navigation("QuestionGroups");
+                    b.Navigation("Questions");
 
                     b.Navigation("SubjectAreas");
 

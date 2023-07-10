@@ -28,7 +28,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             return dbContext.WebTemplates.ToList().Select(w =>
-            new TemplateResponseDTO() {
+            new TemplateResponseDTO()
+            {
                 Id = w.Id,
                 FileName = w.RootFilePath.Split('/').Last(),
                 FilePath = w.RootFilePath,
@@ -105,7 +106,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     Description = result.Description,
                     Navbar = JsonSerializer.Deserialize<NavbarDTO>(result.NavBar)
                 };
-            } else
+            }
+            else
             {
                 throw new Exception("TemplateId not eixsting");
             }

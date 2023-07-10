@@ -104,6 +104,13 @@ public static class PublicCoreflowModuleExtensionConfigurator
                         options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxDomainConflictsLength));
                     }
                 );
+                user.AddOrUpdateProperty<string?>(
+                    AccountConsts.NamePrefixPropertyName,
+                    options =>
+                    {
+                        options.Attributes.Add(new StringLengthAttribute(AccountConsts.MaxNamePrefixLength));
+                    }
+                );
             });
         });
     }
