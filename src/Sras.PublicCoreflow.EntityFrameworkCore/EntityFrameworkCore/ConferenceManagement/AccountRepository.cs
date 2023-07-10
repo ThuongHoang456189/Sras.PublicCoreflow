@@ -11,13 +11,16 @@ using Microsoft.EntityFrameworkCore;
 using Sras.PublicCoreflow.Dto;
 using System.ComponentModel.DataAnnotations;
 using Volo.Abp.Data;
+using Volo.Abp.Guids;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class AccountRepository : EfCoreRepository<PublicCoreflowDbContext, IdentityUser, Guid>, IAccountRepository
     {
-        public AccountRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
+        private readonly IGuidGenerator _guidGenerator;
+        public AccountRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
         {
+            _guidGenerator = guidGenerator;
         }
 
         public void AddAccount(RegisterAccountRequest registerAccount)
@@ -58,6 +61,10 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 user.SetProperty(AccountConsts.MiddleNamePropertyName, registerAccount.MiddleName);
                 user.SetProperty(AccountConsts.OrganizationPropertyName, registerAccount.Organization);
                 user.SetProperty(AccountConsts.CountryPropertyName, registerAccount.Country);
+                if (!dbContext.Participants.Any(p => p.AccountId == user.Id))
+                {
+                    dbContext.Participants.Add(new Participant(_guidGenerator.Create(), user.Id, null));
+                }
                 dbContext.SaveChanges();
                 return true;
             }

@@ -601,7 +601,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     }
                 });
 
-                submission.CameraReadies.Add(new CameraReady(submission.Id, submission.Id.ToString() + "/" + fileName, null));
+                submission.CameraReadies.Add(new CameraReady(submission.Id, submission.Id.ToString() + "/" + fileName, null, null));
                 await _submissionRepository.UpdateAsync(submission);
 
                 response.IsSuccess = true;
