@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -7,7 +8,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         DateTime GetNow();
 
-        DateTime SetNow(DateTime now);
+        Task<DateTime> SetNow(DateTime now);
 
         DateTime Reset();
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Sras.PublicCoreflow.DateProvider;
 using System;
+using System.Threading.Tasks;
 using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -10,11 +11,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IClock _clock;
         private readonly ITimezoneProvider _timezoneProvider;
         private readonly IConfiguration _configuration;
-        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration)
+        private readonly ISrasBackgroundAppService _srasBackgroundAppService;
+        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration, ISrasBackgroundAppService srasBackgroundAppService)
         {
             _clock = clock;
             _timezoneProvider = timezoneProvider;
             _configuration = configuration;
+            _srasBackgroundAppService = srasBackgroundAppService;
         }
 
         public DateTime GetNow()
@@ -24,7 +27,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
         }
 
-        public DateTime SetNow(DateTime now)
+        public async Task<DateTime> SetNow(DateTime now)
         {
             var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
 
@@ -33,6 +36,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
 
             SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            // background running
+            await _srasBackgroundAppService.UpdateActivityTimelineAsync();
 
             return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
         }

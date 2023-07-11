@@ -45,6 +45,8 @@ namespace Sras.PublicCoreflow.Migrations
 						set @order_id = @order_id + 1
 					end
 				commit transaction
+
+				select 1 as 'Result'
 			END
             ";
 

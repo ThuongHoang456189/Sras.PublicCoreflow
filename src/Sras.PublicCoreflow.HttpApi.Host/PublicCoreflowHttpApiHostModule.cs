@@ -26,6 +26,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Volo.Abp.Content;
 using Microsoft.AspNetCore.Http;
+using Volo.Abp.BackgroundWorkers.Hangfire;
+using Hangfire;
+using System.Threading.Tasks;
+using Volo.Abp.BackgroundWorkers;
+using Sras.PublicCoreflow.ConferenceManagement;
 
 namespace Sras.PublicCoreflow;
 
@@ -36,9 +41,10 @@ namespace Sras.PublicCoreflow;
     typeof(PublicCoreflowEntityFrameworkCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpSwashbuckleModule),
-    typeof(AbpIdentityAspNetCoreModule)
+    typeof(AbpIdentityAspNetCoreModule),
+    typeof(AbpBackgroundWorkersHangfireModule)
 )]
-public class PublicCoreflowHttpApiHostModule : AbpModule
+    public class PublicCoreflowHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
@@ -62,6 +68,7 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
+        ConfigureHangfire(context, configuration);
     }
 
     private void ConfigureCache(IConfiguration configuration)
@@ -166,10 +173,20 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
         });
     }
 
-    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+    private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        context.Services.AddHangfire(config =>
+        {
+            config.UseSqlServerStorage(configuration.GetConnectionString("Default"));
+        });
+    }
+
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
     {
         var app = context.GetApplicationBuilder();
         var env = context.GetEnvironment();
+
+        await context.AddBackgroundWorkerAsync<UpdateActivityTimelineWorker>();
 
         if (env.IsDevelopment())
         {
@@ -198,6 +215,7 @@ public class PublicCoreflowHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseUnitOfWork();
+        app.UseHangfireDashboard();
         app.UseConfiguredEndpoints();
     }
 }
