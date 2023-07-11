@@ -38,14 +38,44 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? ResearchDirections { get; set; } // json ResearchDirection
         public string? Publications { get; set; } // json
 
-        public ResearcherProfile(Guid id, string publishName, string primaryEmail, string? websiteAndSocialLinks, string? oRCID, string? otherIDs, string? alsoKnownAs, string? introduction, DateTime dateOfBirth, string gender, string? currentResearchScientistTitle, string? currentAdministrationPosition, string? currentAcademicFunction, int? yearOfCurrentAcademicFunctionAchievement, string? currentDegree, int? yearOfCurrentCurrentDegreeAchievement, string? homeAddress, string? phoneNumber, string? mobilePhoneNumber, string? fax, string? workplace, string? educations, string? employments, string? scholarships, string? awards, string? skills, string? researchDirections, string? publications) : base(id)
+        //public ResearcherProfile(Guid id, string publishName, string primaryEmail, DateTime dateOfBirth, string? websiteAndSocialLinks = null, string? oRCID = null, string? otherIDs = null, string? alsoKnownAs = null, string? introduction = null, string gender = null, string? currentResearchScientistTitle = null, string? currentAdministrationPosition = null, string? currentAcademicFunction = null, int? yearOfCurrentAcademicFunctionAchievement = null, string? currentDegree = null, int? yearOfCurrentCurrentDegreeAchievement = 0, string? homeAddress = null, string? phoneNumber = null, string? mobilePhoneNumber = null, string? fax = null, string? workplace = null, string? educations = null, string? employments = null, string? scholarships = null, string? awards = null, string? skills = null, string? researchDirections = null, string? publications = null) : base(id)
+        //{
+        //    PublishName = publishName;
+        //    PrimaryEmail = primaryEmail;
+        //    WebsiteAndSocialLinks = websiteAndSocialLinks;
+        //    ORCID = oRCID;
+        //    OtherIDs = otherIDs;
+        //    AlsoKnownAs = alsoKnownAs;
+        //    Introduction = introduction;
+        //    DateOfBirth = dateOfBirth;
+        //    Gender = gender;
+        //    CurrentResearchScientistTitle = currentResearchScientistTitle;
+        //    CurrentAdministrationPosition = currentAdministrationPosition;
+        //    CurrentAcademicFunction = currentAcademicFunction;
+        //    YearOfCurrentAcademicFunctionAchievement = yearOfCurrentAcademicFunctionAchievement;
+        //    CurrentDegree = currentDegree;
+        //    YearOfCurrentCurrentDegreeAchievement = yearOfCurrentCurrentDegreeAchievement;
+        //    HomeAddress = homeAddress;
+        //    PhoneNumber = phoneNumber;
+        //    MobilePhoneNumber = mobilePhoneNumber;
+        //    Fax = fax;
+        //    Workplace = workplace;
+        //    Educations = educations;
+        //    Employments = employments;
+        //    Scholarships = scholarships;
+        //    Awards = awards;
+        //    Skills = skills;
+        //    ResearchDirections = researchDirections;
+        //    Publications = publications;
+        //}
+
+        public ResearcherProfile(Guid id, IdentityUser account, string publishName, string primaryEmail, string? oRCID, string? introduction, DateTime dateOfBirth, string gender, string? currentResearchScientistTitle, string? currentAdministrationPosition, string? currentAcademicFunction, int? yearOfCurrentAcademicFunctionAchievement, string? currentDegree, int? yearOfCurrentCurrentDegreeAchievement, string? homeAddress, string? phoneNumber, string? mobilePhoneNumber, string? fax)
         {
+            Id = id;
+            Account = account;
             PublishName = publishName;
             PrimaryEmail = primaryEmail;
-            WebsiteAndSocialLinks = websiteAndSocialLinks;
             ORCID = oRCID;
-            OtherIDs = otherIDs;
-            AlsoKnownAs = alsoKnownAs;
             Introduction = introduction;
             DateOfBirth = dateOfBirth;
             Gender = gender;
@@ -59,14 +89,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             PhoneNumber = phoneNumber;
             MobilePhoneNumber = mobilePhoneNumber;
             Fax = fax;
-            Workplace = workplace;
-            Educations = educations;
-            Employments = employments;
-            Scholarships = scholarships;
-            Awards = awards;
-            Skills = skills;
-            ResearchDirections = researchDirections;
-            Publications = publications;
         }
     }
 }
