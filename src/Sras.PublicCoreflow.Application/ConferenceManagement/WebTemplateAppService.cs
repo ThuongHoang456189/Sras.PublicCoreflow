@@ -203,5 +203,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _websiteRepository.RemoveTemplateByTemplateId(templateId);
         }
+
+        public async void createOriginTemplate(string name, string description)
+        {
+            _websiteRepository.createOriginTemplate(name, description);
+        }
     }
 }

@@ -35,5 +35,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         );
 
         Task<SubmissionSummarySPO?> GetSubmissionSummaryAsync(Guid submissionId);
+        Task<List<SubmissionAggregation>> GetListSubmissionAggregation_v2(Guid conferenceId, Guid? trackId = null, string? sorting = "Title asc", int skipCount = 0, int maxResultCount = 50);
     }
 }

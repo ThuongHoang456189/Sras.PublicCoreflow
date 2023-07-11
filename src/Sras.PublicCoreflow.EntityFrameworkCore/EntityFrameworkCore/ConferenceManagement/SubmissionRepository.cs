@@ -738,6 +738,287 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             return await Task.FromResult(result);
         }
 
+        public async Task<List<SubmissionAggregation>> GetListSubmissionAggregation_v2(
+            Guid conferenceId,
+            Guid? trackId = null,
+            string? sorting = SubmissionConsts.DefaultSorting,
+            int skipCount = 0,
+            int maxResultCount = SubmissionConsts.DefaultMaxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            if (!await dbContext.Set<Conference>().AnyAsync(x => x.Id == conferenceId))
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            IQueryable<SubmissionProjection> submissionQueryable;
+            if (trackId != null)
+            {
+                if (!await dbContext.Set<Track>().AnyAsync(x => x.Id == trackId))
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+                submissionQueryable = dbContext.Set<Submission>()
+                    .Where(s => s.TrackId == trackId)
+                    .Select(s => new SubmissionProjection
+                    {
+            Id = s.Id,
+            Title = s.Title,
+            Abstract = s.Abstract,
+            TrackId = s.TrackId,
+                StatusId = s.StatusId,
+            IsRequestedForCameraReady = s.IsRequestedForCameraReady,
+            IsRequestedForPresentation = s.IsRequestedForPresentation,
+            CreationTime = s.CreationTime,
+            LastModificationTime = s.LastModificationTime
+                    })
+            .OrderByDescending(x => x.LastModificationTime ?? DateTime.MinValue)
+            .ThenByDescending(x => x.CreationTime)
+            .Skip(skipCount)
+            .Take(maxResultCount);
+            }
+            else
+            {
+                var conferenceTrackQueryable = dbContext.Set<Track>()
+    .Where(t => t.ConferenceId == conferenceId)
+    .Select(t => new
+    {
+        Id = t.Id
+    });
+
+                submissionQueryable = dbContext.Set<Submission>()
+    .Join(conferenceTrackQueryable,
+        s => s.TrackId,
+        t => t.Id,
+        (s, t) => new SubmissionProjection
+        {
+            Id = s.Id,
+            Title = s.Title,
+            Abstract = s.Abstract,
+            TrackId = s.TrackId,
+            StatusId = s.StatusId,
+            IsRequestedForCameraReady = s.IsRequestedForCameraReady,
+            IsRequestedForPresentation = s.IsRequestedForPresentation,
+            CreationTime = s.CreationTime,
+            LastModificationTime = s.LastModificationTime
+        })
+    .OrderByDescending(x => x.LastModificationTime ?? DateTime.MinValue)
+    .ThenByDescending(x => x.CreationTime)
+    .Skip(skipCount)
+    .Take(maxResultCount);
+            }
+
+            var submissionList = await submissionQueryable.ToListAsync();
+
+            List<SubmissionAggregation> result = new List<SubmissionAggregation>();
+
+            submissionList.ForEach(x =>
+            {
+                SubmissionAggregation submission = new SubmissionAggregation();
+
+                submission.SubmissionId = x.Id;
+                submission.SubmissionTitle = x.Title;
+                submission.SubmissionAbstract = x.Abstract;
+
+                var authorList = dbContext.Set<Author>()
+     .Where(a => a.SubmissionId == x.Id)
+     .Select(a => new
+     {
+         Id = a.Id,
+         IsPrimaryContact = a.IsPrimaryContact,
+         ParticipantId = a.ParticipantId
+     })
+     .ToList();
+                List<AuthorBriefInfo> authors = new List<AuthorBriefInfo>();
+                int numberOfUnregisteredAuthors = 0;
+                authorList.ForEach(y =>
+                {
+                    var participant = dbContext.Set<Participant>().Find(y.ParticipantId);
+                    var author = new AuthorBriefInfo();
+                    author.Id = y.Id;
+                    author.IsPrimaryContact = y.IsPrimaryContact;
+                    author.ParticipantId = y.ParticipantId;
+
+                    if (participant != null)
+                    {
+                        if (participant.AccountId != null)
+                        {
+                            var user = dbContext.Set<IdentityUser>().Find(participant.AccountId);
+                            if (user != null)
+                            {
+                                author.FirstName = user.Name;
+                                author.MiddleName = user.GetProperty<string?>(AccountConsts.MiddleNamePropertyName);
+                                author.LastName = user.Surname;
+                                author.Email = user.Email;
+
+                                authors.Add(author);
+                            }
+                        }
+                        else if (participant.OutsiderId != null)
+                        {
+                            var outsider = dbContext.Set<Outsider>()
+                                            .Where(o => o.Id == participant.OutsiderId)
+                                            .Select(o => new { o.FirstName, o.MiddleName, o.LastName, o.Email }).SingleOrDefault();
+                            if (outsider != null)
+                            {
+                                author.FirstName = outsider.FirstName;
+                                author.MiddleName = outsider.MiddleName;
+                                author.LastName = outsider.LastName;
+                                author.Email = outsider.Email;
+
+                                authors.Add(author);
+
+                                numberOfUnregisteredAuthors++;
+                            }
+                        }
+                    }
+                });
+                submission.Authors = authors;
+                submission.NumberOfUnregisteredAuthors = numberOfUnregisteredAuthors;
+
+                var path = HostBlobPrefix + "/" + x.Id.ToString();
+                if (Directory.Exists(path))
+                {
+                    submission.NumberOfSubmissionFiles = Directory.GetFiles(path, "*.*", SearchOption.TopDirectoryOnly).Length;
+                }
+                else
+                {
+                    submission.NumberOfSubmissionFiles = 0;
+                }
+
+                var submissionSubjectAreaQueryable = dbContext.Set<SubmissionSubjectArea>()
+    .Select(ssa => new
+    {
+        SubmissionId = ssa.SubmissionId,
+        SubjectAreaId = ssa.SubjectAreaId,
+        IsPrimary = ssa.IsPrimary
+    })
+    .Where(y => y.SubmissionId == x.Id);
+                var submissionSubjectAreas = submissionSubjectAreaQueryable
+    .Join(dbContext.Set<SubjectArea>(),
+        ssa => ssa.SubjectAreaId,
+        sa => sa.Id,
+        (ssa, sa) => new SelectedSubjectAreaBriefInfo
+        {
+            SubjectAreaId = ssa.SubjectAreaId,
+            SubjectAreaName = sa.Name,
+            IsPrimary = ssa.IsPrimary
+        })
+    .ToList();
+                submission.SubmissionSubjectAreas = submissionSubjectAreas;
+
+                var submissionTrack = dbContext.Set<Track>().Where(t => t.Id == x.TrackId).Select(t => new { t.Id, t.Name, t.IsDefault }).SingleOrDefault();
+                if (submissionTrack != null)
+                {
+                    var t = new TrackBriefInfo(submissionTrack.Id, submissionTrack.Name);
+                    t.IsDefault = submissionTrack.IsDefault;
+                    submission.Track = t;
+                }
+
+                // Temporary ChairNote is null
+                submission.ChairNoteId = null;
+
+                var conflictList = dbContext.Set<Conflict>()
+    .Select(c => new { IncumbentId = c.IncumbentId, SubmissionId = c.SubmissionId })
+    .Where(y => y.SubmissionId == x.Id)
+    .ToList();
+                var conflictedReviewerList = new List<Guid>();
+                conflictList.ForEach(y =>
+                {
+                    if (!conflictedReviewerList.Any(r => r == y.IncumbentId))
+                    {
+                        var incumbent = dbContext.Set<Incumbent>().Find(y.IncumbentId);
+                        if (incumbent != null)
+                        {
+                            conflictedReviewerList.Add(y.IncumbentId);
+                        }
+                    }
+                });
+                submission.NumberOfConflicts = conflictedReviewerList.Count;
+
+                // Temporary NumberOfDisputedConflicts = 0
+                submission.NumberOfDisputedConflicts = 0;
+
+                var lastCloneSubmission = dbContext.Set<SubmissionClone>()
+    .Select(c => new
+    {
+        Id = c.Id,
+        SubmissionId = c.SubmissionId,
+        IsLast = c.IsLast
+    })
+    .SingleOrDefault(y => y.SubmissionId == x.Id && y.IsLast);
+
+               var reviewerList = dbContext.Set<Reviewer>()
+    .Join(dbContext.Set<ReviewAssignment>(),
+        r => r.Id,
+        ra => ra.ReviewerId,
+        (r, ra) => new { Reviewer = r, ReviewAssignment = ra })
+    .Join(dbContext.Set<Incumbent>(),
+        combined => combined.Reviewer.Id,
+        i => i.Id,
+        (combined, i) => new { combined.ReviewAssignment, Incumbent = i })
+    .Where(combined => combined.ReviewAssignment.IsActive &&
+                       lastCloneSubmission != null &&
+                       combined.ReviewAssignment.SubmissionCloneId == lastCloneSubmission.Id)
+    .Select(combined => combined.ReviewAssignment)
+    .ToList();
+                var reviewers = new List<ReviewerBriefInfo>();
+
+                int numberOfCompletedReviews = 0;
+                reviewerList.ForEach(y =>
+                {
+                    var found = (from ca in dbContext.Set<ConferenceAccount>()
+                                 join i in dbContext.Set<Incumbent>() on ca.Id equals i.ConferenceAccountId
+                                 join u in dbContext.Set<IdentityUser>() on ca.AccountId equals u.Id
+                                 select new
+                                 {
+                                     ReviewerId = i.Id,
+                                     AccountId = u.Id,
+                                 })
+                                 .Where(r => r.ReviewerId == y.ReviewerId)
+                                 .SingleOrDefault();
+
+                    var user = dbContext.Set<IdentityUser>().Find(found?.AccountId);
+                    if (found != null && user != null)
+                    {
+                        reviewers.Add(new ReviewerBriefInfo
+                        {
+                            ReviewerId = found.ReviewerId,
+                            FirstName = user.Name,
+                            MiddleName = user.GetProperty<string?>(AccountConsts.MiddleNamePropertyName),
+                            LastName = user.Surname,
+                            Email = user.Email,
+                            Organization = user.GetProperty<string?>(AccountConsts.OrganizationPropertyName)
+                        });
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(y.Review))
+                    {
+                        numberOfCompletedReviews++;
+                    }
+                });
+
+                submission.Reviewers = reviewers;
+                submission.NumberOfAssignment = reviewers.Count;
+                submission.NumberOfCompletedReviews = numberOfCompletedReviews;
+
+                var status = dbContext.Set<PaperStatus>().Where(y => y.Id == x.StatusId).Select(y => new { y.Name }).SingleOrDefault();
+                submission.Status = status?.Name;
+
+                var revision = dbContext.Set<Revision>().Find(lastCloneSubmission?.Id);
+                submission.IsRevisionSubmitted = revision == null ? false : !revision.RootFilePath.IsNullOrEmpty();
+
+                submission.IsRequestedForCameraReady = x.IsRequestedForCameraReady;
+
+                // Temporary IsCameraReadySubmitted = false
+                submission.IsCameraReadySubmitted = false;
+
+                submission.IsRequestedForPresentation = x.IsRequestedForPresentation;
+
+                result.Add(submission);
+            });
+
+            return await Task.FromResult(result);
+        }
+
         public async Task<RegistrablePaperTable> GetRegistrablePaperTable(Guid conferenceId, Guid accountId)
         {
             var dbContext = await GetDbContextAsync();

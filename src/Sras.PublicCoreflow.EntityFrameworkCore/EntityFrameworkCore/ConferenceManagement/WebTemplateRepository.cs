@@ -154,5 +154,37 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             dbContext.WebTemplates.Remove(template);
             return true;
         }
+
+        public async void createOriginTemplate(string name, string description)
+        {
+            var dbContext = GetDbContextAsync().Result;
+
+            // Modified this
+
+            var defaultNavbar = new NavbarDTO()
+            {
+                navbar = new List<ParentNavbarDTO>()
+                {
+                    new ParentNavbarDTO()
+                    {
+                        parentId = "45883dda-2725-4934-a3f8-60108b1dae61",
+                        parentLabel = "Home",
+                        href = "home.html",
+                        childs = new List<ChildNavbarDTO>(){ }
+                    },
+                    new ParentNavbarDTO()
+                    {
+                        parentId = "c8dccf7e-6237-4d07-99b1-d28be9e66cbe",
+                        parentLabel = "About",
+                        href = "about.html",
+                        childs = new List<ChildNavbarDTO>(){ }
+                    }
+                }
+            };
+            WebTemplate webTemplate = new WebTemplate(new Guid("00676048-fe73-e4b9-7d38-3a0c152f40a6"), name, description, JsonSerializer.Serialize<NavbarDTO>(defaultNavbar), "original-template.html");
+            dbContext.WebTemplates.Add(webTemplate);
+            dbContext.SaveChanges();
+        }
+
     }
 }
