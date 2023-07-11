@@ -7,6 +7,5 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         public Guid ResearchDirectionId { get; set; }
         public string ResearchDirectionName { get; set; }
-        public List<string>? SubResearchDirections { get; set; }
     }
 }

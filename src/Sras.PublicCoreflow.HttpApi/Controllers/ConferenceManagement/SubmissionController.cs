@@ -165,5 +165,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _submissionAppService.GetSelectedSubmissionBriefInfoAsync(id);
         }
+
+        [HttpGet("{id}/submission-summary")]
+        public async Task<SubmissionSummaryDto?> GetSubmissionSummaryAsync(Guid id)
+        {
+            return await _submissionAppService.GetSubmissionSummaryAsync(id);
+        }
     }
 }

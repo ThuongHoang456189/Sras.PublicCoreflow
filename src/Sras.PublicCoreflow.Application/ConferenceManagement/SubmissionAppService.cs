@@ -43,6 +43,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private const string Accept = "Accept";
         private const string BlobRoot = "host";
         private const string SubmissionBlobRoot = "sras-submissions";
+        private const string RevisionBlobRoot = "sras-revisions";
 
         public SubmissionAppService(
             IRepository<Track, Guid> trackRepository,
@@ -731,6 +732,143 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 TrackId = submission.TrackId,
                 TrackName = track.Name
             };
+        }
+
+        private List<SubmissionSummaryAuthorDto>? GetListSubmissionSummaryAuthor(string? authorsStr)
+        {
+            if (string.IsNullOrEmpty(authorsStr))
+                return null;
+
+            List<string> authors = authorsStr.Split(';').ToList();
+            List<SubmissionSummaryAuthorDto> authorList = new List<SubmissionSummaryAuthorDto>();
+
+            authors.ForEach(x =>
+            {
+                List<string> authorFacts = x.Split('|').ToList();
+
+                authorList.Add(new SubmissionSummaryAuthorDto()
+                {
+                    AuthorEmail = authorFacts[0].IsNullOrWhiteSpace() ? null : authorFacts[0],
+                    AuthorNamePrefix = authorFacts[1].IsNullOrWhiteSpace() ? null : authorFacts[1],
+                    AuthorFullName = authorFacts[2].IsNullOrWhiteSpace() ? null : authorFacts[2],
+                    AuthorOrganization = authorFacts[3].IsNullOrWhiteSpace() ? null : authorFacts[3],
+                    HasAccount = authorFacts[4].Equals("1"),
+                    IsPrimaryContact = authorFacts[5].Equals("1")
+                });
+            });
+
+            return authorList;
+        }
+
+        private List<SubmissionSummarySubmissionSubjectAreaDto>? GetListSubmissionSummarySubmissionSubjectArea(string? submissionSubjectAreasStr)
+        {
+            if (string.IsNullOrEmpty(submissionSubjectAreasStr))
+                return null;
+
+            List<string> subjectAreas = submissionSubjectAreasStr.Split(';').ToList();
+            List<SubmissionSummarySubmissionSubjectAreaDto> submissionSubjectAreaList = new List<SubmissionSummarySubmissionSubjectAreaDto>();
+
+            subjectAreas.ForEach(x =>
+            {
+                List<string> subjectAreaFacts = x.Split('|').ToList();
+
+                submissionSubjectAreaList.Add(new SubmissionSummarySubmissionSubjectAreaDto()
+                {
+                    SubjectAreaName = subjectAreaFacts[0].IsNullOrWhiteSpace() ? null : subjectAreaFacts[0],
+                    IsPrimary = subjectAreaFacts[1].Equals("1")
+                });
+            });
+
+            return submissionSubjectAreaList;
+        }
+
+        private List<SubmissionSummarySubmissionConflictedIncumbentDto>? GetListSubmissionSummarySubmissionConflictedIncumbent(string? submissionConflictedIncumbentStr)
+        {
+            if (string.IsNullOrEmpty(submissionConflictedIncumbentStr))
+                return null;
+
+            List<string> submissionConflictedIncumbents = submissionConflictedIncumbentStr.Split(';').ToList();
+            List<SubmissionSummarySubmissionConflictedIncumbentDto> submissionConflictedIncumbentList = new List<SubmissionSummarySubmissionConflictedIncumbentDto>();
+
+            submissionConflictedIncumbents.ForEach(x =>
+            {
+                List<string> submissionConflictedIncumbentFacts = x.Split('|').ToList();
+
+                submissionConflictedIncumbentList.Add(new SubmissionSummarySubmissionConflictedIncumbentDto()
+                {
+                    IncumbentNamePrefix = submissionConflictedIncumbentFacts[0].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[0],
+                    IncumbentFullName = submissionConflictedIncumbentFacts[1].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[1],
+                    IncumbentOrganization = submissionConflictedIncumbentFacts[2].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[2],
+                    IncumbentEmail = submissionConflictedIncumbentFacts[3].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[3],
+                    Conflicts = submissionConflictedIncumbentFacts[4].IsNullOrWhiteSpace() ? null : submissionConflictedIncumbentFacts[4].Substring(1, submissionConflictedIncumbentFacts[4].Length - 2).Split(@"\").ToList()
+                });
+            });
+
+            return submissionConflictedIncumbentList;
+        }
+
+        private List<string>? GetSubmissionSummarySubmissionFiles(string? submissionRootFilePath)
+        {
+            if(string.IsNullOrWhiteSpace(submissionRootFilePath)) 
+                return null;
+
+            var submissionPath = string.Join("/", BlobRoot, SubmissionBlobRoot, submissionRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(submissionPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch(Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetSubmissionSummaryRevisionFiles(string? revisionRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(revisionRootFilePath))
+                return null;
+
+            var revisionPath = string.Join("/", BlobRoot, RevisionBlobRoot, revisionRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(revisionPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<SubmissionSummaryDto?> GetSubmissionSummaryAsync(Guid submissionId)
+        {
+            var result = await _submissionRepository.GetSubmissionSummaryAsync(submissionId);
+
+            if (result == null)
+                return null;
+
+            var summary = new SubmissionSummaryDto()
+            {
+                ConferenceFullName = result.ConferenceFullName,
+                ConferenceShortName = result.ConferenceShortName,
+                TrackName = result.TrackName,
+                PaperId = result.PaperId,
+                Title = result.Title,
+                Abstract = result.Abstract,
+                CreationTime = result.CreationTime,
+                LastModificationTime = result.LastModificationTime,
+                Authors = GetListSubmissionSummaryAuthor(result.SelectedAuthors),
+                SubjectAreas = GetListSubmissionSummarySubmissionSubjectArea(result.SelectedSubmissionSubjectAreas),
+                DomainConflicts = result.DomainConflicts,
+                ConflictsOfInterest = GetListSubmissionSummarySubmissionConflictedIncumbent(result.SelectedSubmissionConflictedIncumbents),
+                SubmissionFiles = GetSubmissionSummarySubmissionFiles(result.SubmissionRootFilePath),
+                SubmittedRevisionNo = result.SubmittedRevisionNo,
+                RevisionFiles = GetSubmissionSummaryRevisionFiles(result.RevisionRootFilePath),
+                SubmissionQuestionsResponse = result.SubmissionQuestionsResponse
+            };
+
+            return summary;
         }
     }
 }
