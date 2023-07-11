@@ -13,6 +13,7 @@ using Volo.Abp.Users;
 using Volo.Abp;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -28,6 +29,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IGuidGenerator _guidGenerator;
         private readonly IdentityUserAppService _userAppService;
         private readonly IConfiguration _configuration;
+        private readonly ITimezoneProvider _timezoneProvider;
 
         private const string Chair = "Chair";
         private const string DefaultTrackName = "__";
@@ -42,7 +44,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
             IdentityUserAppService userAppService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITimezoneProvider timezoneProvider)
         {
             _conferenceRepository = conferenceRepository;
             _userRepository = userRepository;
@@ -54,6 +57,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _guidGenerator = guidGenerator;
             _userAppService = userAppService;
             _configuration = configuration;
+            _timezoneProvider = timezoneProvider;
         }
 
         private async Task<bool> IsConferenceExist(ConferenceWithDetailsInput input)
@@ -101,7 +105,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    input.WebsiteLink, null, null, input.Logo ?? "logotemp1", input.IsSingleTrack, string.IsNullOrWhiteSpace(input.TimeZone) ? null : _configuration["TimeZones:Default"]);
+                    input.WebsiteLink, null, null, input.Logo ?? "", input.IsSingleTrack,
+                    _timezoneProvider.GetTimeZoneInfo(string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone).Id,
+                    string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 

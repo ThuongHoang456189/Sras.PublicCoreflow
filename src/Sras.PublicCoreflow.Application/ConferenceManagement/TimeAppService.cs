@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Sras.PublicCoreflow.DateProvider;
+using System;
 using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
@@ -7,31 +9,45 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         private readonly IClock _clock;
         private readonly ITimezoneProvider _timezoneProvider;
-        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider)
+        private readonly IConfiguration _configuration;
+        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration)
         {
             _clock = clock;
-            
             _timezoneProvider = timezoneProvider;
+            _configuration = configuration;
         }
 
-        public string GetTimeZone()
+        public DateTime GetNow()
         {
-            try
-            {
-                
-                var timezone = _timezoneProvider.GetTimeZoneInfo("Asia/Ho_Chi_Minh");
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
 
-                var newdate = TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
 
-                var tnow = _clock.Now;
-                
-                return tnow.ToString();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-            return "Khong biet";
+        public DateTime SetNow(DateTime now)
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            now = DateTime.SpecifyKind(now, DateTimeKind.Unspecified);
+
+            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
+
+        public DateTime Reset()
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            var now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+
+            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
         }
     }
 }

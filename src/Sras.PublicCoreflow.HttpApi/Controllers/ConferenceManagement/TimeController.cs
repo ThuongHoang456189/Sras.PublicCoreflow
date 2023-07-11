@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
-using System.Xml.Linq;
+using System;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 
@@ -19,10 +19,22 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _timeAppService = timeAppService;
         }
 
-        [HttpGet]
+        [HttpGet("now")]
         public IActionResult GetNow()
         {
-            return Ok(_timeAppService.GetTimeZone());
+            return Ok(_timeAppService.GetNow());
+        }
+
+        [HttpPost("now")]
+        public IActionResult SetNow(DateTime now)
+        {
+            return Ok(_timeAppService.SetNow(now));
+        }
+
+        [HttpPost("now/reset")]
+        public IActionResult Reset()
+        {
+            return Ok(_timeAppService.Reset());
         }
     }
 }

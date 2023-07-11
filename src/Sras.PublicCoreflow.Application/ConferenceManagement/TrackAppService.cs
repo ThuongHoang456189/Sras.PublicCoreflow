@@ -1054,6 +1054,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var deadlines = await _activityDeadlineRepository.GetListAsync(x => x.TrackId == track.Id && !x.Name.ToLower().Equals(ActivityDeadlineConsts.StartDate.ToLower())
             && !x.Name.ToLower().Equals(ActivityDeadlineConsts.EndDate.ToLower()));
 
+            var updatingDeadline = deadlines.Single(x => x.Id == activityDeadline.Id);
+            if(updatingDeadline.Status == ActivityDeadlineConsts.Completed)
+            {
+                throw new BusinessException("Current plan deadline not extendable because it is already completed.");
+            }
+
             var currentPlanDeadline = deadlines.FirstOrDefault(x => x.IsCurrent)?.PlanDeadline;
             if (currentPlanDeadline == null)
             {
@@ -1072,8 +1078,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
             else
             {
-                var updatingDeadline = deadlines.Single(x => x.Id == activityDeadline.Id);
-
                 var today = DateTimeExtensions.GetToday();
                 var oldDeadline = updatingDeadline.Deadline.Value;
                 var newDeadline = activityDeadline.Deadline.Value;
