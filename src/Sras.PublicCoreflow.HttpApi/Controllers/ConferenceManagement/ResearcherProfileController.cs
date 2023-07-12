@@ -78,11 +78,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-website-social-links/{userId}")]
-        public async Task<ActionResult<bool>> UpdateWebsiteAndSocialLinks(Guid userId,[FromBody] string websiteAndSocialLinks)
+        public async Task<ActionResult<bool>> UpdateWebsiteAndSocialLinks(Guid userId,[FromBody] StringBodyRequest websiteAndSocialLinks)
         {
             try
             {
-                return Ok(_appService.UpdateWebsiteAndSocialLinks(userId, websiteAndSocialLinks).Result);
+                return Ok(_appService.UpdateWebsiteAndSocialLinks(userId, websiteAndSocialLinks.value).Result);
             }
             catch (Exception ex)
             {
@@ -91,11 +91,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-also-known-as/{userId}")]
-        public async Task<ActionResult<bool>> UpdateAlsoKnownAs(Guid userId,[FromBody] string alsoKnownAs)
+        public async Task<ActionResult<bool>> UpdateAlsoKnownAs(Guid userId,[FromBody] StringBodyRequest alsoKnownAs)
         {
             try
             {
-                return Ok(_appService.UpdateAlsoKnownAs(userId, alsoKnownAs).Result);
+                return Ok(_appService.UpdateAlsoKnownAs(userId, alsoKnownAs.value).Result);
             }
             catch (Exception ex)
             {
@@ -104,11 +104,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-others-id/{userId}")]
-        public async Task<ActionResult<bool>> UpdateOthersId(Guid userId, [FromBody] string othersId)
+        public async Task<ActionResult<bool>> UpdateOthersId(Guid userId, [FromBody] StringBodyRequest othersId)
         {
             try
             {
-                return Ok(_appService.UpdateOthersId(userId, othersId).Result);
+                return Ok(_appService.UpdateOthersId(userId, othersId.value).Result);
             }
             catch (Exception ex)
             {
