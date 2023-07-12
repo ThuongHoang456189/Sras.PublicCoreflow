@@ -33,5 +33,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             int skipCount,
             int maxResultCount
         );
+        Task<List<SubmissionAggregation>> GetListSubmissionAggregation_v2(Guid conferenceId, Guid? trackId = null, string? sorting = "Title asc", int skipCount = 0, int maxResultCount = 50);
     }
 }

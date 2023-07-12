@@ -18,5 +18,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         object CreateTemplate(string name, string description, NavbarDTO navbarDTO);
         Task<object> UpdateTemplate(Guid webTemplateId, TemplateCreateRequestDTO dto);
         Task<bool> DeleteWebTemplateById(Guid templateId);
+        void createOriginTemplate(string name, string description);
     }
 }

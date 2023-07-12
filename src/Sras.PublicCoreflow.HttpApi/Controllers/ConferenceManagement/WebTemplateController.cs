@@ -217,5 +217,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpGet("create-origin-web-template")]
+        public async void createOriginTemplate(string name, string description)
+        {
+            _webTemplateAppService.createOriginTemplate(name, description);
+        }
+
     }
 }

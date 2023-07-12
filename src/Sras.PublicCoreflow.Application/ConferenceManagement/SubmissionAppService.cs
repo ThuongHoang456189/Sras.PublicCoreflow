@@ -554,7 +554,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter)
         {
-            var items = await _submissionRepository.GetListSubmissionAggregation(filter.ConferenceId,
+            var items = await _submissionRepository.GetListSubmissionAggregation_v2(filter.ConferenceId,
                 filter.TrackId, filter.Sorting.IsNullOrEmpty() ? SubmissionConsts.DefaultSorting : filter.Sorting, filter.SkipCount, filter.MaxResultCount);
 
             return new PagedResultDto<SubmissionAggregation>(items.Count, items);
