@@ -109,7 +109,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                             }
                             else
                             {
-                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
+                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("organization"));
                                 recipientId = (Guid)pa.Id;
                             }
 
@@ -164,7 +164,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                             }
                             else
                             {
-                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("Organization"));
+                                recipient = new RecipientInforForEmail(pa.Account.Name, pa.Account.Surname, pa.Account.Surname + " " + pa.Account.Name, pa.Account.Email, pa.Account.GetProperty<string?>("organization"));
                                 recipientId = (Guid)pa.Id;
                             }
 

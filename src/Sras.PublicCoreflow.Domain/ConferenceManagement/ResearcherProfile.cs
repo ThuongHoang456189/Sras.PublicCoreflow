@@ -29,7 +29,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public string? PhoneNumber { get; set; }
         public string? MobilePhoneNumber { get; set; }
         public string? Fax { get; set; }
-        public string? Workplace { get; set; } // json Organization
+        public string? Workplace { get; set; } // json organization
         public string? Educations { get; set; } // json Education
         public string? Employments { get; set; } // json Employment
         public string? Scholarships { get; set; } // json --ScholarshipAndAward

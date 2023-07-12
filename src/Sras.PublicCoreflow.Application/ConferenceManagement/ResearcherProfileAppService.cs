@@ -71,8 +71,25 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetGeneralProfile(Guid userId)
         {
-            return await _researcherProfileRepo.GetGeneralProfile(userId);
+            return new
+            {
+                result = await _researcherProfileRepo.GetGeneralProfile(userId)
+            };
         }
 
+        public async Task<bool> UpdateWebsiteAndSocialLinks(Guid userId, string websiteAndSocialLinks)
+        {
+            return await _researcherProfileRepo.UpdateWebsiteAndSocialLinks(userId, websiteAndSocialLinks);
+        }
+
+        public async Task<bool> UpdateAlsoKnownAs(Guid userId, string alsoKnownAs)
+        {
+            return await _researcherProfileRepo.UpdateAlsoKnownAs(userId, alsoKnownAs);
+        }
+
+        public async Task<bool> UpdateOthersId(Guid userId, string othersId)
+        {
+            return await _researcherProfileRepo.UpdateOthersId(userId, othersId);
+        }
     }
 }

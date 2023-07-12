@@ -89,6 +89,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         public async Task<object> GetGeneralProfile(Guid userId)
         {
             var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) return null;
             return new
             {
                 result = dbContext.ResearcherProfiles.Where(r => r.Id == userId).Select(r => new GeneralProfileRequest()
@@ -160,19 +161,30 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             Organization workplace = JsonSerializer.Deserialize<Organization>(workplaceStr);
             return new
             {
-                organizationId = workplace.OrganizationId,
-                organizationName = workplace.OrganizationName,
-                organizationDescription = workplace.OrganizationDescription,
-                organizationWebsite = workplace.OrganizationWebsite,
-                organizationPhoneNumber = workplace.OrganizationPhoneNumber,
-                grid = workplace.GRID
+                organizationId = workplace.organizationId,
+                organizationName = workplace.organizationName,
+                organizationDescription = workplace.organizationDescription,
+                organizationWebsite = workplace.organizationWebsite,
+                organizationPhoneNumber = workplace.organizationPhoneNumber,
+                grid = workplace.grid
             };
         }
 
-        //public async Task<object> UpdateWorkplace(Guid userId)
-        //{
-
-        //}
+        // update workplace
+        public async Task<bool> UpdateWorkplace(Guid userId, Organization organization)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Workplace = JsonSerializer.Serialize<Organization>(organization);
+                return true;
+            } catch (Exception ex)
+            {
+                return false;
+            }
+            
+        }
 
         // get education
         public async Task<object> GetEducation(Guid userId)
@@ -180,31 +192,81 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             var dbContext = await GetDbContextAsync();
             if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
             string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Educations;
-            if (educationStr == null) return null;
+            if (educationStr == null) return new List<object>();
             Education education = JsonSerializer.Deserialize<Education>(educationStr);
             var educationalOrganization = new
             {
-                organizationId = education.EducationalOrganization.OrganizationId,
-                organizationName = education.EducationalOrganization.OrganizationName,
-                organizationDescription = education.EducationalOrganization.OrganizationDescription,
-                organizationWebsite = education.EducationalOrganization.OrganizationWebsite,
-                organizationPhoneNumber = education.EducationalOrganization.OrganizationPhoneNumber,
-                grid = education.EducationalOrganization.GRID
+                education.educationalOrganization.organizationId,
+                education.educationalOrganization.organizationName,
+                education.educationalOrganization.organizationDescription,
+                education.educationalOrganization.organizationWebsite,
+                education.educationalOrganization.organizationPhoneNumber,
+                education.educationalOrganization.grid
             };
             return new
             {
-                educationId = education.EducationId,
-                academicDegreeId = education.AcademicDegreeId,
-                academicDegreeName = JsonSerializer.Deserialize<List<ReferenceTypeDegree>>(File.ReadAllText("..\\Sras.PublicCoreflow.Domain.Shared\\Json\\ResearcherProfile")).Where(a => a.ReferenceTypeId == education.AcademicDegreeId).First().ReferenceTypeName,
+                education.educationId,
+                education.academicDegreeId,
+                academicDegreeName = JsonSerializer.Deserialize<List<ReferenceTypeDegree>>(File.ReadAllText("..\\Sras.PublicCoreflow.Domain.Shared\\Json\\ResearcherProfile")).Where(a => a.ReferenceTypeId == education.academicDegreeId).First().ReferenceTypeName,
                 educationalOrganization,
-                startYear = education.StartYear,
-                yearOfGraduation = education.YearOfGraduation,
-                degreeAbbreviation = education.DegreeAbbreviation,
-                degree = education.Degree
+                education.startYear,
+                education.yearOfGraduation,
+                education.degreeAbbreviation,
+                education.degree
             };
         }
 
-        // get 
+        // update education
+        public async Task<bool> UpdateEducation(Guid userId, Education education)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Educations = JsonSerializer.Serialize<Education>(education);
+                return true;
+            } catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        // get Employments
+        public async Task<object> GetEmployment(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Employments;
+            if (educationStr == null) return new List<object>();
+            Employment education = JsonSerializer.Deserialize<Employment>(educationStr);
+            return education;
+        }
+
+        // update Employments
+        public async Task<bool> UpdateEmployment(Guid userId, Employment employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Employments = JsonSerializer.Serialize<Employment>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<object> GetScholarships(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Scholarships;
+            if (educationStr == null) return new List<object>();
+            ScholarshipAndAward education = JsonSerializer.Deserialize<ScholarshipAndAward>(educationStr);
+            return education;
+        }
 
     }
 }
