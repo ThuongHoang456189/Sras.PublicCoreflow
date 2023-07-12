@@ -42,8 +42,12 @@ namespace Sras.PublicCoreflow.Migrations
 					SelectedInfoPartSubmission.DomainConflicts,
 					SelectedConflictsOfInterest.SelectedSubmissionConflictedIncumbents,
 					SelectedInfoPartSubmission.SubmissionRootFilePath,
+					SelectedAttachment.SupplementaryMaterialRootFilePath,
 					SelectedRevision.CloneNo as 'SubmittedRevisionNo',
 					SelectedRevision.RevisionRootFilePath,
+					SelectedCameraReady.CameraReadyRootFilePath,
+					SelectedCameraReady.CopyRightFilePath,
+					SelectedAttachment.PresentationRootFilePath,
 					SelectedInfoPartSubmission.SubmissionQuestionsResponse
 				from
 				(
@@ -300,7 +304,28 @@ namespace Sras.PublicCoreflow.Migrations
 						and Revisions.IsDeleted = 'false'
 				) as SelectedRevision
 				on SelectedInfoPartSubmission.PaperId = SelectedRevision.SubmissionId
-
+				-- left join submission attachment
+				left join
+				(
+					select
+						SubmissionAttachments.Id as 'SubmissionAttachmentId',
+						SubmissionAttachments.RootSupplementaryMaterialFilePath as 'SupplementaryMaterialRootFilePath',
+						SubmissionAttachments.RootPresentationFilePath as 'PresentationRootFilePath'
+					from SubmissionAttachments
+					where SubmissionAttachments.Id = @SubmissionId and SubmissionAttachments.IsDeleted = 'false'
+				) as SelectedAttachment 
+				on SelectedInfoPartSubmission.PaperId = SelectedAttachment.SubmissionAttachmentId
+				-- left join camera ready
+				left join
+				(
+					select
+						CameraReadies.Id as 'CameraReadyId',
+						CameraReadies.RootCameraReadyFilePath as 'CameraReadyRootFilePath',
+						CameraReadies.CopyRightFilePath as 'CopyRightFilePath'
+					from CameraReadies
+					where CameraReadies.Id = @SubmissionId and CameraReadies.IsDeleted = 'false'
+				) as SelectedCameraReady
+				on SelectedInfoPartSubmission.PaperId = SelectedCameraReady.CameraReadyId
 			END
             ";
 

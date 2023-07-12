@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class SubmissionAggregationDto
+    public class SubmissionAggregationV1Dto
     {
-        public Guid? PaperId { get; set; }
+        public Guid? Id { get; set; }
         public string? Title { get; set; }
-        public string? Abstract { get; set; }
-        public List<SubmissionAuthorDto>? Authors { get; set; }
-        public List<AggregationSubjectAreaDto>? SubjectAreas { get; set; }
+        public string? Authors { get; set; }
+        public string? SubjectAreas { get; set; }
         public Guid? TrackId { get; set; }
         public string? TrackName { get; set; }
         public int? SubmissionConflicts { get; set; }
@@ -19,10 +17,10 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public int? AverageScore { get; set; }
         public Guid? StatusId { get; set; }
         public string? Status { get; set; }
-        public bool? RevisionSubmitted { get; set; }
-        public int? RevisionNo { get; set; }
+        public int? CloneNo { get; set; }
+        public bool? IsRevisionSubmitted { get; set; }
         public bool? IsRequestedForCameraReady { get; set; }
-        public Guid? CameraReadyId { get; set; }
+        public bool? IsCameraReadySubmitted { get; set; }
         public bool? IsRequestedForPresentation { get; set; }
     }
 }

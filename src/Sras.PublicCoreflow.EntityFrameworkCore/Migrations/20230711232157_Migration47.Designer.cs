@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230711232157_Migration47")]
+    partial class Migration47
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -810,29 +813,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.ToTable("GetAuthorSubmissionAggregationSPOs");
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerAssignmentSuggestionSubmissionPartSPO", b =>
-                {
-                    b.Property<Guid?>("PaperId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SelectedSubmissionSubjectAreas")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SubjectAreaRelevanceCoefficients")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("TrackId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TrackName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("GetReviewerAssignmentSuggestionSubmissionPartSPOs");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerSubmissionAggregationSPO", b =>

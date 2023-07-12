@@ -24,7 +24,7 @@ public class PublicCoreflowApplicationAutoMapperProfile : Profile
             opt => opt.MapFrom(i => i.Surname));
         CreateMap<Track, TrackBriefInfo>();
         CreateMap<SubjectArea, SubjectAreaBriefInfo>();
-        CreateMap<SubmissionAggregationSP, SubmissionAggregationDto>()
+        CreateMap<SubmissionAggregationSP, SubmissionAggregationV1Dto>()
             .ForMember(sd => sd.IsRevisionSubmitted,
             opt => opt.MapFrom(sp => sp.RevisionSubId != null))
             .ForMember(sd => sd.IsCameraReadySubmitted,

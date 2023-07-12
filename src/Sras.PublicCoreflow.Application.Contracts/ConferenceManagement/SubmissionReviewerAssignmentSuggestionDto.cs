@@ -6,11 +6,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class SubmissionReviewerAssignmentSuggestionDto
     {
-        public Guid TrackId { get; set; }
-        public string TrackName { get; set; } = string.Empty;
-        public Guid SubmissionId { get; set; }
-        public string SubmissionTitle { get; set; } = string.Empty;
-        public List<SubmissionSubjectAreaBriefInfo> SubmissionSubjectAreas { get; set; } = new List<SubmissionSubjectAreaBriefInfo>();
-        public PagedResultDto<ReviewerWithFacts>? Reviewers { get; set; }
+        public Guid? TrackId { get; set; }
+        public string? TrackName { get; set; }
+        public Guid? PaperId { get; set; }
+        public string? Title { get; set; }
+        public List<AggregationSubjectAreaDto>? SubmissionSubjectAreas { get; set; }
+        public PagedResultDto<ReviewerAssignmentSuggestionDto>? Reviewers { get; set; }
     }
 }

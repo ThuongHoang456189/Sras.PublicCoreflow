@@ -24,5 +24,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string sorting = ReviewerConsts.DefaultSorting,
             int skipCount = 0,
             int maxResultCount = ReviewerConsts.DefaultMaxResultCount);
+
+        Task<PagedResultDto<ReviewerSubmissionAggregationDto>?> GetReviewerSubmissionAggregationAsync(ReviewerSubmissionAggregationInput input);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Sras.PublicCoreflow.BlobContainer;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp;
@@ -19,20 +20,27 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly IReviewerSubjectAreaRepository _reviewerSubjectAreaRepository;
         private readonly IIncumbentRepository _incumbentRepository;
         private readonly IConflictRepository _conflictRepository;
-        private readonly IRepository<Submission, Guid> _submissionRepository;
+        //private readonly IRepository<Submission, Guid> _submissionRepository;
+        private readonly ISubmissionRepository _submissionRepository;
         private readonly IReviewAssignmentRepository _reviewAssignmentRepository;
         private readonly IRepository<Track, Guid> _trackRepository;
-        
+
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IBlobContainer<ReviewContainer> _reviewBlobContainer;
+
+        private const string BlobRoot = "host";
+        private const string SubmissionBlobRoot = "sras-submissions";
+        private const string SupplementaryMaterialBlobRoot = "sras-supplementary-materials";
+        private const string RevisionBlobRoot = "sras-revisions";
 
         public ReviewerAppService(
             IReviewerRepository reviewerRepository,
             IReviewerSubjectAreaRepository reviewerSubjectAreaRepository,
             IIncumbentRepository incumbentRepository,
             IConflictRepository conflictRepository,
-            IRepository<Submission, Guid> submissionRepository,
+            //IRepository<Submission, Guid> submissionRepository,
+            ISubmissionRepository submissionRepository,
             IReviewAssignmentRepository reviewAssignmentRepository,
             IRepository<Track, Guid> trackRepository,
             ICurrentUser currentUser,
@@ -362,6 +370,134 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var items = await _reviewerRepository.GetListReviewerAggregation(accountId, conferenceId, sorting, skipCount, maxResultCount);
 
             return new PagedResultDto<SubmissionWithFacts>(count, items);
+        }
+
+        private List<AggregationSubjectAreaDto>? GetListSubmissionSubjectArea(string? submissionSubjectAreasStr)
+        {
+            if (string.IsNullOrWhiteSpace(submissionSubjectAreasStr))
+                return null;
+
+            List<string> subjectAreas = submissionSubjectAreasStr.Split(';').ToList();
+            List<AggregationSubjectAreaDto> submissionSubjectAreaList = new List<AggregationSubjectAreaDto>();
+
+            subjectAreas.ForEach(x =>
+            {
+                List<string> subjectAreaFacts = x.Split('|').ToList();
+
+                submissionSubjectAreaList.Add(new AggregationSubjectAreaDto()
+                {
+                    SubjectAreaName = subjectAreaFacts[0].IsNullOrWhiteSpace() ? null : subjectAreaFacts[0],
+                    IsPrimary = subjectAreaFacts[1].Equals("1")
+                });
+            });
+
+            return submissionSubjectAreaList;
+        }
+
+        private List<string>? GetSubmissionFiles(string? submissionRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(submissionRootFilePath))
+                return null;
+
+            var submissionPath = string.Join("/", BlobRoot, SubmissionBlobRoot, submissionRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(submissionPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetSupplementaryMaterialFiles(string? supplementaryMaterialRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(supplementaryMaterialRootFilePath))
+                return null;
+
+            var supplementaryMaterialPath = string.Join("/", BlobRoot, SupplementaryMaterialBlobRoot, supplementaryMaterialRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(supplementaryMaterialPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetRevisionFiles(string? revisionRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(revisionRootFilePath))
+                return null;
+
+            var revisionPath = string.Join("/", BlobRoot, RevisionBlobRoot, revisionRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(revisionPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetListAction(string? actionStr)
+        {
+            if (string.IsNullOrWhiteSpace(actionStr))
+                return null;
+
+            return actionStr.Split('|').ToList();
+        }
+
+        public async Task<PagedResultDto<ReviewerSubmissionAggregationDto>?> GetReviewerSubmissionAggregationAsync(ReviewerSubmissionAggregationInput input)
+        {
+            var foundItems = await _submissionRepository.GetReviewerSubmissionAggregationAsync
+                (
+                    input.InclusionText,
+                    input.ConferenceId,
+                    input.TrackId,
+                    input.AccountId,
+                    input.IsReviewed,
+                    input.Sorting,
+                    input.SortedAsc,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var count = (long)foundItems.First().TotalCount.Value;
+
+            List<ReviewerSubmissionAggregationDto> items = new List<ReviewerSubmissionAggregationDto>();
+
+            foundItems.ForEach(x =>
+            {
+                items.Add(new ReviewerSubmissionAggregationDto
+                {
+                    PaperId = x.Id,
+                    Title = x.Title,
+                    TrackId = x.TrackId,
+                    TrackName = x.TrackName,
+                    SubjectAreas = GetListSubmissionSubjectArea(x.SelectedSubmissionSubjectAreas),
+                    ReviewAssignmentId = x.ReviewAssignmentId,
+                    Actions = GetListAction(x.Actions),
+                    Files = new ReviewingSubmissionRelatedFilesDto()
+                    {
+                        SubmissionFiles = GetSubmissionFiles(x.SubmissionRootFilePath),
+                        SupplementaryMaterialFiles = GetSupplementaryMaterialFiles(x.SupplementaryMaterialRootFilePath),
+                        RevisionNo = x.CloneNo,
+                        RevisionFiles = GetRevisionFiles(x.RevisionRootFilePath)
+                    }
+                });
+            });
+
+            return new PagedResultDto<ReviewerSubmissionAggregationDto>(count, items);
         }
     }
 }

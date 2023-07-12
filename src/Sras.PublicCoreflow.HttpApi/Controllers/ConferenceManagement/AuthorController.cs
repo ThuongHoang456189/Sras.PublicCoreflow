@@ -2,7 +2,6 @@
 using Sras.PublicCoreflow.ConferenceManagement;
 using System.Threading.Tasks;
 using System;
-using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.AspNetCore.Mvc;
@@ -22,7 +21,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _authorAppService = authorAppService;
         }
 
-        [HttpGet("aggregation")]
+        [HttpGet("aggregation-v1")]
         public async Task<PagedResultDto<AuthorSubmission>> GetListAuthorAggregation(
             Guid accountId, Guid conferenceId,
             string? sorting,
@@ -33,11 +32,10 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
                 sorting ?? AuthorConsts.DefaultSorting, skipCount ?? 0, maxResultCount ?? AuthorConsts.DefaultMaxResultCount);
         }
 
-        //[HttpGet("testsp")]
-        //public async Task<IActionResult> TestSPAsync()
-        //{
-        //    await _authorAppService.TestSPAsync();
-        //    return Ok("Hello");
-        //}
+        [HttpGet("aggregation")]
+        public async Task<PagedResultDto<AuthorSubmissionAggregationDto>?> GetAuthorSubmissionAggregationAsync(AuthorSubmissionAggregationInput input)
+        {
+            return await _authorAppService.GetAuthorSubmissionAggregationAsync(input);
+        }
     }
 }

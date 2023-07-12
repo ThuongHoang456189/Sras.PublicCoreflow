@@ -35,5 +35,50 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         );
 
         Task<SubmissionSummarySPO?> GetSubmissionSummaryAsync(Guid submissionId);
+
+        Task<List<GetAuthorSubmissionAggregationSPO>?> GetAuthorSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            Guid? statusId,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount);
+
+        Task<List<GetReviewerSubmissionAggregationSPO>?> GetReviewerSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            bool? isReviewed,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount);
+
+        Task<List<GetSubmissionReviewerAssignmentSuggestionSPO>?> GetSubmissionReviewerAssignmentSuggestionAsync(
+            string? inclusionText,
+            Guid submissionId,
+            bool? isAssigned);
+
+        Task<List<GetSubmissionAggregationSPO>?> GetTopAverageScoreSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount);
+
+        Task<List<GetSubmissionAggregationSPO>?> GetTopTimeSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount);
+
+        Task<GetReviewerAssignmentSuggestionSubmissionPartSPO?> GetReviewerAssignmentSuggestionSubmissionPart(Guid submissionId);
     }
 }
