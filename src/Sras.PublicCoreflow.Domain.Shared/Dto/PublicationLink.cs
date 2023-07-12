@@ -2,8 +2,8 @@
 {
     public class PublicationLink
     {
-        public System.Guid Id { get; set; }
-        public string Label { get; set; }
-        public string Link { get; set; }
+        public System.Guid id { get; set; }
+        public string label { get; set; }
+        public string link { get; set; }
     }
 }

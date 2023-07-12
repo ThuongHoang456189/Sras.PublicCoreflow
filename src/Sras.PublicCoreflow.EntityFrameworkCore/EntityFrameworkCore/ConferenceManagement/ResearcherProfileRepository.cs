@@ -258,6 +258,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             }
         }
 
+        // get scholarship
         public async Task<object> GetScholarships(Guid userId)
         {
             var dbContext = await GetDbContextAsync();
@@ -266,6 +267,130 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             if (educationStr == null) return new List<object>();
             ScholarshipAndAward education = JsonSerializer.Deserialize<ScholarshipAndAward>(educationStr);
             return education;
+        }
+
+        // update scholarship
+        public async Task<bool> UpdateScholarships(Guid userId, ScholarshipAndAward employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Scholarships = JsonSerializer.Serialize<ScholarshipAndAward>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        // get award
+        public async Task<object> GetAward(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Awards;
+            if (educationStr == null) return new List<object>();
+            ScholarshipAndAward education = JsonSerializer.Deserialize<ScholarshipAndAward>(educationStr);
+            return education;
+        }
+
+        // update award
+        public async Task<bool> UpdateAward(Guid userId, ScholarshipAndAward employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Awards = JsonSerializer.Serialize<ScholarshipAndAward>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        // get skill
+        public async Task<object> GetSkill(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Skills;
+            if (educationStr == null) return new List<object>();
+            Skill education = JsonSerializer.Deserialize<Skill>(educationStr);
+            return education;
+        }
+
+        // update skill
+        public async Task<bool> UpdateSkill(Guid userId, Skill employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Skills = JsonSerializer.Serialize<Skill>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        // get research direction
+        public async Task<object> GetResearchDirection(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.ResearchDirections;
+            if (educationStr == null) return new List<object>();
+            ResearchDirection education = JsonSerializer.Deserialize<ResearchDirection>(educationStr);
+            return education;
+        }
+
+        // update research direction
+        public async Task<bool> UpdateResearchDirection(Guid userId, ResearchDirection employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.ResearchDirections = JsonSerializer.Serialize<ResearchDirection>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        // get publication
+        public async Task<object> GetPublication(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Publications;
+            if (educationStr == null) return new List<object>();
+            Publication education = JsonSerializer.Deserialize<Publication>(educationStr);
+            return education;
+        }
+
+        // update publication
+        public async Task<bool> UpdatePublication(Guid userId, Publication employment)
+        {
+            try
+            {
+                var dbContext = await GetDbContextAsync();
+                if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+                dbContext.ResearcherProfiles.FindAsync(userId).Result.Publications = JsonSerializer.Serialize<Publication>(employment);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
     }

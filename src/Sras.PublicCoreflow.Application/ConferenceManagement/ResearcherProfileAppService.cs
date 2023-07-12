@@ -91,5 +91,86 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _researcherProfileRepo.UpdateOthersId(userId, othersId);
         }
+
+        public async Task<object> GetWorkPlace(Guid userId)
+        {
+            return await _researcherProfileRepo.GetWorkPlace(userId);
+        }
+
+        public async Task<bool> UpdateWorkplace(Guid userId, Organization organization)
+        {
+            return await _researcherProfileRepo.UpdateWorkplace(userId, organization);
+        }
+
+        public async Task<object> GetEducation(Guid userId)
+        {
+            return await _researcherProfileRepo.GetEducation(userId);
+        }
+
+        public async Task<bool> UpdateEducation(Guid userId, Education education)
+        {
+            return await _researcherProfileRepo.UpdateEducation(userId, education);
+        }
+
+        public async Task<object> GetEmployment(Guid userId)
+        {
+            return await _researcherProfileRepo.GetEmployment(userId);
+        }
+
+        public async Task<bool> UpdateEmployment(Guid userId, Employment employment)
+        {
+            return await _researcherProfileRepo.UpdateEmployment(userId, employment);
+        }
+
+        public async Task<object> GetScholarships(Guid userId)
+        {
+            return await _researcherProfileRepo.GetScholarships(userId);
+        }
+
+        public async Task<bool> UpdateScholarships(Guid userId, ScholarshipAndAward employment)
+        {
+            return await _researcherProfileRepo.UpdateScholarships(userId, employment);
+        }
+
+        public async Task<object> GetAward(Guid userId)
+        {
+            return await _researcherProfileRepo.GetAward(userId);
+        }
+
+        public async Task<bool> UpdateAward(Guid userId, ScholarshipAndAward employment)
+        {
+            return await _researcherProfileRepo.UpdateAward(userId, employment);
+        }
+
+        public async Task<object> GetSkill(Guid userId)
+        {
+            return await _researcherProfileRepo.GetSkill(userId);
+        }
+
+        public async Task<bool> UpdateSkill(Guid userId, Skill employment)
+        {
+            return await _researcherProfileRepo.UpdateSkill(userId, employment);
+        }
+
+        public async Task<object> GetResearchDirection(Guid userId)
+        {
+            return await _researcherProfileRepo.GetResearchDirection(userId);
+        }
+
+        public async Task<bool> UpdateResearchDirection(Guid userId, ResearchDirection employment)
+        {
+            return await _researcherProfileRepo.UpdateResearchDirection(userId, employment);
+        }
+
+        public async Task<object> GetPublication(Guid userId)
+        {
+            return await _researcherProfileRepo.GetPublication(userId);
+        }
+
+        public async Task<bool> UpdatePublication(Guid userId, Publication employment)
+        {
+            return await _researcherProfileRepo.UpdatePublication(userId, employment);
+        }
+
     }
 }
