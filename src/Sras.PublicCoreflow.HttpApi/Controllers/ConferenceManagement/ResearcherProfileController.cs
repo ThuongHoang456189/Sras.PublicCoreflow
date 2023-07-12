@@ -77,6 +77,45 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpPatch("update-website-social-links/{userId}")]
+        public async Task<ActionResult<bool>> UpdateWebsiteAndSocialLinks(Guid userId,[FromBody] string websiteAndSocialLinks)
+        {
+            try
+            {
+                return Ok(_appService.UpdateWebsiteAndSocialLinks(userId, websiteAndSocialLinks).Result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPatch("update-also-known-as/{userId}")]
+        public async Task<ActionResult<bool>> UpdateAlsoKnownAs(Guid userId,[FromBody] string alsoKnownAs)
+        {
+            try
+            {
+                return Ok(_appService.UpdateAlsoKnownAs(userId, alsoKnownAs).Result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPatch("update-others-id/{userId}")]
+        public async Task<ActionResult<bool>> UpdateOthersId(Guid userId, [FromBody] string othersId)
+        {
+            try
+            {
+                return Ok(_appService.UpdateOthersId(userId, othersId).Result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 
 }
