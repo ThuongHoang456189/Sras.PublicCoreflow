@@ -25,7 +25,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 
         public ResearcherProfileController(IResearcherProfileAppService appService)
         {
-            _appService = appService;   
+            _appService = appService;
         }
 
         [HttpGet("{userId}/hasResearcherProfile")]
@@ -54,6 +54,28 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             }
         }
 
+        [HttpPost]
+        public async Task<ActionResult<object>> createGeneralProfile([FromBody] GeneralProfileRequest request)
+        {
+            try
+            {
+                return Ok(_appService.createGeneralProfile(request).Result);
+            } catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<object>> GetGeneralProfile(Guid userId)
+        {
+            try
+            {
+                return Ok(_appService.GetGeneralProfile(userId).Result);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 

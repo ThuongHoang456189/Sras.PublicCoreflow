@@ -11,6 +11,7 @@ using Volo.Abp.ObjectMapping;
 using Volo.Abp.Users;
 using Sras.PublicCoreflow.Extension;
 using static Sras.PublicCoreflow.ConferenceManagement.TrackAppService;
+using Sras.PublicCoreflow.Dto;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -18,11 +19,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
     {
         private readonly IResearcherProfileRepository _repository;
         private readonly IEmailAppService _emailAppService;
+        private readonly IResearcherProfileRepository _researcherProfileRepo;
 
-        public ResearcherProfileAppService(IResearcherProfileRepository researcherProfileRepository, IEmailAppService emailAppService)
+        public ResearcherProfileAppService(IResearcherProfileRepository researcherProfileRepository, IEmailAppService emailAppService, IResearcherProfileRepository researcherProfileRepo)
         {
             _repository = researcherProfileRepository;
             _emailAppService = emailAppService;
+            _researcherProfileRepo = researcherProfileRepo;
         }
 
         public async Task<bool> hasResearchProfile(Guid userId)
@@ -59,6 +62,16 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new Exception("Duplicate Primary Email");
             }
 
+        }
+
+        public async Task<object> createGeneralProfile(GeneralProfileRequest request)
+        {
+            return await _researcherProfileRepo.createGeneralProfile(request);
+        }
+
+        public async Task<object> GetGeneralProfile(Guid userId)
+        {
+            return await _researcherProfileRepo.GetGeneralProfile(userId);
         }
 
     }

@@ -6,6 +6,7 @@ using Sras.PublicCoreflow.Dto;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
@@ -148,6 +149,62 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
             dbContext.SaveChanges();
             return true;
         }
+
+        // get workplace
+        public async Task<object> GetWorkPlace(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string workplaceStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Workplace;
+            if (workplaceStr == null) return null;
+            Organization workplace = JsonSerializer.Deserialize<Organization>(workplaceStr);
+            return new
+            {
+                organizationId = workplace.OrganizationId,
+                organizationName = workplace.OrganizationName,
+                organizationDescription = workplace.OrganizationDescription,
+                organizationWebsite = workplace.OrganizationWebsite,
+                organizationPhoneNumber = workplace.OrganizationPhoneNumber,
+                grid = workplace.GRID
+            };
+        }
+
+        //public async Task<object> UpdateWorkplace(Guid userId)
+        //{
+
+        //}
+
+        // get education
+        public async Task<object> GetEducation(Guid userId)
+        {
+            var dbContext = await GetDbContextAsync();
+            if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) throw new Exception("userId not exist");
+            string educationStr = dbContext.ResearcherProfiles.FindAsync(userId).Result.Educations;
+            if (educationStr == null) return null;
+            Education education = JsonSerializer.Deserialize<Education>(educationStr);
+            var educationalOrganization = new
+            {
+                organizationId = education.EducationalOrganization.OrganizationId,
+                organizationName = education.EducationalOrganization.OrganizationName,
+                organizationDescription = education.EducationalOrganization.OrganizationDescription,
+                organizationWebsite = education.EducationalOrganization.OrganizationWebsite,
+                organizationPhoneNumber = education.EducationalOrganization.OrganizationPhoneNumber,
+                grid = education.EducationalOrganization.GRID
+            };
+            return new
+            {
+                educationId = education.EducationId,
+                academicDegreeId = education.AcademicDegreeId,
+                academicDegreeName = JsonSerializer.Deserialize<List<ReferenceTypeDegree>>(File.ReadAllText("..\\Sras.PublicCoreflow.Domain.Shared\\Json\\ResearcherProfile")).Where(a => a.ReferenceTypeId == education.AcademicDegreeId).First().ReferenceTypeName,
+                educationalOrganization,
+                startYear = education.StartYear,
+                yearOfGraduation = education.YearOfGraduation,
+                degreeAbbreviation = education.DegreeAbbreviation,
+                degree = education.Degree
+            };
+        }
+
+        // get 
 
     }
 }
