@@ -52,7 +52,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
                 if (isPrimaryEmailDuplicate(userId, email).Result == false)
                 {
-                    _emailAppService.SendEmailAsync(email, "http://localhost:3000/sciencetic-profile?account=" + userId + "&email=" + email, "Confirm FPT Mail");
+                    _emailAppService.SendEmailAsync(email, "http://localhost:3000/create-profile?account=" + userId + "&email=" + email, "Confirm FPT Mail");
                     return true;
                 } else
             {
