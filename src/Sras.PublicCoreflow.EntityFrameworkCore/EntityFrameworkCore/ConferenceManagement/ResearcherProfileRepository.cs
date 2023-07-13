@@ -90,9 +90,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
         {
             var dbContext = await GetDbContextAsync();
             if (dbContext.ResearcherProfiles.Any(r => r.Id == userId) == false) return null;
-            return new
-            {
-                result = dbContext.ResearcherProfiles.Where(r => r.Id == userId).Select(r => new GeneralProfileRequest()
+            return dbContext.ResearcherProfiles.Where(r => r.Id == userId).Select(r => new GeneralProfileRequest()
                 {
                     userId = r.Id,
                     publishName = r.PublishName,
@@ -114,8 +112,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     otherIds = r.OtherIDs == null ? "[]" : r.OtherIDs,
                     websiteAndSocialLinks = r.WebsiteAndSocialLinks == null ? "[]" : r.WebsiteAndSocialLinks,
                     alsoKnownAs = r.AlsoKnownAs == null ? "[]" : r.AlsoKnownAs
-                }).First()
-            };
+                }).First();
         }
 
         // update  websiteAndSocialLinks

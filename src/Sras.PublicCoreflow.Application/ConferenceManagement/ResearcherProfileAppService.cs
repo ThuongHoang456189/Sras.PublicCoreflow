@@ -94,7 +94,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetWorkPlace(Guid userId)
         {
-            return await _researcherProfileRepo.GetWorkPlace(userId);
+            var result = await _researcherProfileRepo.GetWorkPlace(userId);
+            return new
+            {
+                result
+            };
         }
 
         public async Task<bool> UpdateWorkplace(Guid userId, Organization organization)
@@ -104,7 +108,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetEducation(Guid userId)
         {
-            return await _researcherProfileRepo.GetEducation(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetEducation(userId));
         }
 
         public async Task<bool> UpdateEducation(Guid userId, Education education)
@@ -114,7 +118,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetEmployment(Guid userId)
         {
-            return await _researcherProfileRepo.GetEmployment(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetEmployment(userId));
         }
 
         public async Task<bool> UpdateEmployment(Guid userId, Employment employment)
@@ -124,7 +128,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetScholarships(Guid userId)
         {
-            return await _researcherProfileRepo.GetScholarships(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetScholarships(userId));
         }
 
         public async Task<bool> UpdateScholarships(Guid userId, ScholarshipAndAward employment)
@@ -134,7 +138,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetAward(Guid userId)
         {
-            return await _researcherProfileRepo.GetAward(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetAward(userId));
         }
 
         public async Task<bool> UpdateAward(Guid userId, ScholarshipAndAward employment)
@@ -144,7 +148,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetSkill(Guid userId)
         {
-            return await _researcherProfileRepo.GetSkill(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetSkill(userId));
         }
 
         public async Task<bool> UpdateSkill(Guid userId, Skill employment)
@@ -154,7 +158,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetResearchDirection(Guid userId)
         {
-            return await _researcherProfileRepo.GetResearchDirection(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetResearchDirection(userId));
         }
 
         public async Task<bool> UpdateResearchDirection(Guid userId, ResearchDirection employment)
@@ -164,12 +168,25 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<object> GetPublication(Guid userId)
         {
-            return await _researcherProfileRepo.GetPublication(userId);
+            return GetResultResponse(await _researcherProfileRepo.GetPublication(userId));
         }
 
         public async Task<bool> UpdatePublication(Guid userId, Publication employment)
         {
             return await _researcherProfileRepo.UpdatePublication(userId, employment);
+        }
+
+        public object GetResultResponse(object obj)
+        {
+            if (obj == null) return new
+            {
+                result = new List<object>()
+            };
+
+            return new
+            {
+                result = obj
+            };
         }
 
     }

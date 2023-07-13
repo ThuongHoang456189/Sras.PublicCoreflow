@@ -70,7 +70,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             try
             {
-                return Ok(_appService.GetGeneralProfile(userId).Result);
+                return Ok(await _appService.GetGeneralProfile(userId));
             } catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -114,6 +114,102 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("get-workplace/{userId}")]
+        public async Task<object> GetWorkPlace(Guid userId)
+        {
+            return await _appService.GetWorkPlace(userId);
+        }
+
+        [HttpPatch("update-workplace/{userId}")]
+        public async Task<bool> UpdateWorkplace(Guid userId,[FromBody] Organization organization)
+        {
+            return await _appService.UpdateWorkplace(userId, organization);
+        }
+
+        [HttpGet("get-education/{userId}")]
+        public async Task<object> GetEducation(Guid userId)
+        {
+            return await _appService.GetEducation(userId);
+        }
+
+        [HttpPatch("update-education/{userId}")]
+        public async Task<bool> UpdateEducation(Guid userId,[FromBody] Education education)
+        {
+            return await _appService.UpdateEducation(userId, education);
+        }
+
+        [HttpGet("get-employment/{userId}")]
+        public async Task<object> GetEmployment(Guid userId)
+        {
+            return await _appService.GetEmployment(userId);
+        }
+
+        [HttpPatch("update-employment/{userId}")]
+        public async Task<bool> UpdateEmployment(Guid userId,[FromBody] Employment employment)
+        {
+            return await _appService.UpdateEmployment(userId, employment);
+        }
+
+        [HttpGet("get-scholarships/{userId}")]
+        public async Task<object> GetScholarships(Guid userId)
+        {
+            return await _appService.GetScholarships(userId);
+        }
+
+        [HttpPatch("update-scholarships/{userId}")]
+        public async Task<bool> UpdateScholarships(Guid userId, [FromBody] ScholarshipAndAward employment)
+        {
+            return await _appService.UpdateScholarships(userId, employment);
+        }
+
+        [HttpGet("get-award/{userId}")]
+        public async Task<object> GetAward(Guid userId)
+        {
+            return await _appService.GetAward(userId);
+        }
+
+        [HttpPatch("update-award/{userId}")]
+        public async Task<bool> UpdateAward(Guid userId,[FromBody] ScholarshipAndAward employment)
+        {
+            return await _appService.UpdateAward(userId, employment);
+        }
+
+        [HttpGet("get-skill/{userId}")]
+        public async Task<object> GetSkill(Guid userId)
+        {
+            return await _appService.GetSkill(userId);
+        }
+
+        [HttpPatch("update-skill/{userId}")]
+        public async Task<bool> UpdateSkill(Guid userId,[FromBody] Skill employment)
+        {
+            return await _appService.UpdateSkill(userId, employment);
+        }
+
+        [HttpGet("get-research-direction/{userId}")]
+        public async Task<object> GetResearchDirection(Guid userId)
+        {
+            return await _appService.GetResearchDirection(userId);
+        }
+
+        [HttpPatch("update-research-direction/{userId}")]
+        public async Task<bool> UpdateResearchDirection(Guid userId,[FromBody] ResearchDirection employment)
+        {
+            return await _appService.UpdateResearchDirection(userId, employment);
+        }
+
+        [HttpGet("get-publication/{userId}")]
+        public async Task<object> GetPublication(Guid userId)
+        {
+            return await _appService.GetPublication(userId);
+        }
+
+        [HttpPatch("update-publication/{userId}")]
+        public async Task<bool> UpdatePublication(Guid userId,[FromBody] Publication employment)
+        {
+            return await _appService.UpdatePublication(userId, employment);
         }
 
     }
