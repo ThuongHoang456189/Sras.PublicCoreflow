@@ -12,6 +12,7 @@ using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.Content;
 using Volo.Abp.Domain.Repositories;
+using System.Text.Json;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -135,7 +136,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-education/{userId}")]
-        public async Task<bool> UpdateEducation(Guid userId,[FromBody] Education education)
+        public async Task<bool> UpdateEducation(Guid userId,[FromBody] List<Education> education)
         {
             return await _appService.UpdateEducation(userId, education);
         }
@@ -147,7 +148,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-employment/{userId}")]
-        public async Task<bool> UpdateEmployment(Guid userId,[FromBody] Employment employment)
+        public async Task<bool> UpdateEmployment(Guid userId,[FromBody] List<Employment> employment)
         {
             return await _appService.UpdateEmployment(userId, employment);
         }
@@ -159,7 +160,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-scholarships/{userId}")]
-        public async Task<bool> UpdateScholarships(Guid userId, [FromBody] ScholarshipAndAward employment)
+        public async Task<bool> UpdateScholarships(Guid userId, [FromBody] List<ScholarshipAndAward> employment)
         {
             return await _appService.UpdateScholarships(userId, employment);
         }
@@ -171,7 +172,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-award/{userId}")]
-        public async Task<bool> UpdateAward(Guid userId,[FromBody] ScholarshipAndAward employment)
+        public async Task<bool> UpdateAward(Guid userId,[FromBody] List<ScholarshipAndAward> employment)
         {
             return await _appService.UpdateAward(userId, employment);
         }
@@ -183,7 +184,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-skill/{userId}")]
-        public async Task<bool> UpdateSkill(Guid userId,[FromBody] Skill employment)
+        public async Task<bool> UpdateSkill(Guid userId,[FromBody] List<Skill> employment)
         {
             return await _appService.UpdateSkill(userId, employment);
         }
@@ -195,7 +196,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-research-direction/{userId}")]
-        public async Task<bool> UpdateResearchDirection(Guid userId,[FromBody] ResearchDirection employment)
+        public async Task<bool> UpdateResearchDirection(Guid userId,[FromBody] List<ResearchDirection> employment)
         {
             return await _appService.UpdateResearchDirection(userId, employment);
         }
@@ -207,9 +208,29 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPatch("update-publication/{userId}")]
-        public async Task<bool> UpdatePublication(Guid userId,[FromBody] Publication employment)
+        public async Task<bool> UpdatePublication(Guid userId,[FromBody] List<Publication> employment)
         {
             return await _appService.UpdatePublication(userId, employment);
+        }
+
+        [HttpGet("get-academic-degree-level-json")]
+        public async Task<object> GetAcademicDegreeLevelJson()
+        {
+            var result =  JsonSerializer.Deserialize<List<ReferenceTypeDegree>>(System.IO.File.ReadAllText(Directory.GetCurrentDirectory() + "\\Json\\ResearcherProfile\\academic-degree-level-reference-types.json"));
+            return new
+            {
+                result
+            };
+        }
+
+        [HttpGet("get-work-type-reference-json")]
+        public async Task<object> GetWorkTypeReferenceJson()
+        {
+            var result = JsonSerializer.Deserialize<List<WorkTypeReferenceTypeDTO>>(System.IO.File.ReadAllText(Directory.GetCurrentDirectory() + "\\Json\\ResearcherProfile\\work-type-reference-types.json"));
+            return new
+            {
+                result
+            };
         }
 
     }

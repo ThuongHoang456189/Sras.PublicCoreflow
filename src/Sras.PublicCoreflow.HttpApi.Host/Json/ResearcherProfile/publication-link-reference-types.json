@@ -1,0 +1,14 @@
+[
+  {
+    "ReferenceTypeId": 1,
+    "ReferenceTypeName": "DOI",
+    "IsRequired": true,
+    "AbbrId": "DOI"
+  },
+  {
+    "ReferenceTypeId": 2,
+    "ReferenceTypeName": "Scopus",
+    "IsRequired": false,
+    "AbbrId": "EID"
+  }
+]

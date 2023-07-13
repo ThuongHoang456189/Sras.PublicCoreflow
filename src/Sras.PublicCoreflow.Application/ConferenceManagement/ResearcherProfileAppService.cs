@@ -12,6 +12,8 @@ using Volo.Abp.Users;
 using Sras.PublicCoreflow.Extension;
 using static Sras.PublicCoreflow.ConferenceManagement.TrackAppService;
 using Sras.PublicCoreflow.Dto;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -111,7 +113,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetEducation(userId));
         }
 
-        public async Task<bool> UpdateEducation(Guid userId, Education education)
+        public async Task<bool> UpdateEducation(Guid userId, List<Education> education)
         {
             return await _researcherProfileRepo.UpdateEducation(userId, education);
         }
@@ -121,7 +123,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetEmployment(userId));
         }
 
-        public async Task<bool> UpdateEmployment(Guid userId, Employment employment)
+        public async Task<bool> UpdateEmployment(Guid userId, List<Employment> employment)
         {
             return await _researcherProfileRepo.UpdateEmployment(userId, employment);
         }
@@ -131,7 +133,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetScholarships(userId));
         }
 
-        public async Task<bool> UpdateScholarships(Guid userId, ScholarshipAndAward employment)
+        public async Task<bool> UpdateScholarships(Guid userId, List<ScholarshipAndAward> employment)
         {
             return await _researcherProfileRepo.UpdateScholarships(userId, employment);
         }
@@ -141,7 +143,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetAward(userId));
         }
 
-        public async Task<bool> UpdateAward(Guid userId, ScholarshipAndAward employment)
+        public async Task<bool> UpdateAward(Guid userId, List<ScholarshipAndAward> employment)
         {
             return await _researcherProfileRepo.UpdateAward(userId, employment);
         }
@@ -151,7 +153,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetSkill(userId));
         }
 
-        public async Task<bool> UpdateSkill(Guid userId, Skill employment)
+        public async Task<bool> UpdateSkill(Guid userId, List<Skill> employment)
         {
             return await _researcherProfileRepo.UpdateSkill(userId, employment);
         }
@@ -161,7 +163,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetResearchDirection(userId));
         }
 
-        public async Task<bool> UpdateResearchDirection(Guid userId, ResearchDirection employment)
+        public async Task<bool> UpdateResearchDirection(Guid userId, List<ResearchDirection> employment)
         {
             return await _researcherProfileRepo.UpdateResearchDirection(userId, employment);
         }
@@ -171,9 +173,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return GetResultResponse(await _researcherProfileRepo.GetPublication(userId));
         }
 
-        public async Task<bool> UpdatePublication(Guid userId, Publication employment)
+        public async Task<bool> UpdatePublication(Guid userId, List<Publication> employment)
         {
             return await _researcherProfileRepo.UpdatePublication(userId, employment);
+        }
+
+        public async Task<object> GetAcademicDegreeLevelJson()
+        {
+            var root = Directory.GetCurrentDirectory();
+            var text = File.ReadAllText(root + "\\Json\\ResearcherProfile\\academic-degree-level-reference-types.json");
+            List<ReferenceTypeDegree> result = JsonConvert.DeserializeObject<List<ReferenceTypeDegree>>(text);
+            return new
+            {
+                result
+            };
+        }
+
+        public async Task<object> GetWorkTypeReferenceJson()
+        {
+            var root = Directory.GetCurrentDirectory();
+            var text = File.ReadAllText(root + "\\Json\\ResearcherProfile\\work-type-reference-types.json");
+            List<WorkTypeReferenceTypeDTO> result = JsonConvert.DeserializeObject<List<WorkTypeReferenceTypeDTO>>(text);
+            return new
+            {
+                result
+            };
         }
 
         public object GetResultResponse(object obj)

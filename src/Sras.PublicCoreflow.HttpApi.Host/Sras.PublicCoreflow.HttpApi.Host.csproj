@@ -34,4 +34,20 @@
     <None Remove="Logs\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="Json\ResearcherProfile\academic-degree-level-reference-types.json" />
+    <Content Remove="Json\ResearcherProfile\publication-link-reference-types.json" />
+    <Content Remove="Json\ResearcherProfile\researcher-reference-types.json" />
+    <Content Remove="Json\ResearcherProfile\website-and-social-link-reference-types.json" />
+    <Content Remove="Json\ResearcherProfile\work-type-reference-types.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Json\ResearcherProfile\academic-degree-level-reference-types.json" />
+    <None Include="Json\ResearcherProfile\publication-link-reference-types.json" />
+    <None Include="Json\ResearcherProfile\researcher-reference-types.json" />
+    <None Include="Json\ResearcherProfile\website-and-social-link-reference-types.json" />
+    <None Include="Json\ResearcherProfile\work-type-reference-types.json" />
+  </ItemGroup>
+
 </Project>
