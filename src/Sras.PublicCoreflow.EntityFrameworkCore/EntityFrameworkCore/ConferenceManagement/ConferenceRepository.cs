@@ -267,8 +267,8 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 }
             };
 
-            await dbContext.Set<UpdateActivityTimelineSPO>().FromSqlRaw(@"
-            EXECUTE [dbo].UpdateActivityTimeline @UTCNowStr", sqlParameters.ToArray()).ToListAsync();
+            dbContext.Set<UpdateActivityTimelineSPO>().FromSqlRaw(@"
+            EXECUTE [dbo].UpdateActivityTimeline @UTCNowStr", sqlParameters.ToArray()).ToList();
 
             await Task.CompletedTask;
         }
