@@ -6,18 +6,16 @@ using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class TimeAppService : PublicCoreflowAppService, ITimeAppService
+    public class TimeAppService : SrasBackgroundAppService, ITimeAppService
     {
         private readonly IClock _clock;
         private readonly ITimezoneProvider _timezoneProvider;
         private readonly IConfiguration _configuration;
-        private readonly ISrasBackgroundAppService _srasBackgroundAppService;
-        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration, ISrasBackgroundAppService srasBackgroundAppService)
+        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration, IConferenceRepository conferenceRepository) : base(conferenceRepository)
         {
             _clock = clock;
             _timezoneProvider = timezoneProvider;
             _configuration = configuration;
-            _srasBackgroundAppService = srasBackgroundAppService;
         }
 
         public DateTime GetNow()
@@ -29,18 +27,28 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
         public async Task<DateTime> SetNow(DateTime now)
         {
-            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
 
-            now = DateTime.SpecifyKind(now, DateTimeKind.Unspecified);
+            try
+            {
+                var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
 
-            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+                now = DateTime.SpecifyKind(now, DateTimeKind.Unspecified);
 
-            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+                var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
 
-            // background running
-            await _srasBackgroundAppService.UpdateActivityTimelineAsync();
+                SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
 
-            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+                // background running
+                await UpdateActivityTimelineAsync();
+
+                return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
+            return now;
         }
 
         public DateTime Reset()
