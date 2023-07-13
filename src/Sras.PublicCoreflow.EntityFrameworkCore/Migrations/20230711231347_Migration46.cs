@@ -46,45 +46,49 @@ namespace Sras.PublicCoreflow.Migrations
 			select @Today = cast(cast(@LocalNow as date) as datetime2(7))
 
 			-- for count
-
-			select @TotalCount = count(*)
+			select
+				@TotalCount = count(*)
 			from
-			Submissions
-			join
 			(
-				--selected tracks
-				select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName'
+				select 
+					Submissions.Id
 				from
-				Tracks 
-				join 
+				Submissions
+				join
 				(
-					--selected conference
-					select Conferences.Id 
-					from Conferences 
-					where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
-				) as SelectedConferences
-				on Tracks.ConferenceId = SelectedConferences.Id
-				where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-			) as SelectedTracks
-			on Submissions.TrackId = SelectedTracks.TrackId
-			join PaperStatuses
-			on Submissions.NotifiedStatusId = PaperStatuses.Id
-			join Authors on Authors.SubmissionId = Submissions.Id
-			join Participants on Authors.ParticipantId = Participants.Id
-			join AbpUsers on Participants.AccountId = AbpUsers.Id
-			where 
-			Submissions.IsDeleted = 'false' and (@StatusId is null or Submissions.NotifiedStatusId = @StatusId)
-			and PaperStatuses.IsDeleted = 'false'
-			and Authors.IsDeleted = 'false'
-			and Participants.IsDeleted = 'false' and Participants.AccountId is not null 
-			and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
-			and (
-			@InclusionText is null or
-			lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
-			lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
-			group by 
-				Submissions.Id
-
+					--selected tracks
+					select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName'
+					from
+					Tracks 
+					join 
+					(
+						--selected conference
+						select Conferences.Id 
+						from Conferences 
+						where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+					) as SelectedConferences
+					on Tracks.ConferenceId = SelectedConferences.Id
+					where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+				) as SelectedTracks
+				on Submissions.TrackId = SelectedTracks.TrackId
+				join PaperStatuses
+				on Submissions.NotifiedStatusId = PaperStatuses.Id
+				join Authors on Authors.SubmissionId = Submissions.Id
+				join Participants on Authors.ParticipantId = Participants.Id
+				join AbpUsers on Participants.AccountId = AbpUsers.Id
+				where 
+				Submissions.IsDeleted = 'false' and (@StatusId is null or Submissions.NotifiedStatusId = @StatusId)
+				and PaperStatuses.IsDeleted = 'false'
+				and Authors.IsDeleted = 'false'
+				and Participants.IsDeleted = 'false' and Participants.AccountId is not null 
+				and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
+				and (
+				@InclusionText is null or
+				lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+				lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
+				group by 
+					Submissions.Id
+			) as list
 
 			-- for select
  
@@ -908,7 +912,7 @@ namespace Sras.PublicCoreflow.Migrations
 
 			end
 
-			END          
+			END         
             ";
 
             migrationBuilder.Sql(getAuthorSubmissionAggregationSP);
