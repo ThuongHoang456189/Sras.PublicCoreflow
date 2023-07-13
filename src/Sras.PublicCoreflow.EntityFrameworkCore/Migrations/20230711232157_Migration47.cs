@@ -48,124 +48,148 @@ namespace Sras.PublicCoreflow.Migrations
 				@TotalCount = count(*)
 			from
 			(
-				select SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.*
+				select *
 				from
 				(
-					-- submission with subject area include
-					select 
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.*,
-						stuff(
-						(select ';' + 
-							(
-								concat(SubjectAreas.Name,'|',SubmissionSubjectAreas.IsPrimary)
-							) as 'SubmissionSubjectArea'
-							from SubmissionSubjectAreas
-							join SubjectAreas on SubmissionSubjectAreas.SubjectAreaId = SubjectAreas.Id
-							where (SubmissionSubjectAreas.IsDeleted is null or SubmissionSubjectAreas.IsDeleted = 'false') and SubmissionSubjectAreas.SubmissionId = SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Id
-							and SubjectAreas.IsDeleted = 'false'
-							order by SubmissionSubjectAreas.IsPrimary desc, SubmissionSubjectArea asc
-							for xml path(''), type).value('.', 'nvarchar(2048)'),1,1,''
-						) as 'SelectedSubmissionSubjectAreas'
+					select SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.*
 					from
 					(
-						-- submission with latest submission
+						-- submission with subject area include
 						select 
-							Submissions.Id,
-							Submissions.Title,
-							SelectedTracks.TrackId,
-							SelectedTracks.TrackName,
-							SelectedLatestSubmissionClones.LatestSubmissionCloneId,
-							SelectedLatestSubmissionClones.CloneNo,
-							Submissions.RootFilePath as 'SubmissionRootFilePath',
-							Revisions.RootFilePath as 'RevisionRootFilePath'
-						from
-						Submissions
-						join
-						(
-							select SelectedWithTrackIdTracks.*
-							from
-							(
-								--selected tracks with current deadline
-								select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
-								from
-								Tracks 
-								join 
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.*,
+							stuff(
+							(select ';' + 
 								(
-									--selected conference
-									select Conferences.Id 
-									from Conferences 
-									where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
-								) as SelectedConferences
-								on Tracks.ConferenceId = SelectedConferences.Id
-								left join ActivityDeadlines
-								on Tracks.Id = ActivityDeadlines.TrackId
-								where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-								and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-								order by 
-									ActivityDeadlines.Factor asc
-								offset 0 rows
-								fetch next 1 rows only
-							) as SelectedWithTrackIdTracks
-							where 
-								SelectedWithTrackIdTracks.DeadlineName like '%Review Submission Deadline'
-						) as SelectedTracks
-						on Submissions.TrackId = SelectedTracks.TrackId
-						join 
+									concat(SubjectAreas.Name,'|',SubmissionSubjectAreas.IsPrimary)
+								) as 'SubmissionSubjectArea'
+								from SubmissionSubjectAreas
+								join SubjectAreas on SubmissionSubjectAreas.SubjectAreaId = SubjectAreas.Id
+								where (SubmissionSubjectAreas.IsDeleted is null or SubmissionSubjectAreas.IsDeleted = 'false') and SubmissionSubjectAreas.SubmissionId = SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Id
+								and SubjectAreas.IsDeleted = 'false'
+								order by SubmissionSubjectAreas.IsPrimary desc, SubmissionSubjectArea asc
+								for xml path(''), type).value('.', 'nvarchar(2048)'),1,1,''
+							) as 'SelectedSubmissionSubjectAreas'
+						from
 						(
-							select SubmissionClones.Id as 'LatestSubmissionCloneId', SubmissionClones.SubmissionId, SubmissionClones.CloneNo
-							from SubmissionClones
-							where SubmissionClones.IsLast = 'true' and SubmissionClones.IsDeleted = 'false'
-						) as SelectedLatestSubmissionClones
-						on Submissions.Id = SelectedLatestSubmissionClones.SubmissionId
-						left join Revisions on SelectedLatestSubmissionClones.LatestSubmissionCloneId = Revisions.Id
-						where
-							Submissions.IsDeleted = 'false'
-							and (SelectedLatestSubmissionClones.CloneNo = 0 
-							or (SelectedLatestSubmissionClones.CloneNo > 0 and SelectedLatestSubmissionClones.CloneNo = SelectedTracks.RevisionNo))
-					) as SelectedLatestSubmissionCloneWithSubmissionIdSubmission
-					group by
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Id,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Title,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.TrackId,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.TrackName,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.LatestSubmissionCloneId,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.CloneNo,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.SubmissionRootFilePath,
-						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
-				) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
-				where (@InclusionText is null or (
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%'))
-				and (
-				(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
-				or
-				(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo > 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.RevisionRootFilePath is not null)
-				)
-			) as SelectedInfoPartLatestSubmissionCloneWithSubjectAreaSubmission
-			-- select review assignment assign to 
-			join
-			(
-				select 
-					ReviewAssignments.Id as 'ReviewAssignmentId', 
-					ReviewAssignments.TotalScore, 
-					ReviewAssignments.SubmissionCloneId, 
-					ReviewAssignments.Review,
-					ReviewAssignments.CreationTime,
-					ReviewAssignments.LastModificationTime
-				from ReviewAssignments
-				join Reviewers on ReviewAssignments.ReviewerId = Reviewers.Id
-				join Incumbents on Reviewers.Id = Incumbents.Id
-				join ConferenceAccounts on Incumbents.ConferenceAccountId = ConferenceAccounts.Id
-				join AbpUsers on ConferenceAccounts.AccountId = AbpUsers.Id
-				where 
-					ReviewAssignments.IsActive = 'true' and ReviewAssignments.IsDeleted = 'false'
-					and Reviewers.IsDeleted = 'false'
-					and Incumbents.IsDeleted = 'false'
-					and ConferenceAccounts.IsDeleted = 'false' and ConferenceAccounts.ConferenceId = @ConferenceId
-					and AbpUsers.IsDeleted='false' and AbpUsers.Id = @AccountId
-			) as SelectedReviewAssignments
-			on SelectedInfoPartLatestSubmissionCloneWithSubjectAreaSubmission.LatestSubmissionCloneId = SelectedReviewAssignments.SubmissionCloneId
+							-- submission with latest submission
+							select 
+								Submissions.Id,
+								Submissions.Title,
+								SelectedTracks.TrackId,
+								SelectedTracks.TrackName,
+								SelectedLatestSubmissionClones.LatestSubmissionCloneId,
+								SelectedLatestSubmissionClones.CloneNo,
+								Submissions.RootFilePath as 'SubmissionRootFilePath',
+								Revisions.RootFilePath as 'RevisionRootFilePath'
+							from
+							Submissions
+							join
+							(
+								select SelectedWithTrackIdTracks.*
+								from
+								(
+									--selected tracks with current deadline
+									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
+									from
+									Tracks 
+									join 
+									(
+										--selected conference
+										select Conferences.Id 
+										from Conferences 
+										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+									) as SelectedConferences
+									on Tracks.ConferenceId = SelectedConferences.Id
+									left join 
+									(
+										select ActivityDeadlines.*
+										from
+										(
+											select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+											from
+											Tracks 
+											join 
+											(
+												--selected conference
+												select Conferences.Id 
+												from Conferences 
+												where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+											) as SelectedConferences
+											on Tracks.ConferenceId = SelectedConferences.Id
+											left join ActivityDeadlines
+											on Tracks.Id = ActivityDeadlines.TrackId
+											where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+											and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+											group by
+												Tracks.Id
+										) as SelectedFactors
+										join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+									) as SelectedActivityDeadlines
+									on Tracks.Id = SelectedActivityDeadlines.TrackId
+									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+									and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
+								) as SelectedWithTrackIdTracks
+								where 
+									SelectedWithTrackIdTracks.DeadlineName like '%Review Submission Deadline'
+							) as SelectedTracks
+							on Submissions.TrackId = SelectedTracks.TrackId
+							join 
+							(
+								select SubmissionClones.Id as 'LatestSubmissionCloneId', SubmissionClones.SubmissionId, SubmissionClones.CloneNo
+								from SubmissionClones
+								where SubmissionClones.IsLast = 'true' and SubmissionClones.IsDeleted = 'false'
+							) as SelectedLatestSubmissionClones
+							on Submissions.Id = SelectedLatestSubmissionClones.SubmissionId
+							left join Revisions on SelectedLatestSubmissionClones.LatestSubmissionCloneId = Revisions.Id
+							where
+								Submissions.IsDeleted = 'false'
+								and (SelectedLatestSubmissionClones.CloneNo = 0 
+								or (SelectedLatestSubmissionClones.CloneNo > 0 and SelectedLatestSubmissionClones.CloneNo = SelectedTracks.RevisionNo))
+						) as SelectedLatestSubmissionCloneWithSubmissionIdSubmission
+						group by
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Id,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.Title,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.TrackId,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.TrackName,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.LatestSubmissionCloneId,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.CloneNo,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.SubmissionRootFilePath,
+							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
+					) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
+					where (@InclusionText is null or (
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%'))
+					and (
+					(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
+					or
+					(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo > 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.RevisionRootFilePath is not null)
+					)
+				) as SelectedInfoPartLatestSubmissionCloneWithSubjectAreaSubmission
+				-- select review assignment assign to 
+				join
+				(
+					select 
+						ReviewAssignments.Id as 'ReviewAssignmentId', 
+						ReviewAssignments.TotalScore, 
+						ReviewAssignments.SubmissionCloneId, 
+						ReviewAssignments.Review,
+						ReviewAssignments.CreationTime,
+						ReviewAssignments.LastModificationTime
+					from ReviewAssignments
+					join Reviewers on ReviewAssignments.ReviewerId = Reviewers.Id
+					join Incumbents on Reviewers.Id = Incumbents.Id
+					join ConferenceAccounts on Incumbents.ConferenceAccountId = ConferenceAccounts.Id
+					join AbpUsers on ConferenceAccounts.AccountId = AbpUsers.Id
+					where 
+						ReviewAssignments.IsActive = 'true' and ReviewAssignments.IsDeleted = 'false'
+						and Reviewers.IsDeleted = 'false'
+						and Incumbents.IsDeleted = 'false'
+						and ConferenceAccounts.IsDeleted = 'false' and ConferenceAccounts.ConferenceId = @ConferenceId
+						and AbpUsers.IsDeleted='false' and AbpUsers.Id = @AccountId
+				) as SelectedReviewAssignments
+				on SelectedInfoPartLatestSubmissionCloneWithSubjectAreaSubmission.LatestSubmissionCloneId = SelectedReviewAssignments.SubmissionCloneId
+			) as list
 
 			-- for select
  
@@ -235,7 +259,7 @@ namespace Sras.PublicCoreflow.Migrations
 								from
 								(
 									--selected tracks with current deadline
-									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 									from
 									Tracks 
 									join 
@@ -246,14 +270,34 @@ namespace Sras.PublicCoreflow.Migrations
 										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 									) as SelectedConferences
 									on Tracks.ConferenceId = SelectedConferences.Id
-									left join ActivityDeadlines
-									on Tracks.Id = ActivityDeadlines.TrackId
+									left join 
+									(
+										select ActivityDeadlines.*
+										from
+										(
+											select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+											from
+											Tracks 
+											join 
+											(
+												--selected conference
+												select Conferences.Id 
+												from Conferences 
+												where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+											) as SelectedConferences
+											on Tracks.ConferenceId = SelectedConferences.Id
+											left join ActivityDeadlines
+											on Tracks.Id = ActivityDeadlines.TrackId
+											where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+											and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+											group by
+												Tracks.Id
+										) as SelectedFactors
+										join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+									) as SelectedActivityDeadlines
+									on Tracks.Id = SelectedActivityDeadlines.TrackId
 									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-									order by 
-										ActivityDeadlines.Factor asc
-									offset 0 rows
-									fetch next 1 rows only
+									and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 								) as SelectedWithTrackIdTracks
 								where 
 									SelectedWithTrackIdTracks.DeadlineName like '%Review Submission Deadline'
@@ -403,7 +447,7 @@ namespace Sras.PublicCoreflow.Migrations
 								from
 								(
 									--selected tracks with current deadline
-									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 									from
 									Tracks 
 									join 
@@ -414,14 +458,34 @@ namespace Sras.PublicCoreflow.Migrations
 										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 									) as SelectedConferences
 									on Tracks.ConferenceId = SelectedConferences.Id
-									left join ActivityDeadlines
-									on Tracks.Id = ActivityDeadlines.TrackId
+									left join 
+									(
+										select ActivityDeadlines.*
+										from
+										(
+											select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+											from
+											Tracks 
+											join 
+											(
+												--selected conference
+												select Conferences.Id 
+												from Conferences 
+												where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+											) as SelectedConferences
+											on Tracks.ConferenceId = SelectedConferences.Id
+											left join ActivityDeadlines
+											on Tracks.Id = ActivityDeadlines.TrackId
+											where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+											and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+											group by
+												Tracks.Id
+										) as SelectedFactors
+										join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+									) as SelectedActivityDeadlines
+									on Tracks.Id = SelectedActivityDeadlines.TrackId
 									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-									order by 
-										ActivityDeadlines.Factor asc
-									offset 0 rows
-									fetch next 1 rows only
+									and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 								) as SelectedWithTrackIdTracks
 								where 
 									SelectedWithTrackIdTracks.DeadlineName like '%Review Submission Deadline'
@@ -571,7 +635,7 @@ namespace Sras.PublicCoreflow.Migrations
 								from
 								(
 									--selected tracks with current deadline
-									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+									select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 									from
 									Tracks 
 									join 
@@ -582,14 +646,34 @@ namespace Sras.PublicCoreflow.Migrations
 										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 									) as SelectedConferences
 									on Tracks.ConferenceId = SelectedConferences.Id
-									left join ActivityDeadlines
-									on Tracks.Id = ActivityDeadlines.TrackId
+									left join 
+									(
+										select ActivityDeadlines.*
+										from
+										(
+											select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+											from
+											Tracks 
+											join 
+											(
+												--selected conference
+												select Conferences.Id 
+												from Conferences 
+												where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+											) as SelectedConferences
+											on Tracks.ConferenceId = SelectedConferences.Id
+											left join ActivityDeadlines
+											on Tracks.Id = ActivityDeadlines.TrackId
+											where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+											and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+											group by
+												Tracks.Id
+										) as SelectedFactors
+										join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+									) as SelectedActivityDeadlines
+									on Tracks.Id = SelectedActivityDeadlines.TrackId
 									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-									order by 
-										ActivityDeadlines.Factor asc
-									offset 0 rows
-									fetch next 1 rows only
+									and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 								) as SelectedWithTrackIdTracks
 								where 
 									SelectedWithTrackIdTracks.DeadlineName like '%Review Submission Deadline'
