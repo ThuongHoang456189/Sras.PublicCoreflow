@@ -1044,12 +1044,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return conflicts;
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(SubmissionReviewerAssignmentSuggestionInput input)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id, SubmissionReviewerAssignmentSuggestionInput input)
         {
             SubmissionReviewerAssignmentSuggestionDto? result = null;
 
-            var foundSubmission = await _submissionRepository.GetReviewerAssignmentSuggestionSubmissionPart(input.SubmissionId);
-            var foundReviewers = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(input.InclusionText, input.SubmissionId, input.IsAssigned);
+            var foundSubmission = await _submissionRepository.GetReviewerAssignmentSuggestionSubmissionPart(id);
+            var foundReviewers = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(input.InclusionText, id, input.IsAssigned);
 
             if (foundSubmission == null)
                 return null;
