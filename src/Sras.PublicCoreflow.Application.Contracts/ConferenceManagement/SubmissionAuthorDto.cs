@@ -1,6 +1,6 @@
 ﻿namespace Sras.PublicCoreflow.ConferenceManagement
 {
-    public class SubmissionSummaryAuthorDto
+    public class SubmissionAuthorDto
     {
         public string? AuthorEmail { get; set; }
         public string? AuthorNamePrefix { get; set; }

@@ -22,7 +22,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             _reviewerAppService = reviewerAppService;
         }
 
-        [HttpGet("aggregation")]
+        [HttpGet("aggregation-v1")]
         public async Task<PagedResultDto<SubmissionWithFacts>> GetListReviewerAggregation(
             Guid accountId, Guid conferenceId,
             string? sorting,
@@ -31,6 +31,12 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _reviewerAppService.GetListReviewerAggregation(accountId, conferenceId, 
                 sorting ?? ReviewerConsts.DefaultSorting, skipCount ?? 0, maxResultCount ?? ReviewerConsts.DefaultMaxResultCount);
+        }
+
+        [HttpGet("aggregation")]
+        public async Task<PagedResultDto<ReviewerSubmissionAggregationDto>?> GetReviewerSubmissionAggregationAsync(ReviewerSubmissionAggregationInput input)
+        {
+            return await _reviewerAppService.GetReviewerSubmissionAggregationAsync(input);
         }
     }
 }

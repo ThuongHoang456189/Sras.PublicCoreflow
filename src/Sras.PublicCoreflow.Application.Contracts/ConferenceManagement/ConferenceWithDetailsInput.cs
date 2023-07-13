@@ -17,5 +17,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         // List of chair
         public List<Guid> Chairs { get; set; } = new List<Guid>();
         public List<string>? Tracks { get; set; }
+        public string? TimeZone { get; set; }
     }
 }

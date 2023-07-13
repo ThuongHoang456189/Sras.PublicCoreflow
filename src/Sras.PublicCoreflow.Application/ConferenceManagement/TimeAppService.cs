@@ -1,0 +1,59 @@
+﻿using Microsoft.Extensions.Configuration;
+using Sras.PublicCoreflow.DateProvider;
+using System;
+using System.Threading.Tasks;
+using Volo.Abp.Timing;
+
+namespace Sras.PublicCoreflow.ConferenceManagement
+{
+    public class TimeAppService : PublicCoreflowAppService, ITimeAppService
+    {
+        private readonly IClock _clock;
+        private readonly ITimezoneProvider _timezoneProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ISrasBackgroundAppService _srasBackgroundAppService;
+        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration, ISrasBackgroundAppService srasBackgroundAppService)
+        {
+            _clock = clock;
+            _timezoneProvider = timezoneProvider;
+            _configuration = configuration;
+            _srasBackgroundAppService = srasBackgroundAppService;
+        }
+
+        public DateTime GetNow()
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
+
+        public async Task<DateTime> SetNow(DateTime now)
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            now = DateTime.SpecifyKind(now, DateTimeKind.Unspecified);
+
+            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            // background running
+            await _srasBackgroundAppService.UpdateActivityTimelineAsync();
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
+
+        public DateTime Reset()
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            var now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+
+            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
+    }
+}

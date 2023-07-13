@@ -57,9 +57,13 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("{id}/users")]
-        public async Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetListConferenceUsersAsync(Guid id, ConferenceParticipationFilterDto input)
+        //public async Task<PagedResultDto<ConferenceParticipationBriefInfo>> GetListConferenceUsersAsync(Guid id, ConferenceParticipationFilterDto input)
+        //{
+        //    return await _conferenceService.GetConferenceUserListAsync(id, input);
+        //}
+        public async Task<PagedResultDto<ConferenceUserDto>?> GetListConferenceUserAsync(Guid id, ConferenceUserInput input)
         {
-            return await _conferenceService.GetConferenceUserListAsync(id, input);
+            return await _conferenceService.GetListConferenceUserAsync(id, input);
         }
 
         [HttpGet("numOfSubmission/{conferenceId}")]

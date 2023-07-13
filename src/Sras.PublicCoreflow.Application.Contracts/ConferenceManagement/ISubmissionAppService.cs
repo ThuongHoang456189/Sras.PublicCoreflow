@@ -17,14 +17,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<IEnumerable<object>> GetSubmissionsAsync();
         Task<ResponseDto> UpdateSubmissionConflict(Guid submissionId, List<ConflictInput> conflicts);
         Task<SubmissionReviewerConflictDto> GetListReviewerWithConflictDetails(Guid submissionId);
-        Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
+        //Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId);
         Task<CreationResponseDto> CreateRevisionAsync(Guid submissionId, List<RemoteStreamContent> files);
         Task<CreationResponseDto> CreateCameraReadyAsync(Guid submissionId, List<RemoteStreamContent> files);
         Task<ResponseDto> AssignReviewerAsync(Guid submissionId, Guid reviewerId, bool isAssigned);
         Task<ResponseDto> DecideOnPaper(Guid submissionId, Guid paperStatusId);
         Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter);
         Task<ResponseDto> RequestCameraReady(Guid submissionId, bool isRequested);
-        Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(
+        Task<PagedResultDto<SubmissionAggregationV1Dto>> GetListSubmissionAggregationSP(
             string? inclusionText,
             Guid conferenceId,
             Guid? trackId,
@@ -37,5 +37,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ZipFileDto> DownloadSubmissionFiles(Guid id);
         Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id);
         Task<SubmissionSummaryDto?> GetSubmissionSummaryAsync(Guid submissionId);
+        Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(SubmissionReviewerAssignmentSuggestionInput input);
+        Task<PagedResultDto<SubmissionAggregationDto>?> GetTopAverageScoreSubmissionAggregationAsync(SubmissionAggregationInput input);
+        Task<PagedResultDto<SubmissionAggregationDto>?> GetTopTimeSubmissionAggregationAsync(SubmissionAggregationInput input);
     }
 }

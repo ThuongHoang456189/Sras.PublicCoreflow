@@ -13,6 +13,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             int skipCount = 0,
             int maxResultCount = AuthorConsts.DefaultMaxResultCount);
 
-        //Task TestSPAsync();
+        Task<PagedResultDto<AuthorSubmissionAggregationDto>?> GetAuthorSubmissionAggregationAsync(AuthorSubmissionAggregationInput input);
     }
 }

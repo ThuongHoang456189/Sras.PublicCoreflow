@@ -83,10 +83,16 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _submissionAppService.GetListReviewerWithConflictDetails(id);
         }
 
+        //[HttpGet("{id}/reviewer-assignment")]
+        //public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id)
+        //{
+        //    return await _submissionAppService.GetSubmissionReviewerAssignmentSuggestionAsync(id);
+        //}
+
         [HttpGet("{id}/reviewer-assignment")]
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id)
+        public async Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(SubmissionReviewerAssignmentSuggestionInput input)
         {
-            return await _submissionAppService.GetSubmissionReviewerAssignmentSuggestionAsync(id);
+            return await _submissionAppService.GetSubmissionReviewerAssignmentSuggestionAsync(input);
         }
 
         [HttpPost("{id}/reviewer-assignment")]
@@ -113,10 +119,22 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return Ok(await _submissionAppService.DecideOnPaper(id, paperStatusId));
         }
 
+        //[HttpGet("aggregation")]
+        //public async Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter)
+        //{
+        //    return await _submissionAppService.GetListSubmissionAggregation(filter);
+        //}
+
         [HttpGet("aggregation")]
-        public async Task<PagedResultDto<SubmissionAggregation>> GetListSubmissionAggregation(SubmissionAggregationListFilterDto filter)
+        public async Task<PagedResultDto<SubmissionAggregationDto>?> GetTopTimeSubmissionAggregationAsync(SubmissionAggregationInput input)
         {
-            return await _submissionAppService.GetListSubmissionAggregation(filter);
+            return await _submissionAppService.GetTopTimeSubmissionAggregationAsync(input);
+        }
+
+        [HttpGet("aggregation-with-top-average-score")]
+        public async Task<PagedResultDto<SubmissionAggregationDto>?> GetTopAverageScoreSubmissionAggregationAsync(SubmissionAggregationInput input)
+        {
+            return await _submissionAppService.GetTopAverageScoreSubmissionAggregationAsync(input);
         }
 
         [HttpPost("{id}/camera-ready-request")]
@@ -126,7 +144,7 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpGet("sp-aggregation")]
-        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
+        public async Task<PagedResultDto<SubmissionAggregationV1Dto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
         {
             return await _submissionAppService.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
         }

@@ -17,6 +17,7 @@ using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
+using Volo.Abp.Timing;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
@@ -24,11 +25,13 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
     public class SubmissionRepository : EfCoreRepository<PublicCoreflowDbContext, Submission, Guid>, ISubmissionRepository
     {
         private readonly IGuidGenerator _guidGenerator;
+        private readonly IClock _clock;
         private readonly string HostBlobPrefix = "host";
 
-        public SubmissionRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator) : base(dbContextProvider)
+        public SubmissionRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IGuidGenerator guidGenerator, IClock clock) : base(dbContextProvider)
         {
             _guidGenerator = guidGenerator;
+            _clock = clock;
         }
 
         public async Task<object> GetNumOfSubmissionAndEmailWithAllAuthor(SubmissionWithEmailRequest request)
@@ -876,6 +879,399 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 EXECUTE [dbo].GetSubmissionSummary @SubmissionId", sqlParameters.ToArray()).ToListAsync();
 
             if(resultList.Count > 0)
+            {
+                return resultList.First();
+            }
+
+            return null;
+        }
+
+        public async Task<List<GetAuthorSubmissionAggregationSPO>?> GetAuthorSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            Guid? statusId,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@AccountId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = accountId
+                },
+                new SqlParameter() {
+                    ParameterName = "@StatusId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = statusId == null ? DBNull.Value : statusId
+                },
+                new SqlParameter() {
+                    ParameterName = "@Sorting",
+                    SqlDbType = SqlDbType.VarChar,
+                    Size = 128,
+                    Direction = ParameterDirection.Input,
+                    Value = sorting == null || string.IsNullOrWhiteSpace(sorting) ? DBNull.Value : sorting.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@SortedAsc",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Input,
+                    Value = sortedAsc
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetAuthorSubmissionAggregationSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetAuthorSubmissionAggregation @UTCNowStr, @InclusionText, @ConferenceId, @TrackId, @AccountId, @StatusId, @Sorting, @SortedAsc, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
+
+        public async Task<List<GetReviewerSubmissionAggregationSPO>?> GetReviewerSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            bool? isReviewed,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@AccountId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = accountId
+                },
+                new SqlParameter() {
+                    ParameterName = "@IsReviewed",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Input,
+                    Value = isReviewed == null ? DBNull.Value : isReviewed
+                },
+                new SqlParameter() {
+                    ParameterName = "@Sorting",
+                    SqlDbType = SqlDbType.VarChar,
+                    Size = 128,
+                    Direction = ParameterDirection.Input,
+                    Value = sorting == null || string.IsNullOrWhiteSpace(sorting) ? DBNull.Value : sorting.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@SortedAsc",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Input,
+                    Value = sortedAsc
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetReviewerSubmissionAggregationSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetReviewerSubmissionAggregation @UTCNowStr, @InclusionText, @ConferenceId, @TrackId, @AccountId, @IsReviewed, @Sorting, @SortedAsc, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
+
+        public async Task<List<GetSubmissionReviewerAssignmentSuggestionSPO>?> GetSubmissionReviewerAssignmentSuggestionAsync(
+            string? inclusionText,
+            Guid submissionId,
+            bool? isAssigned)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@SubmissionId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = submissionId
+                },
+                new SqlParameter() {
+                    ParameterName = "@IsAssigned",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Input,
+                    Value = isAssigned == null ? DBNull.Value : isAssigned
+                }
+            };
+
+            var resultList = await dbContext.Set<GetSubmissionReviewerAssignmentSuggestionSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetSubmissionReviewerAssignmentSuggestion @UTCNowStr, @InclusionText, @SubmissionId, @IsAssigned", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
+
+        public async Task<List<GetSubmissionAggregationSPO>?> GetTopAverageScoreSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@StatusId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = statusId == null ? DBNull.Value : statusId
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetSubmissionAggregationSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetTopAverageScoreSubmissionAggregation @InclusionText, @ConferenceId, @TrackId, @StatusId, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
+
+        public async Task<List<GetSubmissionAggregationSPO>?> GetTopTimeSubmissionAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? statusId,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@StatusId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = statusId == null ? DBNull.Value : statusId
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetSubmissionAggregationSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetTopTimeSubmissionAggregation @InclusionText, @ConferenceId, @TrackId, @StatusId, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
+
+        public async Task<GetReviewerAssignmentSuggestionSubmissionPartSPO?> GetReviewerAssignmentSuggestionSubmissionPart(Guid submissionId)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@SubmissionId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = submissionId
+                }
+            };
+
+            var resultList = await dbContext.Set<GetReviewerAssignmentSuggestionSubmissionPartSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetReviewerAssignmentSuggestionSubmissionPart @SubmissionId", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
             {
                 return resultList.First();
             }
