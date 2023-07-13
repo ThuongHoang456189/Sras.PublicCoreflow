@@ -189,7 +189,7 @@ namespace Sras.PublicCoreflow.Migrations
 					join
 					(
 						--selected tracks with current deadline
-						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 						from
 						Tracks 
 						join 
@@ -200,14 +200,34 @@ namespace Sras.PublicCoreflow.Migrations
 							where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 						) as SelectedConferences
 						on Tracks.ConferenceId = SelectedConferences.Id
-						left join ActivityDeadlines
-						on Tracks.Id = ActivityDeadlines.TrackId
+						left join 
+						(
+							select ActivityDeadlines.*
+							from
+							(
+								select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+								from
+								Tracks 
+								join 
+								(
+									--selected conference
+									select Conferences.Id 
+									from Conferences 
+									where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+								) as SelectedConferences
+								on Tracks.ConferenceId = SelectedConferences.Id
+								left join ActivityDeadlines
+								on Tracks.Id = ActivityDeadlines.TrackId
+								where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+								and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+								group by
+									Tracks.Id
+							) as SelectedFactors
+							join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+						) as SelectedActivityDeadlines
+						on Tracks.Id = SelectedActivityDeadlines.TrackId
 						where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-						and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-						order by 
-							ActivityDeadlines.Factor asc
-						offset 0 rows
-						fetch next 1 rows only
+						and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 					) as SelectedTracks
 					on Submissions.TrackId = SelectedTracks.TrackId
 					join PaperStatuses
@@ -288,7 +308,7 @@ namespace Sras.PublicCoreflow.Migrations
 						join
 						(
 							--selected tracks with current deadline
-							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName'
+							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 							from
 							Tracks 
 							join 
@@ -299,14 +319,34 @@ namespace Sras.PublicCoreflow.Migrations
 								where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 							) as SelectedConferences
 							on Tracks.ConferenceId = SelectedConferences.Id
-							left join ActivityDeadlines
-							on Tracks.Id = ActivityDeadlines.TrackId
+							left join 
+							(
+								select ActivityDeadlines.*
+								from
+								(
+									select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+									from
+									Tracks 
+									join 
+									(
+										--selected conference
+										select Conferences.Id 
+										from Conferences 
+										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+									) as SelectedConferences
+									on Tracks.ConferenceId = SelectedConferences.Id
+									left join ActivityDeadlines
+									on Tracks.Id = ActivityDeadlines.TrackId
+									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+									group by
+										Tracks.Id
+								) as SelectedFactors
+								join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+							) as SelectedActivityDeadlines
+							on Tracks.Id = SelectedActivityDeadlines.TrackId
 							where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-							and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-							order by 
-								ActivityDeadlines.Factor asc
-							offset 0 rows
-							fetch next 1 rows only
+							and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 						) as SelectedTracks
 						on Submissions.TrackId = SelectedTracks.TrackId
 						join PaperStatuses
@@ -464,7 +504,7 @@ namespace Sras.PublicCoreflow.Migrations
 					join
 					(
 						--selected tracks with current deadline
-						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 						from
 						Tracks 
 						join 
@@ -475,14 +515,34 @@ namespace Sras.PublicCoreflow.Migrations
 							where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 						) as SelectedConferences
 						on Tracks.ConferenceId = SelectedConferences.Id
-						left join ActivityDeadlines
-						on Tracks.Id = ActivityDeadlines.TrackId
+						left join 
+						(
+							select ActivityDeadlines.*
+							from
+							(
+								select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+								from
+								Tracks 
+								join 
+								(
+									--selected conference
+									select Conferences.Id 
+									from Conferences 
+									where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+								) as SelectedConferences
+								on Tracks.ConferenceId = SelectedConferences.Id
+								left join ActivityDeadlines
+								on Tracks.Id = ActivityDeadlines.TrackId
+								where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+								and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+								group by
+									Tracks.Id
+							) as SelectedFactors
+							join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+						) as SelectedActivityDeadlines
+						on Tracks.Id = SelectedActivityDeadlines.TrackId
 						where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-						and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-						order by 
-							ActivityDeadlines.Factor asc
-						offset 0 rows
-						fetch next 1 rows only
+						and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 					) as SelectedTracks
 					on Submissions.TrackId = SelectedTracks.TrackId
 					join PaperStatuses
@@ -563,7 +623,7 @@ namespace Sras.PublicCoreflow.Migrations
 						join
 						(
 							--selected tracks with current deadline
-							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName'
+							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 							from
 							Tracks 
 							join 
@@ -574,14 +634,34 @@ namespace Sras.PublicCoreflow.Migrations
 								where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 							) as SelectedConferences
 							on Tracks.ConferenceId = SelectedConferences.Id
-							left join ActivityDeadlines
-							on Tracks.Id = ActivityDeadlines.TrackId
+							left join 
+							(
+								select ActivityDeadlines.*
+								from
+								(
+									select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+									from
+									Tracks 
+									join 
+									(
+										--selected conference
+										select Conferences.Id 
+										from Conferences 
+										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+									) as SelectedConferences
+									on Tracks.ConferenceId = SelectedConferences.Id
+									left join ActivityDeadlines
+									on Tracks.Id = ActivityDeadlines.TrackId
+									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+									group by
+										Tracks.Id
+								) as SelectedFactors
+								join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+							) as SelectedActivityDeadlines
+							on Tracks.Id = SelectedActivityDeadlines.TrackId
 							where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-							and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-							order by 
-								ActivityDeadlines.Factor asc
-							offset 0 rows
-							fetch next 1 rows only
+							and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 						) as SelectedTracks
 						on Submissions.TrackId = SelectedTracks.TrackId
 						join PaperStatuses
@@ -740,7 +820,7 @@ namespace Sras.PublicCoreflow.Migrations
 					join
 					(
 						--selected tracks with current deadline
-						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', ActivityDeadlines.Name as 'DeadlineName', ActivityDeadlines.RevisionNo
+						select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 						from
 						Tracks 
 						join 
@@ -751,14 +831,34 @@ namespace Sras.PublicCoreflow.Migrations
 							where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 						) as SelectedConferences
 						on Tracks.ConferenceId = SelectedConferences.Id
-						left join ActivityDeadlines
-						on Tracks.Id = ActivityDeadlines.TrackId
+						left join 
+						(
+							select ActivityDeadlines.*
+							from
+							(
+								select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+								from
+								Tracks 
+								join 
+								(
+									--selected conference
+									select Conferences.Id 
+									from Conferences 
+									where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+								) as SelectedConferences
+								on Tracks.ConferenceId = SelectedConferences.Id
+								left join ActivityDeadlines
+								on Tracks.Id = ActivityDeadlines.TrackId
+								where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+								and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+								group by
+									Tracks.Id
+							) as SelectedFactors
+							join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+						) as SelectedActivityDeadlines
+						on Tracks.Id = SelectedActivityDeadlines.TrackId
 						where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-						and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-						order by 
-							ActivityDeadlines.Factor asc
-						offset 0 rows
-						fetch next 1 rows only
+						and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 					) as SelectedTracks
 					on Submissions.TrackId = SelectedTracks.TrackId
 					join PaperStatuses
@@ -835,7 +935,7 @@ namespace Sras.PublicCoreflow.Migrations
 						join
 						(
 							--selected tracks with current deadline
-							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName'
+							select Tracks.Id as 'TrackId', Tracks.Name as 'TrackName', SelectedActivityDeadlines.Name as 'DeadlineName', SelectedActivityDeadlines.RevisionNo
 							from
 							Tracks 
 							join 
@@ -846,14 +946,34 @@ namespace Sras.PublicCoreflow.Migrations
 								where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
 							) as SelectedConferences
 							on Tracks.ConferenceId = SelectedConferences.Id
-							left join ActivityDeadlines
-							on Tracks.Id = ActivityDeadlines.TrackId
+							left join 
+							(
+								select ActivityDeadlines.*
+								from
+								(
+									select Tracks.Id as 'TrackId', min(ActivityDeadlines.Factor) as 'MinFactor'
+									from
+									Tracks 
+									join 
+									(
+										--selected conference
+										select Conferences.Id 
+										from Conferences 
+										where Conferences.Id = @ConferenceId and Conferences.IsDeleted = 'false'
+									) as SelectedConferences
+									on Tracks.ConferenceId = SelectedConferences.Id
+									left join ActivityDeadlines
+									on Tracks.Id = ActivityDeadlines.TrackId
+									where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
+									and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
+									group by
+										Tracks.Id
+								) as SelectedFactors
+								join ActivityDeadlines on SelectedFactors.TrackId = ActivityDeadlines.TrackId and ActivityDeadlines.Factor = SelectedFactors.MinFactor
+							) as SelectedActivityDeadlines
+							on Tracks.Id = SelectedActivityDeadlines.TrackId
 							where Tracks.IsDeleted = 'false' and (@TrackId is null or (Tracks.Id = @TrackId))
-							and ActivityDeadlines.Status = 1 and ActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(ActivityDeadlines.Deadline as date) as datetime2(7))
-							order by 
-								ActivityDeadlines.Factor asc
-							offset 0 rows
-							fetch next 1 rows only
+							and SelectedActivityDeadlines.Status = 1 and SelectedActivityDeadlines.IsDeleted = 'false' and @Today <= cast(cast(SelectedActivityDeadlines.Deadline as date) as datetime2(7))
 						) as SelectedTracks
 						on Submissions.TrackId = SelectedTracks.TrackId
 						join PaperStatuses
@@ -912,7 +1032,7 @@ namespace Sras.PublicCoreflow.Migrations
 
 			end
 
-			END         
+			END       
             ";
 
             migrationBuilder.Sql(getAuthorSubmissionAggregationSP);
