@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
 using System;
+using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 
@@ -26,9 +27,9 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         }
 
         [HttpPost("now")]
-        public IActionResult SetNow(DateTime now)
+        public async Task<IActionResult> SetNow(DateTime now)
         {
-            return Ok(_timeAppService.SetNow(now));
+            return Ok(await _timeAppService.SetNow(now));
         }
 
         [HttpPost("now/reset")]
