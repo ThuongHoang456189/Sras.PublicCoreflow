@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Volo.Abp.Content;
 using Sras.PublicCoreflow.Dto;
 using Volo.Abp.Application.Dtos;
-using System.IO;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -37,7 +36,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<ZipFileDto> DownloadSubmissionFiles(Guid id);
         Task<SelectedSubmissionBriefInfo> GetSelectedSubmissionBriefInfoAsync(Guid id);
         Task<SubmissionSummaryDto?> GetSubmissionSummaryAsync(Guid submissionId);
-        Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(SubmissionReviewerAssignmentSuggestionInput input);
+        Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id, SubmissionReviewerAssignmentSuggestionInput input);
         Task<PagedResultDto<SubmissionAggregationDto>?> GetTopAverageScoreSubmissionAggregationAsync(SubmissionAggregationInput input);
         Task<PagedResultDto<SubmissionAggregationDto>?> GetTopTimeSubmissionAggregationAsync(SubmissionAggregationInput input);
     }
