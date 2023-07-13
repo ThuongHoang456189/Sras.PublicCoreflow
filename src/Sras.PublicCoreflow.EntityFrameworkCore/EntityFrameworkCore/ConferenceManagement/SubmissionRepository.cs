@@ -950,7 +950,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     ParameterName = "@SortedAsc",
                     SqlDbType = SqlDbType.Bit,
                     Direction = ParameterDirection.Input,
-                    Value = sortedAsc
+                    Value = sortedAsc == null ? DBNull.Value : sortedAsc
                 },
                 new SqlParameter() {
                     ParameterName = "@SkipCount",
@@ -1041,7 +1041,7 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                     ParameterName = "@SortedAsc",
                     SqlDbType = SqlDbType.Bit,
                     Direction = ParameterDirection.Input,
-                    Value = sortedAsc
+                    Value = sortedAsc == null ? DBNull.Value : sortedAsc
                 },
                 new SqlParameter() {
                     ParameterName = "@SkipCount",
