@@ -32,7 +32,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<string?> UpdatePresentationSettingsAsync(Guid id, string? presentationSettings);
         Task<string?> GetPresentationSettingsAsync(Guid id);
         Task<List<TrackPlanRecordInput>> InitializeTrackPlan(Guid id, int numberOfRevisions);
-        Task<List<TrackPlanRecordInput>> GetInitialTrackPlan(Guid id);
+        Task<List<TrackPlanRecordInput>?> GetTrackPlan(Guid id);
         Task<List<TrackPlanRecordInput>> SaveTrackPlanAsync(Guid trackId, List<TrackPlanRecordInput> trackPlanRecords);
         Task<List<TrackPlanRecordInput>> GetTrackActivityTimeline(Guid id);
         Task<List<TrackPlanRecordInput>> ExtendActivityDeadline(Guid trackId, TrackPlanRecordInput activityDeadline);
@@ -42,5 +42,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<List<QuestionDto>> GetSubmissionQuestionListAsync(Guid trackId);
         Task<List<QuestionDto>> GetDecisionChecklistQuestionsAsync(Guid trackId);
         Task<List<QuestionDto>> GetCameraReadyChecklistQuestionsAsync(Guid trackId);
+        Task<int?> GetNumberOfRevisions(Guid id);
     }
 }
