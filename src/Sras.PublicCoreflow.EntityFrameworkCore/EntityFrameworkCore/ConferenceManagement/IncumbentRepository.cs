@@ -13,6 +13,9 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp;
+using Microsoft.Data.SqlClient;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+using System.Data;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
@@ -503,6 +506,68 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
         //    return incumbent;
         //}
+
+        public async Task<List<GetConferenceUserSPO>?> GetListConferenceUserAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? conferenceRoleId,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceRoleId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceRoleId == null ? DBNull.Value : conferenceRoleId
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetConferenceUserSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetConferenceUser @InclusionText, @ConferenceId, @TrackId, @ConferenceRoleId, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
+        }
 
         public override async Task<IQueryable<Incumbent>> WithDetailsAsync()
         {

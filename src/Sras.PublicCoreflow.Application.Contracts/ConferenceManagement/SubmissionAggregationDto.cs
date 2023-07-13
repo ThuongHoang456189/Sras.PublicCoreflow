@@ -22,7 +22,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public bool? RevisionSubmitted { get; set; }
         public int? RevisionNo { get; set; }
         public bool? IsRequestedForCameraReady { get; set; }
-        public Guid? CameraReadyId { get; set; }
+        public bool? CameraReadySubmitted { get; set; }
         public bool? IsRequestedForPresentation { get; set; }
     }
 }

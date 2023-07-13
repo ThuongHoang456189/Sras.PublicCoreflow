@@ -94,6 +94,7 @@ public class PublicCoreflowDbContext :
     public virtual DbSet<GetSubmissionAggregationSPO> GetSubmissionAggregationSPOs { get; set; }
     public virtual DbSet<GetSubmissionReviewerAssignmentSuggestionSPO> GetSubmissionReviewerAssignmentSuggestionSPOs { get; set; }
     public virtual DbSet<GetReviewerAssignmentSuggestionSubmissionPartSPO> GetReviewerAssignmentSuggestionSubmissionPartSPOs { get; set; }
+    public virtual DbSet<GetConferenceUserSPO> GetConferenceUserSPOs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -627,6 +628,11 @@ public class PublicCoreflowDbContext :
         });
 
         builder.Entity<GetReviewerAssignmentSuggestionSubmissionPartSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetConferenceUserSPO>(b =>
         {
             b.HasNoKey();
         });

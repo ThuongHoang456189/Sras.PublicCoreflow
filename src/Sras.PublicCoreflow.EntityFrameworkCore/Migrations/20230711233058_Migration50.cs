@@ -100,10 +100,10 @@ namespace Sras.PublicCoreflow.Migrations
 					SelectedCTSSubmission.TrackName
 			) as SelectedCTSASASubmission
 			where @InclusionText is null or (
-			lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-			lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-			lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-			lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%'
+			lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+			lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+			lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+			lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%'
 			)
 
 			-- for select
@@ -228,10 +228,10 @@ namespace Sras.PublicCoreflow.Migrations
 								SelectedCTSSubmission.LastModificationTime
 						) as SelectedCTSASASubmission
 						where @InclusionText is null or (
-						lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-						lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-						lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-						lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+						lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 					) as SelectedCTSASAWithInclusionTextSubmission
 					order by
 						case when SelectedCTSASAWithInclusionTextSubmission.LastModificationTime is not null then SelectedCTSASAWithInclusionTextSubmission.LastModificationTime end desc,
@@ -345,10 +345,10 @@ namespace Sras.PublicCoreflow.Migrations
 									SelectedCTSSubmission.LastModificationTime
 							) as SelectedCTSASASubmission
 							where @InclusionText is null or (
-							lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+							lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 						) as SelectedCTSASAWithInclusionTextSubmission
 						order by
 							case when SelectedCTSASAWithInclusionTextSubmission.LastModificationTime is not null then SelectedCTSASAWithInclusionTextSubmission.LastModificationTime end desc,
@@ -472,10 +472,10 @@ namespace Sras.PublicCoreflow.Migrations
 									SelectedCTSSubmission.LastModificationTime
 							) as SelectedCTSASASubmission
 							where @InclusionText is null or (
-							lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+							lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 						) as SelectedCTSASAWithInclusionTextSubmission
 						order by
 							case when SelectedCTSASAWithInclusionTextSubmission.LastModificationTime is not null then SelectedCTSASAWithInclusionTextSubmission.LastModificationTime end desc,
@@ -599,10 +599,10 @@ namespace Sras.PublicCoreflow.Migrations
 									SelectedCTSSubmission.LastModificationTime
 							) as SelectedCTSASASubmission
 							where @InclusionText is null or (
-							lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+							lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 						) as SelectedCTSASAWithInclusionTextSubmission
 						order by
 							case when SelectedCTSASAWithInclusionTextSubmission.LastModificationTime is not null then SelectedCTSASAWithInclusionTextSubmission.LastModificationTime end desc,
@@ -727,10 +727,10 @@ namespace Sras.PublicCoreflow.Migrations
 									SelectedCTSSubmission.LastModificationTime
 							) as SelectedCTSASASubmission
 							where @InclusionText is null or (
-							lower(SelectedCTSASASubmission.Title) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.TrackName) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+@InclusionText+'%' or
-							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+							lower(SelectedCTSASASubmission.Title) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedAuthors) like '%'+lower(@InclusionText)+'%' or
+							lower(SelectedCTSASASubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 						) as SelectedCTSASAWithInclusionTextSubmission
 						order by
 							case when SelectedCTSASAWithInclusionTextSubmission.LastModificationTime is not null then SelectedCTSASAWithInclusionTextSubmission.LastModificationTime end desc,

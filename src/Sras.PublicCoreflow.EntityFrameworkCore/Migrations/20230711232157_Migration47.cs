@@ -134,9 +134,9 @@ namespace Sras.PublicCoreflow.Migrations
 						SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
 				) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
 				where (@InclusionText is null or (
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+@InclusionText+'%' or
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+@InclusionText+'%' or
-				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%'))
+				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
+				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+				lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%'))
 				and (
 				(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
 				or
@@ -294,9 +294,9 @@ namespace Sras.PublicCoreflow.Migrations
 							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
 					) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
 					where @InclusionText is null or (
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 					and (
 					(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
 					or
@@ -462,9 +462,9 @@ namespace Sras.PublicCoreflow.Migrations
 							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
 					) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
 					where @InclusionText is null or (
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 					and (
 					(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
 					or
@@ -630,9 +630,9 @@ namespace Sras.PublicCoreflow.Migrations
 							SelectedLatestSubmissionCloneWithSubmissionIdSubmission.RevisionRootFilePath
 					) as SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission
 					where @InclusionText is null or (
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+@InclusionText+'%' or
-					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+@InclusionText+'%')
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.TrackName) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SelectedSubmissionSubjectAreas) like '%'+lower(@InclusionText)+'%')
 					and (
 					(SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.CloneNo = 0 and SelectedLatestSubmissionCloneWithSubjectAreaWithSubmissionIdSubmission.SubmissionRootFilePath is not null)
 					or

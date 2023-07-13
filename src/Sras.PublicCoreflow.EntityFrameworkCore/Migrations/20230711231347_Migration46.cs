@@ -80,8 +80,8 @@ namespace Sras.PublicCoreflow.Migrations
 			and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 			and (
 			@InclusionText is null or
-			lower(Submissions.Title) like '%'+@InclusionText+'%' or
-			lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+			lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+			lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 			group by 
 				Submissions.Id
 
@@ -226,8 +226,8 @@ namespace Sras.PublicCoreflow.Migrations
 					and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 					and (
 					@InclusionText is null or
-					lower(Submissions.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+					lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 					group by 
 						Submissions.Id,
 						Submissions.Title, 
@@ -325,8 +325,8 @@ namespace Sras.PublicCoreflow.Migrations
 						and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 						and (
 						@InclusionText is null or
-						lower(Submissions.Title) like '%'+@InclusionText+'%' or
-						lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+						lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 						group by 
 							Submissions.Id,
 							Submissions.Title, 
@@ -501,8 +501,8 @@ namespace Sras.PublicCoreflow.Migrations
 					and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 					and (
 					@InclusionText is null or
-					lower(Submissions.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+					lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 					group by 
 						Submissions.Id,
 						Submissions.Title, 
@@ -600,8 +600,8 @@ namespace Sras.PublicCoreflow.Migrations
 						and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 						and (
 						@InclusionText is null or
-						lower(Submissions.Title) like '%'+@InclusionText+'%' or
-						lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+						lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 						group by 
 							Submissions.Id,
 							Submissions.Title, 
@@ -777,8 +777,8 @@ namespace Sras.PublicCoreflow.Migrations
 					and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 					and (
 					@InclusionText is null or
-					lower(Submissions.Title) like '%'+@InclusionText+'%' or
-					lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+					lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 					group by 
 						Submissions.Id,
 						Submissions.Title, 
@@ -872,8 +872,8 @@ namespace Sras.PublicCoreflow.Migrations
 						and AbpUsers.IsDeleted = 'false' and AbpUsers.Id = @AccountId
 						and (
 						@InclusionText is null or
-						lower(Submissions.Title) like '%'+@InclusionText+'%' or
-						lower(SelectedTracks.TrackName) like '%'+@InclusionText+'%')
+						lower(Submissions.Title) like '%'+lower(@InclusionText)+'%' or
+						lower(SelectedTracks.TrackName) like '%'+lower(@InclusionText)+'%')
 						group by 
 							Submissions.Id,
 							Submissions.Title, 

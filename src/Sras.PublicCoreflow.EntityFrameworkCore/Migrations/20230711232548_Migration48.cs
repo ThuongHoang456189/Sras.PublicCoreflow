@@ -229,9 +229,9 @@ namespace Sras.PublicCoreflow.Migrations
 						on SelectedReviewingWithReviewAssignmentSubmissions.ReviewerId = SelectedReviewers.ReviewerId
 					) as SelectedInfoPartReviewer
 					where @InclusionText is null or (
-					lower(SelectedInfoPartReviewer.FullName) like '%'+@InclusionText+'%' or
-					lower(SelectedInfoPartReviewer.Organization) like '%'+@InclusionText+'%' or
-					lower(SelectedInfoPartReviewer.SelectedReviewerSubjectAreas) like '%'+@InclusionText+'%')
+					lower(SelectedInfoPartReviewer.FullName) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedInfoPartReviewer.Organization) like '%'+lower(@InclusionText)+'%' or
+					lower(SelectedInfoPartReviewer.SelectedReviewerSubjectAreas) like '%'+lower(@InclusionText)+'%')
 				) as SelectedInfoPartWithInclusionTextReviewer
 				group by
 					SelectedInfoPartWithInclusionTextReviewer.ReviewerId,

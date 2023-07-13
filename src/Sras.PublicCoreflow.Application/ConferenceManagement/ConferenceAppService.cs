@@ -434,5 +434,52 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         {
             return await _conferenceRepository.GetConferencesWithNavbarStatus();
         }
+
+        private List<string>? GetListRole(string? aggregationRoleStr)
+        {
+            if (string.IsNullOrWhiteSpace(aggregationRoleStr))
+                return null;
+
+            return aggregationRoleStr.Split(';').ToList();
+        }
+
+        public async Task<PagedResultDto<ConferenceUserDto>?> GetListConferenceUserAsync(Guid id, ConferenceUserInput input)
+        {
+            var foundItems = await _incumbentRepository.GetListConferenceUserAsync
+                (
+                    input.InclusionText,
+                    id,
+                    input.TrackId,
+                    input.ConferenceRoleId,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var count = (long)foundItems.First().TotalCount.Value;
+
+            List<ConferenceUserDto> items = new List<ConferenceUserDto>();
+
+            foundItems.ForEach(x =>
+            {
+                items.Add(new ConferenceUserDto()
+                {
+                    ConferenceAccountId = x.ConferenceAccountId,
+                    AccountId = x.AccountId,
+                    FirstName = x.FirstName,
+                    MiddleName = x.MiddleName,
+                    LastName = x.LastName,
+                    Email = x.Email,
+                    Organization = x.Organization,
+                    Country = x.Country,
+                    Roles = GetListRole(x.SelectedRoles)
+                });
+            });
+
+            return new PagedResultDto<ConferenceUserDto>(count, items);
+        }
     }
 }
