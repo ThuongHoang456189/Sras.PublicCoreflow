@@ -813,6 +813,42 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return list;
         }
 
+        public async Task<int?> GetNumberOfRevisions(Guid id)
+        {
+            var track = await _trackRepository.FindAsync(id);
+            if (track == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.TrackNotFound);
+
+            var conference = await _conferenceRepository.FindAsync(track.ConferenceId);
+            if (conference == null)
+                throw new BusinessException(PublicCoreflowDomainErrorCodes.ConferenceNotFound);
+
+            if (_currentUser != null && _currentUser.Id != null)
+            {
+                var isChair = await _incumbentRepository.IsConferenceChair(_currentUser.Id.Value, track.ConferenceId);
+                if (!isChair)
+                {
+                    throw new BusinessException(PublicCoreflowDomainErrorCodes.UserNotAuthorizedToUpdateConferenceTrack);
+                }
+            }
+
+            RevisionSettings? revisionSettings;
+            if (string.IsNullOrEmpty(track.RevisionSettings))
+            {
+                return null;
+            }
+            else
+            {
+                revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
+                if (revisionSettings?.NumberOfRevisions != null)
+                {
+                    return revisionSettings.NumberOfRevisions;
+                }
+            }
+
+            return null;
+        }
+
         public async Task<List<TrackPlanRecordInput>> InitializeTrackPlan(Guid id, int numberOfRevisions)
         {
             var track = await _trackRepository.FindAsync(id);
@@ -837,51 +873,53 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 throw new Exception("NumberOfRevisions cannot be a negative number");
             }
 
-            RevisionSettings? revisionSettings;
-            if (string.IsNullOrEmpty(track.RevisionSettings))
-            {
-                revisionSettings = new RevisionSettings()
-                {
-                    NumberOfRevisions = numberOfRevisions
-                };
+            return GetInitialListTrackProgressRecord(track.Id, numberOfRevisions, conference.StartDate, conference.EndDate);
 
-                var initialListTrackProgressRecord = GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
+            //RevisionSettings? revisionSettings;
+            //if (string.IsNullOrEmpty(track.RevisionSettings))
+            //{
+            //    revisionSettings = new RevisionSettings()
+            //    {
+            //        NumberOfRevisions = numberOfRevisions
+            //    };
 
-                track.RevisionSettings = JsonSerializer.Serialize<RevisionSettings>(revisionSettings);
-                await _trackRepository.UpdateAsync(track);
+            //    var initialListTrackProgressRecord = GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
 
-                // return Initialized Track Plan
-                return initialListTrackProgressRecord;
+            //    track.RevisionSettings = JsonSerializer.Serialize<RevisionSettings>(revisionSettings);
+            //    await _trackRepository.UpdateAsync(track);
 
-            }
-            else
-            {
-                revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
-                if (revisionSettings?.NumberOfRevisions != null)
-                {
-                    throw new BusinessException("NumberOfRevisions Already Set");
-                }
-                else
-                {
-                    if (revisionSettings != null)
-                    {
-                        revisionSettings.NumberOfRevisions = numberOfRevisions;
+            //    // return Initialized Track Plan
+            //    return initialListTrackProgressRecord;
 
-                        var initialListTrackProgressRecord = GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
+            //}
+            //else
+            //{
+            //    revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
+            //    if (revisionSettings?.NumberOfRevisions != null)
+            //    {
+            //        throw new BusinessException("NumberOfRevisions Already Set");
+            //    }
+            //    else
+            //    {
+            //        if (revisionSettings != null)
+            //        {
+            //            revisionSettings.NumberOfRevisions = numberOfRevisions;
 
-                        track.RevisionSettings = JsonSerializer.Serialize<RevisionSettings>(revisionSettings);
-                        await _trackRepository.UpdateAsync(track);
+            //            var initialListTrackProgressRecord = GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
 
-                        // return Initialized Track Plan
-                        return initialListTrackProgressRecord;
-                    }
+            //            track.RevisionSettings = JsonSerializer.Serialize<RevisionSettings>(revisionSettings);
+            //            await _trackRepository.UpdateAsync(track);
 
-                    throw new Exception("Cannot Parse Revision Settings Json");
-                }
-            }
+            //            // return Initialized Track Plan
+            //            return initialListTrackProgressRecord;
+            //        }
+
+            //        throw new Exception("Cannot Parse Revision Settings Json");
+            //    }
+            //}
         }
 
-        public async Task<List<TrackPlanRecordInput>> GetInitialTrackPlan(Guid id)
+        public async Task<List<TrackPlanRecordInput>?> GetTrackPlan(Guid id)
         {
             var track = await _trackRepository.FindAsync(id);
             if (track == null)
@@ -900,22 +938,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 }
             }
 
-            if (string.IsNullOrEmpty(track.RevisionSettings))
-            {
-                throw new Exception("Revision Settings Not Set");
-            }
-            else
-            {
-                RevisionSettings? revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
-                if (revisionSettings?.NumberOfRevisions != null)
-                {
-                    return GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
-                }
-                else
-                {
-                    throw new Exception("Cannot Find the NumberOfRevisions Settings");
-                }
-            }
+            var deadlines = await _activityDeadlineRepository.GetListAsync(x => x.TrackId == track.Id);
+
+            deadlines = deadlines.OrderBy(x => x.Factor).ToList();
+
+            if (deadlines == null || deadlines.Count == 0)
+                return null;
+
+            return ObjectMapper.Map<List<ActivityDeadline>, List<TrackPlanRecordInput>>(deadlines);
+
+            //if (string.IsNullOrEmpty(track.RevisionSettings))
+            //{
+            //    throw new Exception("Revision Settings Not Set");
+            //}
+            //else
+            //{
+            //    RevisionSettings? revisionSettings = JsonSerializer.Deserialize<RevisionSettings>(track.RevisionSettings);
+            //    if (revisionSettings?.NumberOfRevisions != null)
+            //    {
+            //        return GetInitialListTrackProgressRecord(track.Id, revisionSettings.NumberOfRevisions.Value, conference.StartDate, conference.EndDate);
+            //    }
+            //    else
+            //    {
+            //        throw new Exception("Cannot Find the NumberOfRevisions Settings");
+            //    }
+            //}
         }
     
         public async Task<List<TrackPlanRecordInput>> SaveTrackPlanAsync(Guid trackId, List<TrackPlanRecordInput> trackPlanRecords)
@@ -1005,7 +1052,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return trackPlanRecords;
         }
 
-        public async Task<List<TrackPlanRecordInput>> GetTrackActivityTimeline(Guid id)
+        public async Task<List<TrackPlanRecordInput>?> GetTrackActivityTimeline(Guid id)
         {
             var track = await _trackRepository.FindAsync(id);
             if (track == null)
@@ -1028,6 +1075,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             && !x.Name.ToLower().Equals(ActivityDeadlineConsts.EndDate.ToLower()));
 
             deadlines = deadlines.OrderBy(x => x.Factor).ToList();
+
+            if (deadlines == null || deadlines.Count == 0)
+                return null;
 
             return ObjectMapper.Map<List<ActivityDeadline>, List<TrackPlanRecordInput>>(deadlines);
         }
