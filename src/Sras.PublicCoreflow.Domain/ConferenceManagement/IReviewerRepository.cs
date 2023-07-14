@@ -16,5 +16,14 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string? sorting = ReviewerConsts.DefaultSorting,
             int skipCount = 0,
             int maxResultCount = ReviewerConsts.DefaultMaxResultCount);
+        Task<List<GetReviewerReviewingInformationAggregationSPO>?> GetReviewerReviewingInformationAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount);
     }
 }

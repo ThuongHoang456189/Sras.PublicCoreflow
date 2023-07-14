@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sras.PublicCoreflow.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace Sras.PublicCoreflow.Migrations
 {
     [DbContext(typeof(PublicCoreflowDbContext))]
-    partial class PublicCoreflowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230714065707_Migration53")]
+    partial class Migration53
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -873,59 +876,6 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.ToTable("GetReviewerAssignmentSuggestionSubmissionPartSPOs");
-                });
-
-            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerReviewingInformationAggregationSPO", b =>
-                {
-                    b.Property<Guid?>("AccountId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConferenceFullName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("ConferenceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConferenceShortName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MiddleName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NamePrefix")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Organization")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Quota")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("ReviewerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("TotalCount")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("TrackId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TrackName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("GetReviewerReviewingInformationAggregationSPOs");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerSubmissionAggregationSPO", b =>

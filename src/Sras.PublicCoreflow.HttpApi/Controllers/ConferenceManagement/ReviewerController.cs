@@ -38,5 +38,11 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
         {
             return await _reviewerAppService.GetReviewerSubmissionAggregationAsync(input);
         }
+
+        [HttpGet("reviewing-facts")]
+        public async Task<ReviewerReviewingInformationAggregationDto?> GetReviewerReviewingInformationAggregationAsync(ReviewerReviewingInformationAggregationInput input)
+        {
+            return await _reviewerAppService.GetReviewerReviewingInformationAggregationAsync(input);
+        }
     }
 }

@@ -95,6 +95,7 @@ public class PublicCoreflowDbContext :
     public virtual DbSet<GetSubmissionReviewerAssignmentSuggestionSPO> GetSubmissionReviewerAssignmentSuggestionSPOs { get; set; }
     public virtual DbSet<GetReviewerAssignmentSuggestionSubmissionPartSPO> GetReviewerAssignmentSuggestionSubmissionPartSPOs { get; set; }
     public virtual DbSet<GetConferenceUserSPO> GetConferenceUserSPOs { get; set; }
+    public virtual DbSet<GetReviewerReviewingInformationAggregationSPO> GetReviewerReviewingInformationAggregationSPOs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -156,6 +157,9 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.TimeZone)
             .HasMaxLength(ConferenceConsts.MaxTimeZoneLength);
+
+            b.Property(x => x.IsFinished)
+            .HasDefaultValue(false);
         });
 
         builder.Entity<ConferenceAccount>(b =>
@@ -633,6 +637,11 @@ public class PublicCoreflowDbContext :
         });
 
         builder.Entity<GetConferenceUserSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetReviewerReviewingInformationAggregationSPO>(b =>
         {
             b.HasNoKey();
         });
