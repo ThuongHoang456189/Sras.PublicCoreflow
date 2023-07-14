@@ -1,16 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sras.PublicCoreflow.ConferenceManagement;
-using Sras.PublicCoreflow.Dto;
 using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.Content;
 
 namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
 {
@@ -20,26 +13,29 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
     [Route("api/sras/time")]
     public class TimeController : AbpController
     {
-        private readonly ITimeAppService _appService;
+        private readonly ITimeAppService _timeAppService;
 
-        public TimeController(ITimeAppService appService)
+        public TimeController(ITimeAppService timeAppService)
         {
-            _appService = appService;   
+            _timeAppService = timeAppService;
         }
 
-        [HttpGet("current-time")]
-        public ActionResult GetCurrentTime()
+        [HttpGet("now")]
+        public IActionResult GetNow()
         {
-            DateTime currentTime = DateTime.Now;
-            return Ok(currentTime);
+            return Ok(_timeAppService.GetNow());
         }
 
-        [HttpGet("change-time")]
-        public ActionResult ChangeTime() {
-            return Ok(_appService.ChangeSystemTime("11-06-2023"));
+        [HttpPost("now")]
+        public async Task<IActionResult> SetNow(DateTime now)
+        {
+            return Ok(await _timeAppService.SetNow(now));
         }
-            
+
+        [HttpPost("now/reset")]
+        public IActionResult Reset()
+        {
+            return Ok(_timeAppService.Reset());
+        }
     }
-
 }
-

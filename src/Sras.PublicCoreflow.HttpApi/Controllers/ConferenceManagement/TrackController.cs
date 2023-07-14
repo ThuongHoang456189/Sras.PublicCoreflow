@@ -165,16 +165,22 @@ namespace Sras.PublicCoreflow.Controllers.ConferenceManagement
             return await _trackAppService.GetPresentationSettingsAsync(id);
         }
 
-        [HttpPost("{id}/track-plan-with-number-of-revisions")]
+        [HttpGet("{id}/track-plan-with-number-of-revisions")]
         public async Task<List<TrackPlanRecordInput>> InitializeTrackPlan(Guid id, int numberOfRevisions)
         {
             return await _trackAppService.InitializeTrackPlan(id, numberOfRevisions);
         }
 
-        [HttpGet("{id}/track-plan")]
-        public async Task<List<TrackPlanRecordInput>> GetInitialTrackPlan(Guid id)
+        [HttpGet("{id}/number-of-revisions")]
+        public async Task<int?> GetNumberOfRevisions(Guid id)
         {
-            return await _trackAppService.GetInitialTrackPlan(id);
+            return await _trackAppService.GetNumberOfRevisions(id);
+        }
+
+        [HttpGet("{id}/track-plan")]
+        public async Task<List<TrackPlanRecordInput>?> GetInitialTrackPlan(Guid id)
+        {
+            return await _trackAppService.GetTrackPlan(id);
         }
 
         [HttpPost("{id}/track-plan")]

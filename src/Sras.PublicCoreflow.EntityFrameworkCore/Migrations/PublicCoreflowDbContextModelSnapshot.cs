@@ -337,6 +337,14 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("TimeZone")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("TimeZoneId")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
                     b.Property<string>("WebsiteLink")
                         .HasColumnType("nvarchar(max)");
 
@@ -749,6 +757,267 @@ namespace Sras.PublicCoreflow.Migrations
                     b.HasIndex("TrackId");
 
                     b.ToTable("EmailTemplates", (string)null);
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetAuthorSubmissionAggregationSPO", b =>
+                {
+                    b.Property<string>("Actions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CameraReadyRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CloneNo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CopyRightFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeadlineName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PresentationRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RevisionRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StatusId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SubmissionRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupplementaryMaterialRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TrackName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("GetAuthorSubmissionAggregationSPOs");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetConferenceUserSPO", b =>
+                {
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ConferenceAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Organization")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedRoles")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalCount")
+                        .HasColumnType("int");
+
+                    b.ToTable("GetConferenceUserSPOs");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerAssignmentSuggestionSubmissionPartSPO", b =>
+                {
+                    b.Property<Guid?>("PaperId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SelectedSubmissionSubjectAreas")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubjectAreaRelevanceCoefficients")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("TrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TrackName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("GetReviewerAssignmentSuggestionSubmissionPartSPOs");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetReviewerSubmissionAggregationSPO", b =>
+                {
+                    b.Property<string>("Actions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CloneNo")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ReviewAssignmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RevisionRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedSubmissionSubjectAreas")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubmissionRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupplementaryMaterialRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TrackName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("GetReviewerSubmissionAggregationSPOs");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetSubmissionAggregationSPO", b =>
+                {
+                    b.Property<string>("Abstract")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Assigned")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AverageScore")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CameraReadyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CloneNo")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool?>("IsRequestedForCameraReady")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsRequestedForPresentation")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("LatestSubmissionCloneId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("Reviewed")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReviewerConflicts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SelectedAuthors")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedSubmissionSubjectAreas")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StatusId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("SubmissionConflicts")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TrackId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TrackName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("GetSubmissionAggregationSPOs");
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.GetSubmissionReviewerAssignmentSuggestionSPO", b =>
+                {
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsAssigned")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NumberOfAssignments")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Organization")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Quota")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SelectedReviewerConflicts")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedReviewerSubjectAreas")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SelectedSubmissionConflicts")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("GetSubmissionReviewerAssignmentSuggestionSPOs");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.Guideline", b =>
@@ -2495,10 +2764,16 @@ namespace Sras.PublicCoreflow.Migrations
                     b.Property<string>("Abstract")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CameraReadyRootFilePath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConferenceFullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConferenceShortName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CopyRightFilePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreationTime")
@@ -2512,6 +2787,9 @@ namespace Sras.PublicCoreflow.Migrations
 
                     b.Property<Guid?>("PaperId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PresentationRootFilePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RevisionRootFilePath")
                         .HasColumnType("nvarchar(max)");
@@ -2532,6 +2810,9 @@ namespace Sras.PublicCoreflow.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SubmittedRevisionNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SupplementaryMaterialRootFilePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -2697,6 +2978,14 @@ namespace Sras.PublicCoreflow.Migrations
                     b.HasIndex("ConferenceId");
 
                     b.ToTable("Tracks", (string)null);
+                });
+
+            modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.UpdateActivityTimelineSPO", b =>
+                {
+                    b.Property<int?>("Result")
+                        .HasColumnType("int");
+
+                    b.ToTable("UpdateActivityTimelineSPOs");
                 });
 
             modelBuilder.Entity("Sras.PublicCoreflow.ConferenceManagement.WebTemplate", b =>

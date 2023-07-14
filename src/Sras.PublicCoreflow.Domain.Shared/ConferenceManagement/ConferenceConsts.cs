@@ -12,6 +12,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public const int MaxShortNameLength = 50;
         public const int MaxCityLength = 100;
         public const int MaxCountryLength = 100;
+        public const int MaxTimeZoneLength = 512;
 
         public const int MaxConferenceUserEachPage = 50;
 

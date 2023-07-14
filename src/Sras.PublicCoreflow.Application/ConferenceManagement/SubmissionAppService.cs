@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
@@ -14,6 +16,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
 using Volo.Abp.Identity;
 using Volo.Abp.Users;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -36,14 +39,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IBlobContainer<SubmissionContainer> _submissionBlobContainer;
+        private readonly IBlobContainer<SupplementaryMaterialContainer> _supplementaryMaterialContainer;
         private readonly IBlobContainer<RevisionContainer> _revisionBlobContainer;
         private readonly IBlobContainer<CameraReadyContainer> _cameraReadyContainer;
+        private readonly IBlobContainer<CopyRightContainer> _copyRightContainer;
+        private readonly IBlobContainer<PresentationContainer> _presentationContainer;
 
         private const string AwaitingDecision = "Awaiting Decision";
         private const string Accept = "Accept";
         private const string BlobRoot = "host";
         private const string SubmissionBlobRoot = "sras-submissions";
+        private const string SupplementaryMaterialBlobRoot = "sras-supplementary-materials";
         private const string RevisionBlobRoot = "sras-revisions";
+        private const string CameraReadyBlobRoot = "sras-camera-readies";
+        private const string CopyRightBlobRoot = "sras-copyrights";
+        private const string PresentationBlobRoot = "sras-presentations";
 
         public SubmissionAppService(
             IRepository<Track, Guid> trackRepository,
@@ -63,8 +73,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
             IBlobContainer<SubmissionContainer> submissionBlobContainer,
+            IBlobContainer<SupplementaryMaterialContainer> supplementaryMaterialContainer,
             IBlobContainer<RevisionContainer> revisionBlobContainer,
-            IBlobContainer<CameraReadyContainer> cameraReadyContainer)
+            IBlobContainer<CameraReadyContainer> cameraReadyContainer,
+            IBlobContainer<CopyRightContainer> copyRightContainer,
+            IBlobContainer<PresentationContainer> presentationContainer)
         {
             _trackRepository = trackRepository;
             _paperStatusRepository = paperStatusRepository;
@@ -83,8 +96,11 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _submissionBlobContainer = submissionBlobContainer;
+            _supplementaryMaterialContainer = supplementaryMaterialContainer;
             _revisionBlobContainer = revisionBlobContainer;
             _cameraReadyContainer = cameraReadyContainer;
+            _copyRightContainer = copyRightContainer;
+            _presentationContainer = presentationContainer;
         }
 
         //public async Task SaveBytesAsync(byte[] bytes)
@@ -349,21 +365,21 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             };
         }
 
-        public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
-        {
-            var result = new SubmissionReviewerAssignmentSuggestionDto();
+        //public async Task<SubmissionReviewerAssignmentSuggestionDto> GetSubmissionReviewerAssignmentSuggestionAsync(Guid submissionId)
+        //{
+        //    var result = new SubmissionReviewerAssignmentSuggestionDto();
 
-            var data = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(submissionId);
+        //    var data = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(submissionId);
 
-            result.TrackId = data.TrackId;
-            result.TrackName = data.TrackName;
-            result.SubmissionId = data.SubmissionId;
-            result.SubmissionTitle = data.SubmissionTitle;
-            result.SubmissionSubjectAreas = data.SubmissionSubjectAreas;
-            result.Reviewers = new PagedResultDto<ReviewerWithFacts>(data.Reviewers.Count, data.Reviewers);
+        //    result.TrackId = data.TrackId;
+        //    result.TrackName = data.TrackName;
+        //    result.SubmissionId = data.SubmissionId;
+        //    result.SubmissionTitle = data.SubmissionTitle;
+        //    result.SubmissionSubjectAreas = data.SubmissionSubjectAreas;
+        //    result.Reviewers = new PagedResultDto<ReviewerWithFacts>(data.Reviewers.Count, data.Reviewers);
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public async Task<CreationResponseDto> CreateRevisionAsync(Guid submissionId, List<RemoteStreamContent> files)
         {
@@ -654,13 +670,13 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return response;
         }
 
-        public async Task<PagedResultDto<SubmissionAggregationDto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
+        public async Task<PagedResultDto<SubmissionAggregationV1Dto>> GetListSubmissionAggregationSP(string? inclusionText, Guid conferenceId, Guid? trackId, Guid? statusId, int skipCount, int maxResultCount)
         {
             var result = await _submissionRepository.GetListSubmissionAggregationSP(inclusionText, conferenceId, trackId, statusId, skipCount, maxResultCount);
 
-            var items = ObjectMapper.Map<List<SubmissionAggregationSP>, List<SubmissionAggregationDto>>(result);
+            var items = ObjectMapper.Map<List<SubmissionAggregationSP>, List<SubmissionAggregationV1Dto>>(result);
 
-            return new PagedResultDto<SubmissionAggregationDto>(result != null && result.Count > 0 && result[0] != null && result[0].TotalCount != null ? (long)result[0].TotalCount.Value : 0, items);
+            return new PagedResultDto<SubmissionAggregationV1Dto>(result != null && result.Count > 0 && result[0] != null && result[0].TotalCount != null ? (long)result[0].TotalCount.Value : 0, items);
         }
 
         //public async Task<byte[]> GetWebsiteFiles(Guid id)
@@ -734,19 +750,19 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             };
         }
 
-        private List<SubmissionSummaryAuthorDto>? GetListSubmissionSummaryAuthor(string? authorsStr)
+        private List<SubmissionAuthorDto>? GetListAggregationSubmissionAuthor(string? authorsStr)
         {
-            if (string.IsNullOrEmpty(authorsStr))
+            if (string.IsNullOrWhiteSpace(authorsStr))
                 return null;
 
             List<string> authors = authorsStr.Split(';').ToList();
-            List<SubmissionSummaryAuthorDto> authorList = new List<SubmissionSummaryAuthorDto>();
+            List<SubmissionAuthorDto> authorList = new List<SubmissionAuthorDto>();
 
             authors.ForEach(x =>
             {
                 List<string> authorFacts = x.Split('|').ToList();
 
-                authorList.Add(new SubmissionSummaryAuthorDto()
+                authorList.Add(new SubmissionAuthorDto()
                 {
                     AuthorEmail = authorFacts[0].IsNullOrWhiteSpace() ? null : authorFacts[0],
                     AuthorNamePrefix = authorFacts[1].IsNullOrWhiteSpace() ? null : authorFacts[1],
@@ -760,31 +776,31 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return authorList;
         }
 
-        private List<SubmissionSummarySubmissionSubjectAreaDto>? GetListSubmissionSummarySubmissionSubjectArea(string? submissionSubjectAreasStr)
+        private List<AggregationSubjectAreaDto>? GetListAggregationSubjectArea(string? aggregationSubjectAreasStr)
         {
-            if (string.IsNullOrEmpty(submissionSubjectAreasStr))
+            if (string.IsNullOrWhiteSpace(aggregationSubjectAreasStr))
                 return null;
 
-            List<string> subjectAreas = submissionSubjectAreasStr.Split(';').ToList();
-            List<SubmissionSummarySubmissionSubjectAreaDto> submissionSubjectAreaList = new List<SubmissionSummarySubmissionSubjectAreaDto>();
+            List<string> subjectAreas = aggregationSubjectAreasStr.Split(';').ToList();
+            List<AggregationSubjectAreaDto> aggregationSubjectAreasStrList = new List<AggregationSubjectAreaDto>();
 
             subjectAreas.ForEach(x =>
             {
                 List<string> subjectAreaFacts = x.Split('|').ToList();
 
-                submissionSubjectAreaList.Add(new SubmissionSummarySubmissionSubjectAreaDto()
+                aggregationSubjectAreasStrList.Add(new AggregationSubjectAreaDto()
                 {
                     SubjectAreaName = subjectAreaFacts[0].IsNullOrWhiteSpace() ? null : subjectAreaFacts[0],
                     IsPrimary = subjectAreaFacts[1].Equals("1")
                 });
             });
 
-            return submissionSubjectAreaList;
+            return aggregationSubjectAreasStrList;
         }
 
         private List<SubmissionSummarySubmissionConflictedIncumbentDto>? GetListSubmissionSummarySubmissionConflictedIncumbent(string? submissionConflictedIncumbentStr)
         {
-            if (string.IsNullOrEmpty(submissionConflictedIncumbentStr))
+            if (string.IsNullOrWhiteSpace(submissionConflictedIncumbentStr))
                 return null;
 
             List<string> submissionConflictedIncumbents = submissionConflictedIncumbentStr.Split(';').ToList();
@@ -824,6 +840,23 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             }
         }
 
+        private List<string>? GetSubmissionSummarySupplementaryMaterialFiles(string? supplementaryMaterialRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(supplementaryMaterialRootFilePath))
+                return null;
+
+            var supplementaryMaterialPath = string.Join("/", BlobRoot, SupplementaryMaterialBlobRoot, supplementaryMaterialRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(supplementaryMaterialPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         private List<string>? GetSubmissionSummaryRevisionFiles(string? revisionRootFilePath)
         {
             if (string.IsNullOrWhiteSpace(revisionRootFilePath))
@@ -834,6 +867,57 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             try
             {
                 return Directory.GetFiles(revisionPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetSubmissionSummaryCameraReadyFiles(string? cameraReadyRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(cameraReadyRootFilePath))
+                return null;
+
+            var cameraReadyPath = string.Join("/", BlobRoot, CameraReadyBlobRoot, cameraReadyRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(cameraReadyPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetSubmissionSummaryCopyRightFiles(string? copyRightFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(copyRightFilePath))
+                return null;
+
+            var copyRightPath = string.Join("/", BlobRoot, CopyRightBlobRoot, copyRightFilePath);
+
+            try
+            {
+                return Directory.GetFiles(copyRightPath).Select(x => Path.GetFileName(x)).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private List<string>? GetSubmissionSummaryPresentationFiles(string? presentationRootFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(presentationRootFilePath))
+                return null;
+
+            var presentationPath = string.Join("/", BlobRoot, PresentationBlobRoot, presentationRootFilePath);
+
+            try
+            {
+                return Directory.GetFiles(presentationPath).Select(x => Path.GetFileName(x)).ToList();
             }
             catch (Exception)
             {
@@ -858,17 +942,281 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                 Abstract = result.Abstract,
                 CreationTime = result.CreationTime,
                 LastModificationTime = result.LastModificationTime,
-                Authors = GetListSubmissionSummaryAuthor(result.SelectedAuthors),
-                SubjectAreas = GetListSubmissionSummarySubmissionSubjectArea(result.SelectedSubmissionSubjectAreas),
+                Authors = GetListAggregationSubmissionAuthor(result.SelectedAuthors),
+                SubjectAreas = GetListAggregationSubjectArea(result.SelectedSubmissionSubjectAreas),
                 DomainConflicts = result.DomainConflicts,
                 ConflictsOfInterest = GetListSubmissionSummarySubmissionConflictedIncumbent(result.SelectedSubmissionConflictedIncumbents),
                 SubmissionFiles = GetSubmissionSummarySubmissionFiles(result.SubmissionRootFilePath),
+                SupplementaryMaterialFiles = GetSubmissionSummarySupplementaryMaterialFiles(result.SupplementaryMaterialRootFilePath),
                 SubmittedRevisionNo = result.SubmittedRevisionNo,
                 RevisionFiles = GetSubmissionSummaryRevisionFiles(result.RevisionRootFilePath),
+                CameraReadyFiles = GetSubmissionSummaryCameraReadyFiles(result.CameraReadyRootFilePath),
+                CopyRightFiles = GetSubmissionSummaryCopyRightFiles(result.CopyRightFilePath),
+                PresentationFiles = GetSubmissionSummaryPresentationFiles(result.PresentationRootFilePath),
                 SubmissionQuestionsResponse = result.SubmissionQuestionsResponse
             };
 
             return summary;
+        }
+
+        public class SubjectAreaRow : AggregationSubjectAreaDto, IEquatable<SubjectAreaRow>
+        {
+            public bool Equals(SubjectAreaRow? other)
+            {
+                if (other is null || this.SubjectAreaName == null || other.SubjectAreaName == null)
+                    return false;
+
+                return
+                    this.SubjectAreaName.ToLower().Equals(other.SubjectAreaName.ToLower())
+                    && this.IsPrimary == other.IsPrimary;
+            }
+
+            public override bool Equals(object? obj) => Equals(obj as SubjectAreaRow);
+            public override int GetHashCode() => (SubjectAreaName, IsPrimary).GetHashCode();
+        }
+
+        private double Sigmoid(double value)
+        {
+            double k = Math.Exp(value);
+            return k / (1.0 + k);
+        }
+
+        private List<SubjectAreaRow> TransformListAggregationSubjectAreaDto(List<AggregationSubjectAreaDto>? aggregationSubjectAreaDtos)
+        {
+            List<SubjectAreaRow> subjectAreaRows = new List<SubjectAreaRow>();
+
+            if(aggregationSubjectAreaDtos != null && aggregationSubjectAreaDtos.Count != 0)
+            {
+                aggregationSubjectAreaDtos.ForEach(x =>
+                {
+                    subjectAreaRows.Add(new SubjectAreaRow
+                    {
+                        SubjectAreaName = x.SubjectAreaName,
+                        IsPrimary = x.IsPrimary
+                    });
+                });
+            }
+
+            return subjectAreaRows;
+        }
+
+        private double CalculateRelevance(
+            List<AggregationSubjectAreaDto> submissionSubjectAreas,
+            List<AggregationSubjectAreaDto> reviewerSubjectAreas,
+            SubjectAreaRelevanceCoefficients formula)
+        {
+            var subSaList = TransformListAggregationSubjectAreaDto(submissionSubjectAreas);
+            var revSaList = TransformListAggregationSubjectAreaDto(reviewerSubjectAreas);
+
+            var commonSaList = subSaList.Intersect(revSaList);
+
+            var ppcoef = commonSaList.Any(x => x.IsPrimary == true) ? 1 : 0;
+
+            var primarySubSa = submissionSubjectAreas?.FirstOrDefault(x => x.IsPrimary == true);
+            var spcoef = reviewerSubjectAreas.Any(x => !x.IsPrimary && x.SubjectAreaName.ToLower().Equals(primarySubSa?.SubjectAreaName.ToLower())) ? 1 : 0;
+
+            var primaryRevSa = reviewerSubjectAreas?.FirstOrDefault(x => x.IsPrimary == true);
+            var pscoef = submissionSubjectAreas.Any(x => !x.IsPrimary && x.SubjectAreaName.ToLower().Equals(primaryRevSa?.SubjectAreaName.ToLower())) ? 1 : 0;
+
+            var commonSecondarySaList = commonSaList.ToList();
+            commonSecondarySaList.RemoveAll(x => x.IsPrimary == true);
+
+            var sscoef = commonSecondarySaList.Count;
+
+            var temp = Sigmoid(sscoef);
+
+            if (formula.pp != null && formula.sp != null && formula.ps != null && formula.ss != null)
+            {
+                return Math.Round((double)(formula.pp * ppcoef + formula.sp * spcoef + formula.ps * pscoef
+                    + formula.ss * 2 * (Sigmoid(sscoef) - 0.5)), SubmissionConsts.NumberOfRelevanceScoreDigits);
+            }
+
+            return 0;
+        }
+
+        private List<string>? GetListAggregationConflict(string? aggregationConflictStr)
+        {
+            if (string.IsNullOrWhiteSpace(aggregationConflictStr))
+                return null;
+
+            List<string> conflicts = aggregationConflictStr.Split(';').ToList();
+
+            return conflicts;
+        }
+
+        public async Task<SubmissionReviewerAssignmentSuggestionDto?> GetSubmissionReviewerAssignmentSuggestionAsync(Guid id, SubmissionReviewerAssignmentSuggestionInput input)
+        {
+            SubmissionReviewerAssignmentSuggestionDto? result = null;
+
+            var foundSubmission = await _submissionRepository.GetReviewerAssignmentSuggestionSubmissionPart(id);
+            var foundReviewers = await _submissionRepository.GetSubmissionReviewerAssignmentSuggestionAsync(input.InclusionText, id, input.IsAssigned);
+
+            if (foundSubmission == null)
+                return null;
+
+            result = new SubmissionReviewerAssignmentSuggestionDto()
+            {
+                TrackId = foundSubmission.TrackId,
+                TrackName = foundSubmission.TrackName,
+                PaperId = foundSubmission.PaperId,
+                Title = foundSubmission.Title,
+                SubmissionSubjectAreas = GetListAggregationSubjectArea(foundSubmission.SelectedSubmissionSubjectAreas),
+                Reviewers = null
+            };
+
+            if (foundReviewers == null)
+                return result;
+
+            var relevanceFormula = foundSubmission.SubjectAreaRelevanceCoefficients == null ?
+                TrackConsts.DefaultSubjectAreaRelevanceCoefficients :
+                JsonSerializer.Deserialize<SubjectAreaRelevanceCoefficients>(foundSubmission.SubjectAreaRelevanceCoefficients);
+
+            List<ReviewerAssignmentSuggestionDto> reviewers = new List<ReviewerAssignmentSuggestionDto>();
+
+            foundReviewers.ForEach(x =>
+            {
+                var reviewerSubjectAreas = GetListAggregationSubjectArea(x.SelectedReviewerSubjectAreas);
+                var submissionConflicts = GetListAggregationConflict(x.SelectedSubmissionConflicts);
+                var reviewerConflicts = GetListAggregationConflict(x.SelectedReviewerConflicts);
+
+                var sortingFactor = 2;
+                if (submissionConflicts != null && reviewerConflicts != null)
+                {
+                    if (x.Quota != null && x.Quota - x.NumberOfAssignments <= 0)
+                        sortingFactor = 1;
+                    else
+                        sortingFactor = 0;
+                }
+
+                reviewers.Add(new ReviewerAssignmentSuggestionDto()
+                {
+                    ReviewerId = x.ReviewerId,
+                    FullName = x.FullName,
+                    FirstName = x.FirstName,
+                    MiddleName = x.MiddleName,
+                    LastName = x.LastName,
+                    Email = x.Email,
+                    Organization = x.Organization,
+                    SubmissionConflicts = submissionConflicts,
+                    ReviewerConflicts = reviewerConflicts,
+                    ReviewerSubjectAreas = reviewerSubjectAreas,
+                    Quota = x.Quota,
+                    IsAssigned = x.IsAssigned,
+                    NumberOfAssignments = x.NumberOfAssignments,
+                    Relevance = CalculateRelevance(
+                        result.SubmissionSubjectAreas ?? new List<AggregationSubjectAreaDto>(),
+                        reviewerSubjectAreas ?? new List<AggregationSubjectAreaDto>(),
+                        relevanceFormula ?? TrackConsts.DefaultSubjectAreaRelevanceCoefficients),
+                    SortingFactor = sortingFactor
+                });
+            });
+
+            var orderedReviewers = reviewers.OrderBy(x => x.SortingFactor).ThenBy(x => -x.Relevance).ToList();
+
+            PagedResultDto<ReviewerAssignmentSuggestionDto> resultReviewers = new PagedResultDto<ReviewerAssignmentSuggestionDto>(orderedReviewers.Count, 
+                orderedReviewers.Skip(input.SkipCount ?? 0).Take(input.MaxResultCount ?? PublicCoreflowConsts.DefaultMaxResultCount).ToList());
+
+            result.Reviewers = resultReviewers;
+
+            return result;
+        }
+
+        public async Task<PagedResultDto<SubmissionAggregationDto>?> GetTopAverageScoreSubmissionAggregationAsync(SubmissionAggregationInput input)
+        {
+            var foundItems = await _submissionRepository.GetTopAverageScoreSubmissionAggregationAsync
+                (
+                    input.InclusionText,
+                    input.ConferenceId,
+                    input.TrackId,
+                    input.StatusId,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var count = (long)foundItems.First().TotalCount.Value;
+
+            List<SubmissionAggregationDto> items = new List<SubmissionAggregationDto>();
+
+            foundItems.ForEach(x =>
+            {
+                items.Add(new SubmissionAggregationDto()
+                {
+                    PaperId = x.Id,
+                    Title = x.Title,
+                    Abstract = x.Abstract,
+                    Authors = GetListAggregationSubmissionAuthor(x.SelectedAuthors),
+                    SubjectAreas = GetListAggregationSubjectArea(x.SelectedSubmissionSubjectAreas),
+                    TrackId = x.TrackId,
+                    TrackName = x.TrackName,
+                    SubmissionConflicts = x.SubmissionConflicts,
+                    ReviewerConflicts = x.ReviewerConflicts,
+                    Assigned = x.Assigned,
+                    Reviewed = x.Reviewed,
+                    AverageScore = x.AverageScore,
+                    StatusId = x.StatusId,
+                    Status = x.Status,
+                    RevisionSubmitted = x.CloneNo == null ? null : x.LatestSubmissionCloneId != null,
+                    RevisionNo = x.CloneNo,
+                    IsRequestedForCameraReady = x.IsRequestedForCameraReady,
+                    CameraReadySubmitted = x.CameraReadyId == null && x.IsRequestedForCameraReady == false ? null : x.CameraReadyId != null,
+                    IsRequestedForPresentation = x.IsRequestedForPresentation
+                });
+            });
+
+            return new PagedResultDto<SubmissionAggregationDto>(count, items);
+        }
+
+        public async Task<PagedResultDto<SubmissionAggregationDto>?> GetTopTimeSubmissionAggregationAsync(SubmissionAggregationInput input)
+        {
+            var foundItems = await _submissionRepository.GetTopTimeSubmissionAggregationAsync
+                (
+                    input.InclusionText,
+                    input.ConferenceId,
+                    input.TrackId,
+                    input.StatusId,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var count = (long)foundItems.First().TotalCount.Value;
+
+            List<SubmissionAggregationDto> items = new List<SubmissionAggregationDto>();
+
+            foundItems.ForEach(x =>
+            {
+                items.Add(new SubmissionAggregationDto()
+                {
+                    PaperId = x.Id,
+                    Title = x.Title,
+                    Abstract = x.Abstract,
+                    Authors = GetListAggregationSubmissionAuthor(x.SelectedAuthors),
+                    SubjectAreas = GetListAggregationSubjectArea(x.SelectedSubmissionSubjectAreas),
+                    TrackId = x.TrackId,
+                    TrackName = x.TrackName,
+                    SubmissionConflicts = x.SubmissionConflicts,
+                    ReviewerConflicts = x.ReviewerConflicts,
+                    Assigned = x.Assigned,
+                    Reviewed = x.Reviewed,
+                    AverageScore = x.AverageScore,
+                    StatusId = x.StatusId,
+                    Status = x.Status,
+                    RevisionSubmitted = x.CloneNo == null ? null : x.LatestSubmissionCloneId != null,
+                    RevisionNo = x.CloneNo,
+                    IsRequestedForCameraReady = x.IsRequestedForCameraReady,
+                    CameraReadySubmitted = x.CameraReadyId == null && x.IsRequestedForCameraReady == false ? null : x.CameraReadyId != null,
+                    IsRequestedForPresentation = x.IsRequestedForPresentation
+                });
+            });
+
+            return new PagedResultDto<SubmissionAggregationDto>(count, items);
         }
     }
 }

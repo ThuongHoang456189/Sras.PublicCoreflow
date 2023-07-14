@@ -13,14 +13,19 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics.Metrics;
 using Sras.PublicCoreflow.Dto;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class ConferenceRepository : EfCoreRepository<PublicCoreflowDbContext, Conference, Guid>, IConferenceRepository
     {
-        public ConferenceRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
-        {
+        private readonly IClock _clock;
 
+        public ConferenceRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IClock clock) : base(dbContextProvider)
+        {
+            _clock = clock;
         }
 
         private bool IsInclusivelyMatched(ConferenceWithBriefInfo conference, string inclusionText)
@@ -261,6 +266,27 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
                 c.Logo,
                 c.FullName
             }).First();
+        }
+
+        public async Task UpdateActivityTimelineAsync()
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                }
+            };
+
+            dbContext.Set<UpdateActivityTimelineSPO>().FromSqlRaw(@"
+            EXECUTE [dbo].UpdateActivityTimeline @UTCNowStr", sqlParameters.ToArray()).ToList();
+
+            await Task.CompletedTask;
         }
     }
 }

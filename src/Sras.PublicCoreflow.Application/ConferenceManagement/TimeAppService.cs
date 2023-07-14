@@ -1,76 +1,70 @@
-﻿using Scriban.Parsing;
-using Sras.PublicCoreflow.BlobContainer;
-using Sras.PublicCoreflow.Dto;
+﻿using Microsoft.Extensions.Configuration;
+using Sras.PublicCoreflow.DateProvider;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Volo.Abp;
-using Volo.Abp.BlobStoring;
-using Volo.Abp.Content;
-using Volo.Abp.Guids;
-using Volo.Abp.Users;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
     public class TimeAppService : PublicCoreflowAppService, ITimeAppService
     {
-        private readonly IGuidGenerator _guidGenerator;
+        private readonly IClock _clock;
+        private readonly ITimezoneProvider _timezoneProvider;
+        private readonly IConfiguration _configuration;
+        private readonly ISrasBackgroundAppService _srasBackgroundAppService;
 
-        public TimeAppService(IGuidGenerator guidGenerator)
+        public TimeAppService(IClock clock, ITimezoneProvider timezoneProvider, IConfiguration configuration, ISrasBackgroundAppService srasBackgroundAppService)
         {
-            _guidGenerator = guidGenerator;
+            _clock = clock;
+            _timezoneProvider = timezoneProvider;
+            _configuration = configuration;
+            _srasBackgroundAppService = srasBackgroundAppService;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SYSTEMTIME
+        public DateTime GetNow()
         {
-            public short wYear;
-            public short wMonth;
-            public short wDayOfWeek;
-            public short wDay;
-            public short wHour;
-            public short wMinute;
-            public short wSecond;
-            public short wMilliseconds;
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
         }
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool SetSystemTime(ref SYSTEMTIME st);
-
-        public string ChangeSystemTime(string newDate)
+        public async Task<DateTime> SetNow(DateTime now)
         {
-                // Set the desired new system time
-                SYSTEMTIME st = new SYSTEMTIME
-                {
-                    wYear = 2009,
-                    wMonth = 1,
-                    wDay = 1,
-                    wHour = 0,
-                    wMinute = 0,
-                    wSecond = 0
-                };
 
-                // Call the SetSystemTime function to change the system time
-                bool success = SetSystemTime(ref st);
+            try
+            {
+                var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
 
-                if (success)
-                {
-                    return  "System time changed successfully.";
-                }
-                else
-                {
-                    return "Failed to change the system time.";
-                }
+                now = DateTime.SpecifyKind(now, DateTimeKind.Unspecified);
+
+                var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+                SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+                // background running
+                await _srasBackgroundAppService.UpdateActivityTimelineAsync();
+
+                return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
+            return now;
         }
 
+        public DateTime Reset()
+        {
+            var timezone = _timezoneProvider.GetTimeZoneInfo(_configuration["TimeZones:Default"]);
+
+            var now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+
+            var UTCNow = TimeZoneInfo.ConvertTimeToUtc(now, timezone);
+
+            SimulationDateTimeOffset.OffSetFromNow = UTCNow.ToUniversalTime() - DateTime.UtcNow;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(_clock.Now, timezone);
+        }
     }
 }

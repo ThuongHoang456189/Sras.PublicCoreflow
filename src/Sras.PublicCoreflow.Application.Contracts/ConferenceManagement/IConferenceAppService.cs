@@ -26,5 +26,6 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<object> GetConferenceAccountByAccIdConfId(Guid accId, Guid conferenceId);
         Task<IEnumerable<object>> GetConferencesWithNavbarStatus();
         Task<object> UpdateConferenceLogo(Guid conferenceId, string logo);
+        Task<PagedResultDto<ConferenceUserDto>?> GetListConferenceUserAsync(Guid id, ConferenceUserInput input);
     }
 }

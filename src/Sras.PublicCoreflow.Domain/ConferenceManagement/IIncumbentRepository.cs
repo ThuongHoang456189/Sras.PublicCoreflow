@@ -18,5 +18,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         Task<List<AuthorOperation>> GetAuthorOperationTableAsync(Guid conferenceId, Guid trackId, List<AuthorInput> authors);
 
         //Task<Incumbent?> FindAsync(Guid accountId, Guid conferenceId, Guid trackId);
+        Task<List<GetConferenceUserSPO>?> GetListConferenceUserAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid? conferenceRoleId,
+            int skipCount,
+            int maxResultCount);
     }
 }

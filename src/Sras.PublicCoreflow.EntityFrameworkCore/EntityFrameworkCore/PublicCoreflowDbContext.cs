@@ -88,6 +88,13 @@ public class PublicCoreflowDbContext :
     public DbSet<ResearcherProfile> ResearcherProfiles { get; set; }
     public virtual DbSet<SubmissionAggregationSP> SubmissionAggregationSPs { get; set; }
     public virtual DbSet<SubmissionSummarySPO> SubmissionSummarySPOs { get; set; }
+    public virtual DbSet<UpdateActivityTimelineSPO> UpdateActivityTimelineSPOs { get; set; }
+    public virtual DbSet<GetAuthorSubmissionAggregationSPO> GetAuthorSubmissionAggregationSPOs { get; set; }
+    public virtual DbSet<GetReviewerSubmissionAggregationSPO> GetReviewerSubmissionAggregationSPOs { get; set; }
+    public virtual DbSet<GetSubmissionAggregationSPO> GetSubmissionAggregationSPOs { get; set; }
+    public virtual DbSet<GetSubmissionReviewerAssignmentSuggestionSPO> GetSubmissionReviewerAssignmentSuggestionSPOs { get; set; }
+    public virtual DbSet<GetReviewerAssignmentSuggestionSubmissionPartSPO> GetReviewerAssignmentSuggestionSubmissionPartSPOs { get; set; }
+    public virtual DbSet<GetConferenceUserSPO> GetConferenceUserSPOs { get; set; }
     #endregion
 
     public PublicCoreflowDbContext(DbContextOptions<PublicCoreflowDbContext> options)
@@ -143,6 +150,12 @@ public class PublicCoreflowDbContext :
 
             b.Property(x => x.Country)
             .HasMaxLength(ConferenceConsts.MaxCountryLength);
+
+            b.Property(x => x.TimeZoneId)
+            .HasMaxLength(ConferenceConsts.MaxTimeZoneLength);
+
+            b.Property(x => x.TimeZone)
+            .HasMaxLength(ConferenceConsts.MaxTimeZoneLength);
         });
 
         builder.Entity<ConferenceAccount>(b =>
@@ -585,6 +598,41 @@ public class PublicCoreflowDbContext :
         });
 
         builder.Entity<SubmissionSummarySPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<UpdateActivityTimelineSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetAuthorSubmissionAggregationSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetReviewerSubmissionAggregationSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetSubmissionAggregationSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetSubmissionReviewerAssignmentSuggestionSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetReviewerAssignmentSuggestionSubmissionPartSPO>(b =>
+        {
+            b.HasNoKey();
+        });
+
+        builder.Entity<GetConferenceUserSPO>(b =>
         {
             b.HasNoKey();
         });

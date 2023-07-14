@@ -12,6 +12,8 @@ using Volo.Abp.Identity;
 using Volo.Abp.Users;
 using Volo.Abp;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.ConferenceManagement
 {
@@ -26,6 +28,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         private readonly ICurrentUser _currentUser;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IdentityUserAppService _userAppService;
+        private readonly IConfiguration _configuration;
+        private readonly ITimezoneProvider _timezoneProvider;
 
         private const string Chair = "Chair";
         private const string DefaultTrackName = "__";
@@ -39,7 +43,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IIncumbentRepository incumbentRepository,
             ICurrentUser currentUser,
             IGuidGenerator guidGenerator,
-            IdentityUserAppService userAppService)
+            IdentityUserAppService userAppService,
+            IConfiguration configuration,
+            ITimezoneProvider timezoneProvider)
         {
             _conferenceRepository = conferenceRepository;
             _userRepository = userRepository;
@@ -50,6 +56,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             _currentUser = currentUser;
             _guidGenerator = guidGenerator;
             _userAppService = userAppService;
+            _configuration = configuration;
+            _timezoneProvider = timezoneProvider;
         }
 
         private async Task<bool> IsConferenceExist(ConferenceWithDetailsInput input)
@@ -97,7 +105,9 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             var conference = new Conference(conferenceId,
                     input.FullName, input.ShortName, input.City,
                     input.Country, input.StartDate, input.EndDate,
-                    input.WebsiteLink, null, null, input.Logo ?? "logotemp1", input.IsSingleTrack);
+                    input.WebsiteLink, null, null, input.Logo ?? "", input.IsSingleTrack,
+                    _timezoneProvider.GetTimeZoneInfo(string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone).Id,
+                    string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 
@@ -429,5 +439,52 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             return await _conferenceRepository.UpdateConferenceLogo(conferenceId, logo);
         }
 
+
+        private List<string>? GetListRole(string? aggregationRoleStr)
+        {
+            if (string.IsNullOrWhiteSpace(aggregationRoleStr))
+                return null;
+
+            return aggregationRoleStr.Split(';').ToList();
+        }
+
+        public async Task<PagedResultDto<ConferenceUserDto>?> GetListConferenceUserAsync(Guid id, ConferenceUserInput input)
+        {
+            var foundItems = await _incumbentRepository.GetListConferenceUserAsync
+                (
+                    input.InclusionText,
+                    id,
+                    input.TrackId,
+                    input.ConferenceRoleId,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var count = (long)foundItems.First().TotalCount.Value;
+
+            List<ConferenceUserDto> items = new List<ConferenceUserDto>();
+
+            foundItems.ForEach(x =>
+            {
+                items.Add(new ConferenceUserDto()
+                {
+                    ConferenceAccountId = x.ConferenceAccountId,
+                    AccountId = x.AccountId,
+                    FirstName = x.FirstName,
+                    MiddleName = x.MiddleName,
+                    LastName = x.LastName,
+                    Email = x.Email,
+                    Organization = x.Organization,
+                    Country = x.Country,
+                    Roles = GetListRole(x.SelectedRoles)
+                });
+            });
+
+            return new PagedResultDto<ConferenceUserDto>(count, items);
+        }
     }
 }

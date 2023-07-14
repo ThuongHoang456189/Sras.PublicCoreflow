@@ -7,6 +7,9 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
+using System;
+using Volo.Abp.Timing;
+using Volo.Abp.BackgroundWorkers;
 
 namespace Sras.PublicCoreflow;
 
@@ -18,29 +21,35 @@ namespace Sras.PublicCoreflow;
     typeof(AbpPermissionManagementApplicationModule),
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule),
-    typeof(AbpBlobStoringModule)
+    typeof(AbpBlobStoringModule),
+    typeof(AbpBackgroundWorkersModule),
+    typeof(AbpBlobStoringFileSystemModule)
     )]
-    [DependsOn(typeof(AbpBlobStoringFileSystemModule))]
     public class PublicCoreflowApplicationModule : AbpModule
-{
-    public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        Configure<AbpAutoMapperOptions>(options =>
-        {
-            options.AddMaps<PublicCoreflowApplicationModule>();
-        });
 
-        Configure<AbpBlobStoringOptions>(options =>
+        public override void ConfigureServices(ServiceConfigurationContext context)
         {
-            options.Containers.ConfigureDefault(container =>
+            Configure<AbpAutoMapperOptions>(options =>
             {
-                container.UseFileSystem(fileSystem =>
+                options.AddMaps<PublicCoreflowApplicationModule>();
+            });
+
+            Configure<AbpBlobStoringOptions>(options =>
+            {
+                options.Containers.ConfigureDefault(container =>
                 {
-                    fileSystem.BasePath = ".";
-                    fileSystem.AppendContainerNameToBasePath = true;
+                    container.UseFileSystem(fileSystem =>
+                    {
+                        fileSystem.BasePath = ".";
+                        fileSystem.AppendContainerNameToBasePath = true;
+                    });
                 });
             });
-        });
 
+            Configure<AbpClockOptions>(options =>
+            {
+                options.Kind = DateTimeKind.Utc;
+            });
+        }
     }
-}
