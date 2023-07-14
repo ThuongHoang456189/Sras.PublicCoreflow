@@ -11,15 +11,21 @@ using Volo.Abp.Identity;
 using Volo.Abp;
 using System.Text.Json;
 using static Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement.SubmissionRepository;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Volo.Abp.Timing;
 
 namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 {
     public class ReviewerRepository : EfCoreRepository<PublicCoreflowDbContext, Reviewer, Guid>, IReviewerRepository
     {
+        private readonly IClock _clock;
+
         private const string Reviewer = "Reviewer";
 
-        public ReviewerRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider) : base(dbContextProvider)
+        public ReviewerRepository(IDbContextProvider<PublicCoreflowDbContext> dbContextProvider, IClock clock) : base(dbContextProvider)
         {
+            _clock = clock;
         }
 
         public async Task<Reviewer?> FindAsync(Guid accountId, Guid conferenceId, Guid trackId)
@@ -330,6 +336,90 @@ namespace Sras.PublicCoreflow.EntityFrameworkCore.ConferenceManagement
 
             // xuat theo danh sach dau cua cac submission
             return submissionList;
+        }
+
+        public async Task<List<GetReviewerReviewingInformationAggregationSPO>?> GetReviewerReviewingInformationAggregationAsync(
+            string? inclusionText,
+            Guid conferenceId,
+            Guid? trackId,
+            Guid accountId,
+            string? sorting,
+            bool? sortedAsc,
+            int skipCount,
+            int maxResultCount)
+        {
+            var dbContext = await GetDbContextAsync();
+
+            var sqlParameters = new List<SqlParameter>
+            {
+                new SqlParameter() {
+                    ParameterName = "@UTCNowStr",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 20,
+                    Direction = ParameterDirection.Input,
+                    Value = _clock.Now.ToString("yyyy-MM-ddTHH:mm:ss")
+                },
+                new SqlParameter() {
+                    ParameterName = "@InclusionText",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Size = 1024,
+                    Direction = ParameterDirection.Input,
+                    Value = inclusionText == null || string.IsNullOrWhiteSpace(inclusionText) ? DBNull.Value : inclusionText.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@ConferenceId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = conferenceId
+                },
+                new SqlParameter() {
+                    ParameterName = "@TrackId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = trackId == null ? DBNull.Value : trackId
+                },
+                new SqlParameter() {
+                    ParameterName = "@AccountId",
+                    SqlDbType = SqlDbType.UniqueIdentifier,
+                    Direction = ParameterDirection.Input,
+                    Value = accountId
+                },
+                new SqlParameter() {
+                    ParameterName = "@Sorting",
+                    SqlDbType = SqlDbType.VarChar,
+                    Size = 128,
+                    Direction = ParameterDirection.Input,
+                    Value = sorting == null || string.IsNullOrWhiteSpace(sorting) ? DBNull.Value : sorting.Trim()
+                },
+                new SqlParameter() {
+                    ParameterName = "@SortedAsc",
+                    SqlDbType = SqlDbType.Bit,
+                    Direction = ParameterDirection.Input,
+                    Value = sortedAsc == null ? DBNull.Value : sortedAsc
+                },
+                new SqlParameter() {
+                    ParameterName = "@SkipCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = skipCount
+                },
+                new SqlParameter() {
+                    ParameterName = "@MaxResultCount",
+                    SqlDbType = SqlDbType.Int,
+                    Direction = ParameterDirection.Input,
+                    Value = maxResultCount
+                }
+            };
+
+            var resultList = await dbContext.Set<GetReviewerReviewingInformationAggregationSPO>().FromSqlRaw(@"
+                EXECUTE [dbo].GetReviewerReviewingInformationAggregation @UTCNowStr, @InclusionText, @ConferenceId, @TrackId, @AccountId, @Sorting, @SortedAsc, @SkipCount, @MaxResultCount", sqlParameters.ToArray()).ToListAsync();
+
+            if (resultList.Count > 0)
+            {
+                return resultList;
+            }
+
+            return null;
         }
     }
 }

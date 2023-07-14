@@ -107,7 +107,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
                     input.Country, input.StartDate, input.EndDate,
                     input.WebsiteLink, null, null, input.Logo ?? "", input.IsSingleTrack,
                     _timezoneProvider.GetTimeZoneInfo(string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone).Id,
-                    string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone);
+                    string.IsNullOrWhiteSpace(input.TimeZone) ? _configuration["TimeZones:Default"] : input.TimeZone, false);
 
             //var chairRole = await _conferenceRoleRepository.FindAsync(x => x.Name.EqualsIgnoreCase("chair"));
 

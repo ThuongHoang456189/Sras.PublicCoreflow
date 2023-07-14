@@ -23,6 +23,7 @@ namespace Sras.PublicCoreflow.ConferenceManagement
         public bool IsSingleTrack { get; set; } = true;
         public string? TimeZoneId { get; set; }
         public string? TimeZone { get; set; }
+        public bool IsFinished { get; set; }
         
         public ICollection<ConferenceAccount> ConferenceAccounts { get; private set; }
         public ICollection<PaperStatus> PaperStatuses { get; private set; }
@@ -41,7 +42,8 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             string logo,
             bool isSingleTrack,
             string? timeZoneId,
-            string? timeZone)
+            string? timeZone,
+            bool isFinished)
             : base(id)
         {
             SetFullName(fullName);
@@ -57,11 +59,12 @@ namespace Sras.PublicCoreflow.ConferenceManagement
             IsSingleTrack = isSingleTrack;
             TimeZoneId = timeZoneId;
             TimeZone = timeZone;
+            IsFinished = isFinished;
 
             ConferenceAccounts = new Collection<ConferenceAccount>();
             PaperStatuses = new Collection<PaperStatus>();
             Tracks = new Collection<Track>();
-            
+            IsFinished = isFinished;
         }
 
         public Conference SetFullName(string fullName)

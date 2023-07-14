@@ -499,5 +499,85 @@ namespace Sras.PublicCoreflow.ConferenceManagement
 
             return new PagedResultDto<ReviewerSubmissionAggregationDto>(count, items);
         }
+
+        private List<AggregationSubjectAreaDto>? GetListAggregationSubjectArea(string? aggregationSubjectAreasStr)
+        {
+            if (string.IsNullOrWhiteSpace(aggregationSubjectAreasStr))
+                return null;
+
+            List<string> subjectAreas = aggregationSubjectAreasStr.Split(';').ToList();
+            List<AggregationSubjectAreaDto> aggregationSubjectAreasStrList = new List<AggregationSubjectAreaDto>();
+
+            subjectAreas.ForEach(x =>
+            {
+                List<string> subjectAreaFacts = x.Split('|').ToList();
+
+                aggregationSubjectAreasStrList.Add(new AggregationSubjectAreaDto()
+                {
+                    SubjectAreaName = subjectAreaFacts[0].IsNullOrWhiteSpace() ? null : subjectAreaFacts[0],
+                    IsPrimary = subjectAreaFacts[1].Equals("1")
+                });
+            });
+
+            return aggregationSubjectAreasStrList;
+        }
+
+        public async Task<ReviewerReviewingInformationAggregationDto?> GetReviewerReviewingInformationAggregationAsync(ReviewerReviewingInformationAggregationInput input)
+        {
+            var foundItems = await _reviewerRepository.GetReviewerReviewingInformationAggregationAsync
+                (
+                    input.InclusionText,
+                    input.ConferenceId,
+                    input.TrackId,
+                    input.AccountId,
+                    input.Sorting,
+                    input.SortedAsc,
+                    input.SkipCount == null ? 0 : input.SkipCount.Value,
+                    input.MaxResultCount == null ? PublicCoreflowConsts.DefaultMaxResultCount : input.MaxResultCount.Value
+                );
+
+            // process output
+            if (foundItems == null || foundItems.Count == 0)
+                return null;
+
+            var firstItem = foundItems.First();
+
+            var count = (long)firstItem.TotalCount.Value;
+
+            ReviewerBriefInformationDto reviewer = new ReviewerBriefInformationDto()
+            {
+                AccountId = firstItem.AccountId,
+                NamePrefix = firstItem.NamePrefix,
+                FirstName = firstItem.FirstName,
+                MiddleName = firstItem.MiddleName,
+                LastName = firstItem.LastName,
+                Email = firstItem.Email,
+                Organization = firstItem.Organization,
+                Country = firstItem.Country,
+                DomainConflicts = firstItem.DomainConflicts
+            };
+
+            List<ReviewingInformationAggregationDto> reviewingFacts = new List<ReviewingInformationAggregationDto>();
+
+            foundItems.ForEach(x =>
+            {
+                reviewingFacts.Add(new ReviewingInformationAggregationDto()
+                {
+                    ConferenceId = x.ConferenceId,
+                    ConferenceFullName = x.ConferenceFullName,
+                    ConferenceShortName = x.ConferenceShortName,
+                    TrackId = x.TrackId,
+                    TrackName = x.TrackName,
+                    ReviewerId = x.ReviewerId,
+                    SubjectAreas = GetListAggregationSubjectArea(x.SelectedReviewerSubjectAreas)
+                });
+            });
+
+            return new ReviewerReviewingInformationAggregationDto()
+            {
+                Reviewer = reviewer,
+                ReviewingFacts = new PagedResultDto<ReviewingInformationAggregationDto>(count, reviewingFacts)
+            };
+        }
     }
 }

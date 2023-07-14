@@ -115,10 +115,10 @@ namespace Sras.PublicCoreflow.Migrations
 						case
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Deadline'
-							then concat('DeleteSubmission','|','Edit Conflicts')
+							then concat('DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Edits Deadline'
-							then concat('EditSubmission','|','DeleteSubmission','|','Edit Conflicts')
+							then concat('EditSubmission','|','DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Supplementary Material Deadline'
 								and SelectedSubmissionAttachments.RootSupplementaryMaterialFilePath is null
@@ -431,10 +431,10 @@ namespace Sras.PublicCoreflow.Migrations
 						case
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Deadline'
-							then concat('DeleteSubmission','|','Edit Conflicts')
+							then concat('DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Edits Deadline'
-							then concat('EditSubmission','|','DeleteSubmission','|','Edit Conflicts')
+							then concat('EditSubmission','|','DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Supplementary Material Deadline'
 								and SelectedSubmissionAttachments.RootSupplementaryMaterialFilePath is null
@@ -747,10 +747,10 @@ namespace Sras.PublicCoreflow.Migrations
 						case
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Deadline'
-							then concat('DeleteSubmission','|','Edit Conflicts')
+							then concat('DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Submission Edits Deadline'
-							then concat('EditSubmission','|','DeleteSubmission','|','Edit Conflicts')
+							then concat('EditSubmission','|','DeleteSubmission','|','EditConflicts')
 							when 
 								SelectedInfoPartLatestSubmissionCloneSubmission.DeadlineName like 'Supplementary Material Deadline'
 								and SelectedSubmissionAttachments.RootSupplementaryMaterialFilePath is null
